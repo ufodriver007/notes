@@ -31,7 +31,7 @@ https://api.telegram.org/bot<token>/<method>
 
 Например:
 ```
-https://api.telegram.org/bot5588819648:AAFFt8LyIdI337y9Uv2iG3bj7lO7vbMG85E/getMe
+https://api.telegram.org/bot1234567890:ASDF12345678qwerty/getMe
 ```
 
 Возвращает json. Некоторые методы:

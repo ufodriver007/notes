@@ -83,3 +83,4 @@ from aiogram.filters import CommandStart
 @dp.message(CommandStart())
 ```
 
+Фильтр текста

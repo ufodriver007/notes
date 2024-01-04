@@ -14,7 +14,19 @@
               "type": "markdown",
               "state": {
                 "file": "Telegram Bot.md",
-                "mode": "source",
+                "mode": "preview",
+                "source": true
+              }
+            }
+          },
+          {
+            "id": "b377fc9aa735eca0",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "Telegram Bot.md",
+                "mode": "preview",
                 "source": true
               }
             }
@@ -148,13 +160,14 @@
   },
   "active": "828f2a74257047a1",
   "lastOpenFiles": [
+    "files/Pasted image 20240104211243.png",
+    "Python.md",
+    "Парсинг.md",
+    "Telegram Bot.md",
+    "_Obsidian.md",
     "Git.md",
     "Docker.md",
-    "Telegram Bot.md",
-    "Python.md",
     "OOP.md",
-    "Парсинг.md",
-    "_Obsidian.md",
     "files/basics_middleware.webp",
     "Django.md",
     "files/Pasted image 20240104135335.png",

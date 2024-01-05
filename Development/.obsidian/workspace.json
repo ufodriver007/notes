@@ -8,30 +8,67 @@
         "type": "tabs",
         "children": [
           {
-            "id": "828f2a74257047a1",
+            "id": "b377fc9aa735eca0",
             "type": "leaf",
             "state": {
               "type": "markdown",
               "state": {
-                "file": "Telegram Bot.md",
+                "file": "_Obsidian.md",
                 "mode": "source",
                 "source": true
               }
             }
           },
           {
-            "id": "b377fc9aa735eca0",
+            "id": "1add0069d54c184b",
             "type": "leaf",
             "state": {
               "type": "markdown",
               "state": {
-                "file": "Telegram Bot.md",
+                "file": "Web.md",
+                "mode": "preview",
+                "source": true
+              }
+            }
+          },
+          {
+            "id": "e8a9ee5d92603f12",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "Web.md",
+                "mode": "preview",
+                "source": true
+              }
+            }
+          },
+          {
+            "id": "a2949b9806821a13",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "PEP8.md",
+                "mode": "preview",
+                "source": true
+              }
+            }
+          },
+          {
+            "id": "93a35dca9249cd25",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "SQL и PostgreSQL.md",
                 "mode": "preview",
                 "source": true
               }
             }
           }
-        ]
+        ],
+        "currentTab": 4
       }
     ],
     "direction": "vertical"
@@ -97,7 +134,7 @@
             "state": {
               "type": "backlink",
               "state": {
-                "file": "Telegram Bot.md",
+                "file": "SQL и PostgreSQL.md",
                 "collapseAll": false,
                 "extraContext": false,
                 "sortOrder": "alphabetical",
@@ -114,7 +151,7 @@
             "state": {
               "type": "outgoing-link",
               "state": {
-                "file": "Telegram Bot.md",
+                "file": "SQL и PostgreSQL.md",
                 "linksCollapsed": false,
                 "unlinkedCollapsed": true
               }
@@ -137,7 +174,7 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "Telegram Bot.md"
+                "file": "SQL и PostgreSQL.md"
               }
             }
           }
@@ -158,13 +195,20 @@
       "command-palette:Открыть палитру команд": false
     }
   },
-  "active": "828f2a74257047a1",
+  "active": "93a35dca9249cd25",
   "lastOpenFiles": [
+    "files/postgresql_logo.png",
+    "PEP8.md",
+    "SQL и PostgreSQL.md",
+    "Web.md",
+    "_Obsidian.md",
+    "Деплой.md",
+    "Парсинг.md",
+    "RegEx.md",
+    "files/Regex.webp",
+    "Telegram Bot.md",
     "files/Pasted image 20240104211243.png",
     "Python.md",
-    "Парсинг.md",
-    "Telegram Bot.md",
-    "_Obsidian.md",
     "Git.md",
     "Docker.md",
     "OOP.md",
@@ -179,8 +223,6 @@
     "files/2023-12-19_08-37.png",
     "files/Pasted image 20231217171004.jpg",
     "files/Pasted image 20231217180638.png",
-    "files/Pasted image 20231219081151.png",
-    "files/Pasted image 20231219034033.png",
     "2023-12-17.md",
     "files"
   ]

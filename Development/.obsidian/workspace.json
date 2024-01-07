@@ -20,31 +20,19 @@
             }
           },
           {
-            "id": "6fb7f464c6ab3b18",
+            "id": "a26e679518850846",
             "type": "leaf",
             "state": {
               "type": "markdown",
               "state": {
-                "file": "Парсинг.md",
+                "file": "Математика. Комбинаторика и Теор.вер..md",
                 "mode": "preview",
-                "source": true
-              }
-            }
-          },
-          {
-            "id": "1fb3999ad521195f",
-            "type": "leaf",
-            "state": {
-              "type": "markdown",
-              "state": {
-                "file": "Структуры данных.md",
-                "mode": "source",
                 "source": true
               }
             }
           }
         ],
-        "currentTab": 2
+        "currentTab": 1
       }
     ],
     "direction": "vertical"
@@ -110,7 +98,7 @@
             "state": {
               "type": "backlink",
               "state": {
-                "file": "Структуры данных.md",
+                "file": "Математика. Комбинаторика и Теор.вер..md",
                 "collapseAll": false,
                 "extraContext": false,
                 "sortOrder": "alphabetical",
@@ -127,7 +115,7 @@
             "state": {
               "type": "outgoing-link",
               "state": {
-                "file": "Структуры данных.md",
+                "file": "Математика. Комбинаторика и Теор.вер..md",
                 "linksCollapsed": false,
                 "unlinkedCollapsed": true
               }
@@ -150,7 +138,7 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "Структуры данных.md"
+                "file": "Математика. Комбинаторика и Теор.вер..md"
               }
             }
           }
@@ -171,38 +159,41 @@
       "command-palette:Открыть палитру команд": false
     }
   },
-  "active": "1fb3999ad521195f",
+  "active": "a26e679518850846",
   "lastOpenFiles": [
-    "Парсинг.md",
-    "Структуры данных.md",
-    "CSS.md",
     "_Obsidian.md",
-    "Web.md",
-    "HTML.md",
+    "Математика. Комбинаторика и Теор.вер..md",
     "NGINX.md",
+    "React.md",
+    "Нейросети.md",
+    "files/2024-01-07_20-48.png",
+    "Linux.md",
+    "Структуры данных.md",
+    "Деплой.md",
+    "Python.md",
+    "Парсинг.md",
+    "ООП.md",
+    "Web.md",
+    "Telegram Bot.md",
     "SOLID, REST, паттерны.md",
     "SQL и PostgreSQL.md",
+    "RegEx.md",
+    "files/nginx.png",
+    "CSS.md",
+    "HTML.md",
     "files/postgresql_logo.png",
     "PEP8.md",
-    "Деплой.md",
-    "RegEx.md",
     "files/Regex.webp",
-    "Telegram Bot.md",
     "files/Pasted image 20240104211243.png",
-    "Python.md",
     "Git.md",
     "Docker.md",
-    "OOP.md",
     "files/basics_middleware.webp",
     "Django.md",
     "files/Pasted image 20240104135335.png",
     "files/aiogram.png",
-    "Linux.md",
     "files/docker.png",
     "DNS.md",
     "files/drf.png",
-    "files/2023-12-19_08-37.png",
-    "files/Pasted image 20231217171004.jpg",
     "2023-12-17.md",
     "files"
   ]

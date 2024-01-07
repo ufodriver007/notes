@@ -1,3 +1,4 @@
+![[nginx.png]]
 установить nginx
 ```
 sudo apt-get install nginx

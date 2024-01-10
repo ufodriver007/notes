@@ -8,36 +8,12 @@
         "type": "tabs",
         "children": [
           {
-            "id": "b377fc9aa735eca0",
-            "type": "leaf",
-            "state": {
-              "type": "markdown",
-              "state": {
-                "file": "_Obsidian.md",
-                "mode": "source",
-                "source": true
-              }
-            }
-          },
-          {
-            "id": "a26e679518850846",
-            "type": "leaf",
-            "state": {
-              "type": "markdown",
-              "state": {
-                "file": "Структуры данных.md",
-                "mode": "preview",
-                "source": true
-              }
-            }
-          },
-          {
             "id": "e76c46e1c9e58641",
             "type": "leaf",
             "state": {
               "type": "markdown",
               "state": {
-                "file": "Структуры данных.md",
+                "file": "JavaScript.md",
                 "mode": "preview",
                 "source": true
               }
@@ -56,7 +32,7 @@
             }
           }
         ],
-        "currentTab": 3
+        "currentTab": 1
       }
     ],
     "direction": "vertical"
@@ -185,11 +161,17 @@
   },
   "active": "dd2b68ea5ae49582",
   "lastOpenFiles": [
-    "Структуры данных.md",
-    "Математика. Комбинаторика и Теор.вер..md",
     "JavaScript.md",
+    "files/js.jpg",
+    "Структуры данных.md",
+    "files/bst_.png",
     "Алгоритмы.md",
+    "files/bst.png",
+    "files/heap.png",
     "_Obsidian.md",
+    "Python.md",
+    "files/BigO.png",
+    "Математика. Комбинаторика и Теор.вер..md",
     "DNS.md",
     "NGINX.md",
     "React.md",
@@ -197,7 +179,6 @@
     "files/2024-01-07_20-48.png",
     "Linux.md",
     "Деплой.md",
-    "Python.md",
     "Парсинг.md",
     "ООП.md",
     "Web.md",
@@ -214,13 +195,7 @@
     "files/Pasted image 20240104211243.png",
     "Git.md",
     "Docker.md",
-    "files/basics_middleware.webp",
     "Django.md",
-    "files/Pasted image 20240104135335.png",
-    "files/aiogram.png",
-    "files/docker.png",
-    "files/drf.png",
-    "2023-12-17.md",
     "files"
   ]
 }

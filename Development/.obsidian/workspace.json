@@ -8,31 +8,18 @@
         "type": "tabs",
         "children": [
           {
-            "id": "e76c46e1c9e58641",
+            "id": "74c761361c3c37b3",
             "type": "leaf",
             "state": {
               "type": "markdown",
               "state": {
-                "file": "JavaScript.md",
-                "mode": "preview",
-                "source": true
-              }
-            }
-          },
-          {
-            "id": "dd2b68ea5ae49582",
-            "type": "leaf",
-            "state": {
-              "type": "markdown",
-              "state": {
-                "file": "Алгоритмы.md",
+                "file": "Django.md",
                 "mode": "preview",
                 "source": true
               }
             }
           }
-        ],
-        "currentTab": 1
+        ]
       }
     ],
     "direction": "vertical"
@@ -98,7 +85,7 @@
             "state": {
               "type": "backlink",
               "state": {
-                "file": "Алгоритмы.md",
+                "file": "Django.md",
                 "collapseAll": false,
                 "extraContext": false,
                 "sortOrder": "alphabetical",
@@ -115,7 +102,7 @@
             "state": {
               "type": "outgoing-link",
               "state": {
-                "file": "Алгоритмы.md",
+                "file": "Django.md",
                 "linksCollapsed": false,
                 "unlinkedCollapsed": true
               }
@@ -138,7 +125,7 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "Алгоритмы.md"
+                "file": "Django.md"
               }
             }
           }
@@ -159,43 +146,43 @@
       "command-palette:Открыть палитру команд": false
     }
   },
-  "active": "dd2b68ea5ae49582",
+  "active": "74c761361c3c37b3",
   "lastOpenFiles": [
-    "JavaScript.md",
-    "files/js.jpg",
-    "Структуры данных.md",
-    "files/bst_.png",
-    "Алгоритмы.md",
-    "files/bst.png",
-    "files/heap.png",
+    "SQL и PostgreSQL.md",
+    "Django.md",
+    "Web.md",
     "_Obsidian.md",
-    "Python.md",
-    "files/BigO.png",
     "Математика. Комбинаторика и Теор.вер..md",
-    "DNS.md",
+    "slozhenie_vektorov_pravilo_treugolnika_476.gif",
+    "RegEx.md",
+    "files/slozhenie_vektorov_pravilo_treugolnika_476.gif",
+    "files/komplanarnye_vektory_436.gif",
+    "files/kollinearnye_vektory_434 1.gif",
+    "files/kollinearnye_vektory_434.gif",
+    "files/vektor_433.gif",
+    "Telegram Bot.md",
+    "JavaScript.md",
+    "Docker.md",
     "NGINX.md",
-    "React.md",
-    "Нейросети.md",
-    "files/2024-01-07_20-48.png",
     "Linux.md",
     "Деплой.md",
+    "files/Pasted image 20240111013158.jpg",
+    "Python.md",
+    "Структуры данных.md",
+    "Алгоритмы.md",
+    "files/js.jpg",
+    "files/bst_.png",
+    "files/bst.png",
+    "DNS.md",
+    "React.md",
+    "Нейросети.md",
     "Парсинг.md",
     "ООП.md",
-    "Web.md",
-    "Telegram Bot.md",
     "SOLID, REST, паттерны.md",
-    "SQL и PostgreSQL.md",
-    "RegEx.md",
-    "files/nginx.png",
     "CSS.md",
     "HTML.md",
-    "files/postgresql_logo.png",
     "PEP8.md",
-    "files/Regex.webp",
-    "files/Pasted image 20240104211243.png",
     "Git.md",
-    "Docker.md",
-    "Django.md",
     "files"
   ]
 }

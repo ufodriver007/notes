@@ -300,6 +300,8 @@ python manage.py **migrate**
 ```
 
 #### Перенос самой базы данных с сервера на сервер
+>[!info] Можно просто использовать фикстуры. Т.е. экспорт моделей в JSON и последующий импорт данных в другую БД. [[Django#Fixtures]]
+
 1) Из под root меняем строчки в файле `/etc/postgresql/14/main/pg_hba.conf`
 `local all postgres peer` 
     меняем на:

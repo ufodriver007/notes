@@ -7,7 +7,7 @@ pip install django
 django-admin startproject my_first_site                      # создать шаблон проекта
 ```
 ```
-python3 maanage.py runserver                                 # запустить проект 127.0.0.1:8000
+python3 manage.py runserver                                 # запустить проект 127.0.0.1:8000
 ```
 ```
 django-admin startapp <app_name>                             # создаём приложение
@@ -53,6 +53,7 @@ path('articles/', include('article.urls'), name='articles')
 И потом в шаблоне указывать `{% url "mint_app:index" %}` .Так Django понимает, что псевдоним `index` нужно искать в приложении `mint_app`
 
 #### Установка PostgeSQL в Django
+Устанавливаем PostgreSQL https://www.postgresql.org/download/
 ```
 pip install psycopg2-binary
 ```
@@ -73,7 +74,7 @@ DATABASES = {
     }
 }
 ```
-И затем:
+И затем
 ```
 python manage.py makemigrations
 python manage.py migrate
@@ -151,6 +152,80 @@ def about(request):
 {% endblock %}
 ```
 
+###### Свои теги в шаблонизаторе
+Создаём в приложении директорию `templatetags`, в ней файл `__init__.py` и питоновский файл с любым именем, например `mint_app_tags.py`, в нём пишем
+```
+from django import template  
+from mint_app.models import Category           # импорт для примера
+  
+register = template.Library()   
+  
+@register.simple_tag()  
+def tag_categories():                          # любое название
+    return Category.objects.all()
+```
+
+В шаблоне
+```
+{% load mint_app_tags %}                       # название файла
+
+{% tag_categories as categories %}             # псевдоним для функции
+{% for category in categories %}  
+<h4>{{ category }}</h4>  
+{% endfor %}
+```
+
+Ещё пример функции тэга с доступом к контексту
+```
+from django import template  
+from django.utils.http import urlencode
+  
+register = template.Library()   
+
+@register.simple_tag(takes_context=True)  
+def change_params(context, **kwargs):   
+    query = context['request'].GET.dict()
+    query.update(kwargs)                                # добавляем свои параметры в словарь                   
+    return urlencode(query)             # из словаря возвращает строку, которую можно использовать
+                                        #  как параметры URL-адреса
+```
+В шаблоне
+```
+{% load goods_tags %}
+
+<a href=?{% change_params page=page %}>{{ page }}</a>    # передаём в функцию тега change_params
+                                                         # аргумент page=page в виде словаря
+                                                         # след. аргументы через пробел
+```
+
+>[!tip] Можно использовать для вывода списка категорий, [[Django##### Фильтры для поиска на сайте|проброса GET параметров]] и т.д.
+
+###### Обратное разрешение URL-адреса
+```
+{% url "<namespace>:<name>" <arguments> %}
+{% url "<name>" <arguments> %}
+{% url "<name>" %}
+```
+```
+{% url "catalog:product" product.id %}
+# Ищется в пространстве имён 'catalog', в нём путь с имёнем `product` и подставляется туда аргумент
+```
+Для понимания, основной  файл `urls.py`
+```
+urlpatterns = [  
+    path('catalog/', include(`goods.urls`, namespace=`catalog`)),
+]
+```
+И `urls.py` приложения `goods`
+```
+urlpatterns = [  
+    path('product/<int:product_id>/`, views.product, name='product')
+]
+```
+Получается
+```
+/catalog/product/2
+```
 
 #### Формы
 ```
@@ -326,6 +401,16 @@ class TicketAdmin(admin.ModelAdmin):
     list_filter = ("is_open", "reg")
 ```
 Теперь эта таблица доступна в админ-панели.
+
+###### Автогенерация slug
+```
+# admin.py
+@admin.register(News)  
+class NewsAdmin(admin.ModelAdmin):  
+    prepopulated_fields = {"title": ("slug",)}    # Поле title транслитерируется
+                                                  #   и заполняется поле slug
+```
+
 ###### Чтобы данные отображались в понятном формате:
 - добавляем в поля модели аргумент verbose_name, т.е.:
 ```
@@ -396,7 +481,7 @@ class MModelAdmin(admin.ModelAdmin):
 
 Например, своя функция, срабатывающая при удалении экземпляра модели:
 ```
- # models.py
+# models.py
 from django.db.models.signals import pre_delete
 from django.dispatch import receiver
 
@@ -419,6 +504,16 @@ DATABASES = {
         'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
     }
 }
+```
+
+Есть два типа методов в ORM:
+1. Методы, которые возвращают QuerySet. Их можно компоновать
+```
+Order.objects.filter(order_name = 'Anna').exclude(status='finished').filter(order_price=100)
+```
+2. Методы, которые НЕ возвращают QuerySet
+```
+Order.objects.get(id=32)
 ```
 
 - **null=True**
@@ -453,6 +548,7 @@ class Order(models.Model):
     description = models.TextField('Описание')
     timestamp = models.DateTimeField(auto_now_add=True)
     body = models.TextField(null=True)                      # необязательное поле
+    slug = models.SlugField(max_length=50)                  # поля для слагов(часть URL)
     published = models.BooleanField(default = False)        # булево значение, по-умолчанию False
     type = CharField(max_length=200, choices=TYPE_CHOICES)  # поле с выбором
 
@@ -464,6 +560,8 @@ class Order(models.Model):
     )
 ```
 >[!info] Поле id уже описано и является первичным ключом. Хотя его можно переопределить.
+
+>[!info] Также можно создавать методы для моделей. Их можно использовать, например в шаблонах, обращаясь как к обычному полю объекта(через точку).
 
 Производим и применяем миграцию:
 ```
@@ -485,7 +583,7 @@ def save(self, *args, **kwargs):
 - Откатиться к предыдущей миграции можно указав её: `python manage.py migrate article 0005`
 - Если нам нужно отменить все миграции этого приложения, нужно указать zero в качестве версии миграции: `python manage.py migrate article zero`
 
-###### Интерактивная консоль Django и ORM
+###### Интерактивная консоль Django и  методы ORM
 ```
 python manage.py shell
 ```
@@ -531,6 +629,40 @@ User.objects.filter(
     middle_name__isnull=True,   # необязательное поле не заполнено
     last_name__icontains='ibn'  # содержит подстроку
 )
+# Велосипеды дешевле 50 или содержат в поле "description" слово "горный"
+Bicycle.objects.filter(price__lt=50) | Bicycle.objects.filter(description__contains='горный'
+```
+
+###### Q объекты
+https://django.fun/docs/django/5.0/topics/db/queries/#complex-lookups-with-q-objects
+==Q объект== - это объект, используемый для инкапсуляции набора ключевых аргументов.
+- Объекты `Q` можно объединять с помощью операторов `&`, `|` и `^`. Когда оператор используется для двух объектов `Q`, получается новый объект `Q`. Например, этот оператор выдает один объект `Q`, который представляет «OR» двух запросов `"question__startswith"`
+```
+Q(question__startswith="Who") | Q(question__startswith="What")
+
+# эквивалент
+# WHERE question LIKE 'Who%' OR question LIKE 'What%'
+```
+
+Пример  использования Q объектов
+```
+from django.db.models import Q
+
+Products.objects.filter(Q(name__contains='диван') | Q(description__contains='диван')
+```
+
+Ещё пример
+```
+def q_search(query):
+    keywords = [word for word in query.split() if len(word) > 2]  # обрезаем предлоги
+
+    q_objects = Q()
+
+    for token in keywords:
+        q_objects |= Q(description__icontains=token)  # объединяем
+        q_objects |= Q(name__icontains=token)
+
+    return Products.objects.filter(q_objects)
 ```
 
 ###### Annotate
@@ -628,10 +760,62 @@ on_delete=models.CASCADE            Каскадное удаление
 on_delete=PROTECT                   Запрет удаления записи, пока есть текущая запись
 ```
 
+#### Django debug toolbar
+```
+pip install django-debug-toolbar
+```
+Инструкция по установке:
+https://django-debug-toolbar.readthedocs.io/en/latest/installation.html
+Только в `urls.py` добавляем
+```
+from .settings import DEBUG
+...
+if DEBUG:  
+    urlpatterns += [path("__debug__/", include("debug_toolbar.urls")),]
+```
+
+###### Инспектирование запросов через shell
+```
+python3 manage.py debugsqlshell
+
+from mint_app.models import MModel
+MModel.objects.all()
+```
+
+
+#### Fixtures
+>[!info] **Fixtures** это наборы данных, которые Django может прочитать и загрузить в свою базу данных.
+
+Fixtures также можно использовать или создавать для хранения существующих данных. Итак, по сути, fixtures это способ для Django экспортировать и импортировать данные в базу данных. Есть пакеты, которые могут в этом помочь, например **django-seed**
+
+###### Чтобы выгрузить Fixtures из базы данных:
+1. Создадим папку fixtures в корне проекта и в ней папку с названием приложения, например mint_app
+2. Пишем в терминале
+```
+python3 manage.py dumpdata mint_app.MModel > fixtures/mint_app/mmodel.json
+```
+И на выходе получаем JSON с данными MModel модели
+
+###### Чтобы загрузить Fixtures в базу данных:
+1. Создадим папку fixtures в корне проекта и в ней папку с названием приложения, например mint_app
+2. В settings.py добавим
+```
+FIXTURE_DIRS = [
+    'fixtures',
+]
+```
+И пишем в терминале
+```
+python3 manage.py loaddata location/to/your/data.json
+# или
+python3 manage.py loaddata data.json
+```
+
 #### Генерация форм
 Создаём `forms.py`
 ```
 from django import forms
+
 class OrderForm(forms.Form):
     name = forms.CharField(max_length=200, required=False)  # не обязательное поле
     phone = forms.CharField(max_length=200)        # доп. аргумент widget=forms.TextInput(attrs={'class': 'css_input'})
@@ -731,6 +915,8 @@ urlpatterns = [
 ]
 ```
 
+>[!tip] Также одна `view` может обрабатывать несколько URL-адресов сразу
+
 Пример с `TemplateView`:
 ```
 from django.views.generic.base import TemplateView
@@ -794,6 +980,7 @@ urlpatterns = [
     path('users/<int:user_id>/pets/<int:pet_id>/med_info/', med_info_view),
     …
 ]
+# также вместо конвертера int можно использовать str или например slug
 ```
 ```
 # views.py:
@@ -915,6 +1102,28 @@ User.objects.filter(username=username).exists()
 Проверка подтверждён ли email:
 ```
 request.user.emailaddress_set.filter(primary=True, verified=True).exists()
+```
+
+#### Регистрация
+Можно наследоваться от встроенного `User`. Удаляем из БД таблицы `auth`
+```
+# models.py
+from django.db import models
+from django.contrib.auth.models import AbstractUser
+
+class User(AbstractUser):
+    image = models.ImageField(upload_to='img', blank=True, null=True)
+```
+
+В `settings.py`
+```
+AUTH_USER_MODEL = 'users.User'
+```
+
+Производим и применяем миграцию
+```
+python manage.py makemigrations
+python manage.py migrate
 ```
 
 #### Пагинация
@@ -1201,6 +1410,54 @@ def download_file(request):
         
         return response
 ```
+
+#### Поиск на сайте
+https://docs.djangoproject.com/en/5.0/ref/contrib/postgres/search/
+Встроенный в Django полнотекстовый поиск
+В `settings.py`
+```
+INSTALLED_APPS = [  
+    ... 
+    'django.contrib.postgres',
+]
+```
+
+Делаем свою функцию
+```
+from django.contrib.postgres.search import SearchVector, SearchQuery, SearchRank
+
+def q_search(query):
+    vector = SearchVector("name", "description")   # создаём вектор по двум полям
+    query = SearchQuery(query)                     # преобразуем в векторное представление
+    
+    return Products.objects.annotate(rank=SearchRank(vector, query)).filter(rank__gt=0).order_by("-rank")
+    # возвращаем аннотированный QuerySet с отсортированными результатами по степени похожести,
+    #  с рангом выше 0
+```
+
+
+#### Фильтры для поиска на сайте
+Пишем форму с чекбоксами/радио-кнопками.  Во view принимаем GET-параметры и определяем QuerySet
+```
+# views.py
+
+def catalog(request):
+    page = request.GET.get('page', 1)
+    on_sale = request.GET.get('on_sale', None)         # скидка
+    order_by = request.GET.get('order_by', None)       # порядок сортироки
+    
+    goods = Products.objects.all()
+
+    if on_sale:
+        goods = goods.filter(discount__gt=0)
+
+    if order_by:
+        goods = goods.order_by(order_by)
+
+    return render(request, 'catalog.html', context={'goods': goods})
+```
+
+>[!tip] Чтобы пагинация работала вместе с фильтрами, можно сделать свой [[Django#Свои теги в шаблонизаторе|тэг]] для шаблонизатора, в функции которого пробрасывать GET-параметры на следующую страницу.
 
 ## Django REST Framework(DRF)
 ![[drf.png]]

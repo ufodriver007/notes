@@ -16,6 +16,7 @@ django-admin startapp <app_name>                             # создаём п
 >[!tip] Чтобы обновить  страницу в браузере с перезагрузкой кэша(например если Вы правите css) существует сочетание `CTRL-F5`
 
 >[!info] WSGI — это стандарт взаимодействия между Python-скриптом и веб-сервером. Например Gunicorn — это веб-сервер с поддержкой стандарта WSGI. ASGI - это просто асинхронный тип стандарта.
+
 #### Файлы проекта
 |Файл|Описание|
 |-----|----------|
@@ -152,6 +153,13 @@ def about(request):
 {% endblock %}
 ```
 
+###### Подключение части разметки
+В `templates` создаём файл с частью разметки, например `notifications.html`
+В шаблоне, подключаем его
+```
+{% include "notifications.html" %}
+```
+
 ###### Свои теги в шаблонизаторе
 Создаём в приложении директорию `templatetags`, в ней файл `__init__.py` и питоновский файл с любым именем, например `mint_app_tags.py`, в нём пишем
 ```
@@ -252,7 +260,7 @@ def thanks_page(request):
 
     return render(request, './thanks.page.html', {'name': name, 'phone': phone})
 ```
-###### Forms и ModelForm
+###### Forms
 Создаём forms.py
 ```
 from django import forms # Импортируем формы Django
@@ -297,6 +305,9 @@ class CommentArticleView(View):
             comment.save()
 ```
 
+###### ModelForm
+>[!info] Формы, построенные на основе моделей, отличаются тем, что УЖЕ имеют встроенные валидаторы полей, которые создаются на основе оганичений описанных в моделях, типа `max_length=100`  или `blank=True` и т.д.
+
 Чтобы создать форму с полями модели(связать форму и модель):
 ```
 from django.forms import ModelForm
@@ -319,6 +330,21 @@ class ArticleCommentFormView(View):
             comment.content = check_for_spam(form.data['content'])
             comment.save()
 ```
+
+Для логина есть встроенная форма
+```
+from django.contrib.auth.forms import AuthenticationForm
+# UserChangeForm форма для обновления пользовательских данных
+# UserCreationForm для формы регистрации
+
+class UserLoginForm(AuthenticationForm):
+    username = forms.CharField()        # переопределённое поле из родит. класса
+    password = forms.CharField()        # переопределённое поле из родит. класса
+    class Meta:
+        model = User
+```
+
+>[!tip] В реальной разработке имеет смысл подправить вёрстку логин-формы под те значения формы, которые ожидает `view`(Например изменение атрибутов у `input`  - `type`, `name`, `id`, `value` и т.д.). Чтобы `view` приняла данные и закинула их в вашу форму, типа `UserLoginForm`. И дальше их валидировать, проверять пользоателя, логинить его и т.д.
 
 #### Валидация данных формы
 >[!tip]  При ошибках валидации:
@@ -1075,13 +1101,15 @@ send_mail(subject, message, from_email, [to_email])
 #### Login/Logout пользователя
 ###### Login
 ```
-user = authenticate(username=username, password=password)
-login(request, user)
+from django.contrib import auth
+user = auth.authenticate(username=username, password=password)
+if user:
+    auth.login(request, user)
 ```
 
 ###### Logout
 ```
-logout(request)
+auth.logout(request)
 ```
 
 Проверка залогинен ли пользователь:
@@ -1103,6 +1131,28 @@ User.objects.filter(username=username).exists()
 ```
 request.user.emailaddress_set.filter(primary=True, verified=True).exists()
 ```
+
+###### Проверка на уровне функции, что пользователь залогинен
+```
+from django.contrib.auth.decorators import login_required
+
+@login_required
+def profile(request):
+   ...
+```
+
+Надо добавить в `settings.py`
+```
+LOGIN_URL =  /"путь/к/странице/с/логином"
+```
+
+И во `view` с логином добавим
+```
+if request.GET.get('next', None):
+    return HttpResponseRedirect(request.GET.get('next'))
+```
+
+Теперь `view` с `@login_required` будет перенаправлять на страницу логина, а затем обратно
 
 #### Регистрация
 Можно наследоваться от встроенного `User`. Удаляем из БД таблицы `auth`

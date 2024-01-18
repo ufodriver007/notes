@@ -177,7 +177,8 @@ def tag_categories():                          # любое название
 ```
 {% load mint_app_tags %}                       # название файла
 
-{% tag_categories as categories %}             # псевдоним для функции
+{% tag_categories as categories %}             # функция tag_categories вернёт результат
+                                               #   в переменную categories
 {% for category in categories %}  
 <h4>{{ category }}</h4>  
 {% endfor %}
@@ -267,6 +268,25 @@ from django import forms # Импортируем формы Django
 
 class CommentArticleForm(forms.Form):               # Просто форма БЕЗ связи с моделью
     content = forms.CharField(label='Комментарий')  # Текст комментария
+    req = forms.ChoiceField(                        # виджет радиокнопки
+        widget=forms.RadioSelect(),
+        choices=[
+            ("0", False),
+            ("1", True),
+        ],
+        initial=0,
+    )
+    address = forms.CharField(                      # виджет textarea
+        widget=forms.Textarea(
+            attrs={
+                "class": "form-control",            # НЕ РЕКОМЕНДУЕТСЯ фронтэнд хранить в бекэнде
+                "id": "address",
+                "rows": 2,
+                "placeholder": "Введите адрес",
+            }
+        ),
+        required=False,
+    )
 ```
 
 Чтобы форма отображалась нужно передать её в шаблон через view:
@@ -423,8 +443,11 @@ admin.site.register(Order)
 @admin.register(Ticket)
 class TicketAdmin(admin.ModelAdmin):
     list_display = ("is_open", "theme", "user", "reg")
+    list_editable = ["is_open",]                    #  можно измененять из списка
     search_fields = ["theme"]
     list_filter = ("is_open", "reg")
+    fields = ["is_open", ("theme", "user"), "reg"]  # расположение полей в админке
+    readonly_fields = ("user",)
 ```
 Теперь эта таблица доступна в админ-панели.
 
@@ -479,6 +502,45 @@ class ArticleAdmin(admin.ModelAdmin):
     list_filter = (('timestamp', DateFieldListFilter),) # Перечисляем поля для фильтрации
 ```
 
+###### Инлайн отображение таблиц
+Отображение в экземпляре модели(в админке) встроенного блока со связанной таблицей.
+Делаем специальный класс
+```
+# cart.admin.py
+
+class CartTabAdmin(admin.TabularInline):
+    model = Cart
+    fields = "product", "quantity", "created_timestamp"
+    search_fields = "product", "quantity", "created_timestamp"
+    readonly_fields = ("created_timestamp",)
+    extra = 1                       # свободное поле для добавления заказов
+```
+
+И указываем в другом, уже зарегистрированном классе список `inlines`, где перечисляем инлайновые классы
+```
+# users.admin.py
+from cart.admin import CartTabAdmin
+
+@admin.register(User)
+class UserAdmin(admin.ModelAdmin):
+    list_display = ["username", "first_name", "last_name", "email"]
+    search_fields = ["username", "first_name", "last_name", "email"]
+
+    inlines = [CartTabAdmin,]
+```
+
+###### Кнопка смотреть на сайте
+На страницу экземпляра модели в админке можно добавить кнопку, ведущую прямо на этот объект на сайте. Для этого надо реализовать метод `get_absolute_url()` в модели. Этот метод также можно использовать и в шаблонах для получения URL ссылки на объект.
+```
+# models.py
+from django.urls import reverse
+
+class MModel(models.Model):
+    ...
+    def get_absolute_url(self):  
+        return reverse("model_detail", kwargs={"model_id": self.id})
+```
+
 ###### Шаблоны для админки
 Лежат в `venv/bin/lib/python3.11/site-packages/django/contrib/admin/templates/admin/`
 Берём например `base_site.html`(Главная страница админки) и закидываем в `templates/admin/base_site.html`
@@ -497,7 +559,8 @@ class MModelAdmin(admin.ModelAdmin):
     list_filter = ("category", "price")
 
     def get_html_photo(self, object):
-        return mark_safe(f"<img src='{object.photo00.url}' width=70>")   # возвращаем html-код(mark                                                              # safe не позволяет экранировать тэги)
+        return mark_safe(f"<img src='{object.photo00.url}' width=70>")  # возвращаем html-код(mark
+                                                    # safe не позволяет экранировать тэги)
 
     get_html_photo.short_description = 'Фото'
 ```
@@ -602,6 +665,54 @@ def save(self, *args, **kwargs):
     set_rating(self.book)          # кастомная функция, условно подсчитывающее среднее значение
                                    #  среди связанных полей
 ```
+
+###### Создание класса для управления QuerySet
+Допустим уже есть модель `Cart` с функцией `products_price()`, которая возвращает стоимость корзины.
+У пользователя может быть несколько таких корзин.
+
+Дописывем в модели `Cart`
+```
+objects = CartQuerySet().as_manager()
+```
+
+И создаём класс для `QuerySet`
+```
+# models.py
+from django.db import models
+
+class CartQuerySet(models.QuerySet):  
+    def total_price(self):  
+        return sum([cart.products_price() for cart in self])  
+```
+
+Далее создаём [[Django#Свои теги в шаблонизаторе|свой шаблонный тег]]. Создаём в приложении папку `templatetags` и в ней `__init__.py` и например `cart_tag.py`
+```
+from django import template 
+from cart.models import Cart
+  
+register = template.Library()   
+  
+@register.simple_tag()  
+def user_carts(request):                        
+    return Cart.objects.filter(user=request.user)
+```
+
+В шаблоне
+```
+{% load cart_tag %}                        # имя модуля со своим тегом
+
+{% user_carts request as carts %}          # имя функции для тега, аргумент, возврат
+                                           #   результата в переменную carts
+
+{% for cart in carts %}                    # обходим в цикле QuerySet
+    <p>{{ cart.product.name }}</p>         # получаем поле экземпляра модели
+    <p>{{ cart.quantity }}</p>
+    <p>{{ cart.product.sell_price }}</p>
+{% endfor %}
+    <p>{{ carts.total_price }}</p>         # получаем результат функции QuerySet
+```
+
+
 ###### Миграции
 >[!info] Миграции — это описания изменений в наших моделях, и в дальнейшем в схеме базы данных. Мы можем просмотреть эти файлы миграций. Они располагаются в директориях migrations внутри приложений. 
 
@@ -657,6 +768,17 @@ User.objects.filter(
 )
 # Велосипеды дешевле 50 или содержат в поле "description" слово "горный"
 Bicycle.objects.filter(price__lt=50) | Bicycle.objects.filter(description__contains='горный'
+```
+
+###### Транзакции
+Создание атомарных транзакций. Либо выполняются все, либо ничего.
+```
+try:
+    with transaction.atomic():
+        # код для работы с БД
+except ValidationError as e:
+    messages.warning(request, str(e))
+    return redirect('somewhere')
 ```
 
 ###### Q объекты
@@ -1045,6 +1167,31 @@ set_signed_cookie(key, value, salt='', max_age=None, expires=None, path='/', dom
 get_signed_cookie(key, default=RAISE_ERROR, salt='', max_age=None)
 ```
 
+#### СЕССИИ
+###### ПОЛУЧЕНИЕ
+```
+s_key = request.session.session_key
+
+```
+
+###### СОЗДАНИЕ СЕССИИ
+```
+request.session.create()
+```
+
+###### УСТАНОВКА
+```
+request.session['member_id'] = 12345
+```
+
+###### УДАЛЕНИЕ
+```
+try:
+    del request.session['member_id']
+except KeyError:
+    pass
+```
+
 #### Переменные окружения
 - Используем python-dotenv для загрузки переменных окружения из файла
 ```
@@ -1143,7 +1290,7 @@ def profile(request):
 
 Надо добавить в `settings.py`
 ```
-LOGIN_URL =  /"путь/к/странице/с/логином"
+LOGIN_URL =  "/путь/к/странице/с/логином"
 ```
 
 И во `view` с логином добавим

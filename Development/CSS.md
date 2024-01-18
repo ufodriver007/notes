@@ -146,3 +146,17 @@ div.main {
 
 #### Bootstrap
 Docs->Download->CDN копируем пути css и js
+
+#### Кнопка с картинкой
+```
+<button class="image-button"></button>
+```
+```
+.image-button {
+  width: 100px;
+  height: 50px;
+  border: none;
+  background-image: url('path/to/image.jpg');
+  background-size: cover;
+}
+```

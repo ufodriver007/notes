@@ -1,3 +1,5 @@
+![[Pasted image 20240115022944.png|300]]
+
 ```
 <!DOCTYPE html>
 ```
@@ -43,3 +45,16 @@
 </form>
 ```
 
+Пример таблицы
+```
+<table>  
+  <tr>  
+    <th>Month</th>  
+    <th>Savings</th>  
+  </tr>  
+  <tr>  
+    <td>January</td>  
+    <td>$100</td>  
+  </tr>  
+</table>
+```

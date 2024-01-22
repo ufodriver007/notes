@@ -7,10 +7,10 @@ pip install django
 django-admin startproject my_first_site                      # создать шаблон проекта
 ```
 ```
-python3 manage.py runserver                                 # запустить проект 127.0.0.1:8000
+python3 manage.py runserver                                  # запустить проект 127.0.0.1:8000
 ```
 ```
-django-admin startapp <app_name>                             # создаём приложение
+python3 manage.py startapp <app_name>                        # создаём приложение
  # затем регистрируем в settings.py в списке INSALLED_APPS как '<app_name>.apps.app_class'
 ```
 >[!tip] Чтобы обновить  страницу в браузере с перезагрузкой кэша(например если Вы правите css) существует сочетание `CTRL-F5`
@@ -1666,6 +1666,20 @@ pip install markdown                  # Markdown support for the browsable API.
 pip install django-filter             # Filtering support
 ```
 
+###### Пример Hello, world
+```
+# нужно зарегистрировать rest_framework в settings.py и создать маршрут в urls.py
+# views.py
+from rest_framework.decorators import api_view
+from rest_framework.response import Response
+from rest_framework.request import Request
+
+@api_view()
+def hello_world_view(request: Request) -> Response:
+    return Response({"message": "Hello, world!"})
+```
+
+###### Реальный пример
 В `settings.py` регистрируем:
 ```
 INSTALLED_APPS = [
@@ -1674,8 +1688,8 @@ INSTALLED_APPS = [
 ]
 ```
 
-Допустим у нас уже есть модель Book.
-Создаём сериализатор(Создаём файл serializers.py в приложении):
+Допустим у нас уже есть модель `Book`.
+Создаём сериализатор(Создаём файл `serializers.py `в приложении):
 ```
 from rest_framework.serializers import ModelSerializer
 from store.models import Book
@@ -1903,5 +1917,14 @@ REST_FRAMEWORK = {
         'user': '100/minute',  # Лимит для UserRateThrottle
         'anon': '10/minute',   # Лимит для AnonRateThrottle
     }
+}
+```
+
+###### Пагинация
+```
+# settings.py
+REST_FRAMEWORK = {
+    'DEFAULT_RENDERER_CLASSES': `rest_framework.pagination.PageNumberPagination`,
+    'PAGE_SIZE': 10,
 }
 ```

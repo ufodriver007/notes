@@ -342,9 +342,9 @@ crwx------         символьное устройство
 |`sudo apt install telegram-desktop`|установить `telegram-desktop`
 |`sudo apt remove telegram-desktop`|удалить пакет
 |`sudo apt search apache `|поиск пакетов с именем apache
-|`sudo apt-get purge PackageName `|удаление пакета и файлов конфигурации
-|`sudo apt-get autoremove `|очистить все неиспользуемые пакеты и зависимости
-|`sudo apt list --installed `|список установленных пакетов
+|`sudo apt-get purge PackageName`|удаление пакета и файлов конфигурации
+|`sudo apt-get autoremove`|очистить все неиспользуемые пакеты и зависимости
+|`sudo apt list --installed`|список установленных пакетов
 |`sudo apt install -f`|починить зависимости
 |`sudo apt install -y`|установка без запроса подтверждения
 |`sudo apt-get update `|обновляет индекс пакетов в системе Linux или списки пакетов
@@ -674,6 +674,7 @@ cat ~/.ssh/id_rsa
 |`flatpak run org.freedesktop.Piper`|запустить пакет
 |`flatpak install flathub org.chocolate_doom.ChocolateDoom`|установить пакет из flathub
 |`flatpak uninstall org.chocolate_doom.ChocolateDoom `|удалить пакет
+|`flatpak update`|обновить пакеты
 
 #### NMAP
 |Команда |Описание|

@@ -13,13 +13,38 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "Django.md",
+                "file": "Алгоритмы.md",
+                "mode": "preview",
+                "source": true
+              }
+            }
+          },
+          {
+            "id": "849f4fc0026cd22d",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "_Obsidian.md",
+                "mode": "preview",
+                "source": true
+              }
+            }
+          },
+          {
+            "id": "c23d8077d0b3cf56",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "OpenCV.md",
                 "mode": "preview",
                 "source": true
               }
             }
           }
-        ]
+        ],
+        "currentTab": 2
       }
     ],
     "direction": "vertical"
@@ -85,7 +110,7 @@
             "state": {
               "type": "backlink",
               "state": {
-                "file": "Django.md",
+                "file": "OpenCV.md",
                 "collapseAll": false,
                 "extraContext": false,
                 "sortOrder": "alphabetical",
@@ -102,7 +127,7 @@
             "state": {
               "type": "outgoing-link",
               "state": {
-                "file": "Django.md",
+                "file": "OpenCV.md",
                 "linksCollapsed": false,
                 "unlinkedCollapsed": true
               }
@@ -125,7 +150,7 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "Django.md"
+                "file": "OpenCV.md"
               }
             }
           }
@@ -146,20 +171,31 @@
       "command-palette:Открыть палитру команд": false
     }
   },
-  "active": "74c761361c3c37b3",
+  "active": "c23d8077d0b3cf56",
   "lastOpenFiles": [
-    "Python.md",
-    "Django.md",
     "_Obsidian.md",
+    "DNS.md",
+    "OpenCV.md",
+    "SOLID, REST, паттерны.md",
+    "ООП.md",
+    "Парсинг.md",
+    "Нейросети.md",
+    "Алгоритмы.md",
+    "Математика. Комбинаторика и Теор.вер..md",
+    "React.md",
+    "JavaScript.md",
+    "IDE PyCharm.md",
+    "Git.md",
+    "CSS.md",
+    "Django.md",
+    "Docker.md",
+    "Структуры данных.md",
+    "Linux.md",
+    "Python.md",
     "SQL и PostgreSQL.md",
     "Деплой.md",
-    "Linux.md",
     "Telegram Bot.md",
     "HTML.md",
-    "CSS.md",
-    "DNS.md",
-    "JavaScript.md",
-    "Алгоритмы.md",
     "files/vektor_433.gif",
     "files/js.jpg",
     "files/kollinearnye_vektory_434.gif",
@@ -170,19 +206,9 @@
     "files/Pasted image 20231218023825.png",
     "files/Pasted image 20231219034033.png",
     "files/Pasted image 20231219081151.png",
-    "Docker.md",
-    "Git.md",
-    "React.md",
     "PEP8.md",
     "RegEx.md",
-    "SOLID, REST, паттерны.md",
     "Web.md",
-    "Математика. Комбинаторика и Теор.вер..md",
-    "Нейросети.md",
-    "ООП.md",
-    "Парсинг.md",
-    "Структуры данных.md",
-    "NGINX.md",
     "files"
   ]
 }

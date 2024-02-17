@@ -250,6 +250,7 @@ sudo systemctl enable hello.service
 >`/etc/shadow`  файл с хэшем паролей
 
 `sudo usermod -aG mail ufodriver`      добавить пользователя ufodriver в группу mail(-a добавить -G в группу)
+`sudo usermod -aG docker ufodriver` добавить пользователя ufodriver в группу docker
 
 ###### Права доступа
 |Обозначение| Описание|Значение|
@@ -445,6 +446,7 @@ sudo add-apt-repository --remove ppa:danielrichter2007/grub-customizer      уд
 |Команда|Описание|
 |------------|------------------|
 |`sudo netstat -tulpen`|посмотреть открытые порты
+|`sudo netstat -ntpl`|посмотреть порты которые слушаются
 |`telnet python.org 80`|проверка, что по порту 80 можно действительно подключиться
 |`ping -A ya.ru `|быстрый пинг ya.ru
 |`host ya.ru`|где хостится ya.ru

@@ -1656,6 +1656,172 @@ def catalog(request):
 
 >[!tip] Чтобы пагинация работала вместе с фильтрами, можно сделать свой [[Django#Свои теги в шаблонизаторе|тэг]] для шаблонизатора, в функции которого пробрасывать GET-параметры на следующую страницу.
 
+#### Bootstrap
+###### Подключение
+1. Через CDN(может тормозить загрузку стрниц)
+  [[https://getbootstrap.com/docs/5.3/getting-started/introduction/]] 
+3. Скачать файлы в свой проект в  директорию `static`
+[[https://getbootstrap.com/docs/5.3/getting-started/download/]]
+5. Через python-модуль
+Например `pip install django-bootstrap5`
+
+#### SEO
+**Search Engine Optimization**
+###### Читаемые слаги(slug)
+Добавляем в модель поле `slug`
+```
+# models.py
+class Example(models.Model):
+    title = models.CharField(max_length=255)
+    description = models.TextField()
+    slug = models.SlugField(max_length=255, unique=True, db_index=True)
+
+    def get_absolute_url(self):                 # Прямая ссылка на модель на сайте
+        return reverse("example", kwargs={"slug": self.slug})
+
+    def save(self, *args, **kwargs):
+        if not self.slug:
+            self.slug = slugify(self.title)
+        return super().save(*args, **kwargs)
+```
+```
+# admin.py
+from django.contrib import admin
+from .models import Example
+
+class ExampleAdmin(admin.ModelAdmin):  
+    list_display = ('title', 'description', 'slug')
+    prepopulated_fields = {"slug": ("title",)}    # Поле title транслитерируется
+                                                  #   и заполняется поле slug
+```
+
+###### Robots.txt
+>[!info] Должен быть доступен по адресу <домен>/robots.txt (например mint-coast.ru/robots.txt)
+Запрещает сканировать определённые части сайта. Создаём `templates/mint_app/robots.txt`
+```
+# templates/mint_app/robots.txt
+User-agent: *
+Disallow: /admin/
+Disallow: /accounts/
+```
+Добавляем маршрут
+```
+# urls.py
+from django.urls import path, include, re_path  
+from django.views.generic import TemplateView
+
+urlpatterns = [
+    ...
+    re_path(r'^robots\.txt$', TemplateView.as_view(template_name="mint_coast/robots.txt", content_type="text/plain")),
+    ]
+```
+
+###### Карта сайта
+В `settings.py` добавляем
+```
+SITE_ID = 1
+
+INSTALLED_APPS = [ 
+    # ... 
+    'django.contrib.sites', 
+    'django.contrib.sitemaps', 
+]
+```
+```
+python manage.py migrate
+```
+
+Создаём в приложении `sitemaps.py`
+```
+from django.contrib.sitemaps import Sitemap
+from .models import Post
+
+class PostSitemap(Sitemap):
+    changefreq = 'weekly'                # частота изменения страниц с постами
+    priority = 0.9                       # релевантность на сайте (максимальное значение — 1)
+    
+	def items(self):                     # возвращает QuerySet объектов для включения в базу данных
+	    return Post.published.all()      # Django вызывает метод `get_absolute_url()` для
+	                                     #    каждого объекта для получения URL
+	    
+	def lastmod(self, obj):              # получает каждый объект, который вернул метод items()
+	    return obj.updated               #    и в свою очередь возвращает дату, когда тот
+	                                     #    последний раз изменился
+```
+
+Добавляем в `urls.py`
+```
+from django.contrib.sitemaps.views import sitemap
+from blog.sitemap import PostSitemap
+
+sitemaps = { 'posts': PostSitemap, }
+
+urlpatterns = [
+    path('sitemap.xml', sitemap, {'sitemaps': sitemaps},
+        name='django.contrib.sitemaps.views.sitemap')
+]
+```
+
+###### Кастомные страницы 404 и 500
+>[!info] Работает только если DEBUG = False
+>Для этого в `settings.py` изменяем `DEBUG = False` и `ALLOWED_HOSTS = ['*']`
+
+- Создаём в `templates` шаблоны и называем их `404.html` и `500.html`
+- В `urls.py`
+```
+from django.conf.urls import handler404
+
+handler404 = 'mint_app.views.page_not_found_view'
+```
+- Создаём view
+```
+def page_not_found_view(request, exception):
+    return render(request, '404.html', status=404)
+```
+
+###### Мета данные
+>[!info] Размещаются в шапке
+
+```
+<Title>Заголовок</Title>
+<meta name="description" content="Описание страницы" />
+<meta name="keywords" content="Ключевые слова" />
+```
+
+###### Кэширование шаблонов
+>[!info] Работает только если DEBUG = False
+>Для этого в `settings.py` изменяем `DEBUG = False` и `ALLOWED_HOSTS = ['*']`
+
+В `settings.py`
+```
+TEMPLATES = [  
+    {  
+        'BACKEND': 'django.template.backends.django.DjangoTemplates',  
+        'DIRS': [BASE_DIR / 'templates'],  
+        'APP_DIRS': True,  
+        'OPTIONS': {  
+            'context_processors': [  
+                'django.template.context_processors.debug',  
+                'django.template.context_processors.request',  
+                'django.contrib.auth.context_processors.auth',  
+                'django.contrib.messages.context_processors.messages',
+            ],  
+            'loaders': [
+                ('django.template.loaders.cached.Loader', [
+                    'django.template.loaders.filesystem.Loader',
+                    'django.template.loaders.app_directories.Loader',
+                    ])
+            ]
+        },  
+    },  
+]
+```
+
+###### Компрессоры CSS и JS
+>[!info] Смысл  в том, чтобы подгружался единый файл со стилями и javascript кодом
+>Для этого можно использовать `Django Compressor` или упаковщики типа WebPack.
+
+
 ## Django REST Framework(DRF)
 ![[drf.png]]
 >[!info] Позволяет посредством API выдавать данные, например в JSON. Таким образом рендеринг страницы происходит не на стороне сервера, а на стороне клиента.
@@ -1694,11 +1860,15 @@ INSTALLED_APPS = [
 from rest_framework.serializers import ModelSerializer
 from store.models import Book
 
+# классы ModelSerializer просто являются синтаксическим сахаром для создания
+#  классов сериализаторов
 class BooksSerializer(ModelSerializer):
     class Meta:
         model = Book
         fields = '__all__'
 ```
+
+>[!info] Класс ViewSet создаётся вместо набора представлений(CRUD)
 
 Создаём ViewSet во `views.py`:
 ```
@@ -1776,6 +1946,17 @@ class BookSerializer(ModelSerializer):
 ```
 
 #### Permissions
+###### Встроенные разрешения
+```
+# settimgs.py
+REST_FRAMEWORK = {
+    'DEFAULT_PERMISSION_CLASSES': [
+    'rest_framework.permissions.DjangoModelPermissionsOrAnonReadOnly'
+    ]
+}
+```
+
+###### Собственные разрешения
 Создание собственных разрешений. Может понадобится, если удалять, обновлять может только юзер, ассоциированный с записью. Например владелец книги.
 
 Создадим в приложении `permissions.py`

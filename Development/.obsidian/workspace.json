@@ -8,36 +8,36 @@
         "type": "tabs",
         "children": [
           {
-            "id": "74c761361c3c37b3",
+            "id": "9c075577a96e4c5f",
             "type": "leaf",
             "state": {
               "type": "markdown",
               "state": {
-                "file": "Алгоритмы.md",
+                "file": "Docker.md",
                 "mode": "preview",
                 "source": true
               }
             }
           },
           {
-            "id": "849f4fc0026cd22d",
+            "id": "76a629ff0c524399",
             "type": "leaf",
             "state": {
               "type": "markdown",
               "state": {
-                "file": "_Obsidian.md",
+                "file": "Деплой.md",
                 "mode": "preview",
                 "source": true
               }
             }
           },
           {
-            "id": "c23d8077d0b3cf56",
+            "id": "6d2e40436dc161b8",
             "type": "leaf",
             "state": {
               "type": "markdown",
               "state": {
-                "file": "OpenCV.md",
+                "file": "Git.md",
                 "mode": "preview",
                 "source": true
               }
@@ -110,7 +110,7 @@
             "state": {
               "type": "backlink",
               "state": {
-                "file": "OpenCV.md",
+                "file": "Git.md",
                 "collapseAll": false,
                 "extraContext": false,
                 "sortOrder": "alphabetical",
@@ -127,7 +127,7 @@
             "state": {
               "type": "outgoing-link",
               "state": {
-                "file": "OpenCV.md",
+                "file": "Git.md",
                 "linksCollapsed": false,
                 "unlinkedCollapsed": true
               }
@@ -150,7 +150,7 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "OpenCV.md"
+                "file": "Git.md"
               }
             }
           }
@@ -171,30 +171,33 @@
       "command-palette:Открыть палитру команд": false
     }
   },
-  "active": "c23d8077d0b3cf56",
+  "active": "6d2e40436dc161b8",
   "lastOpenFiles": [
+    "Деплой.md",
+    "Docker.md",
+    "NGINX.md",
+    "Linux.md",
+    "Django.md",
+    "SQL и PostgreSQL.md",
+    "Python.md",
+    "Web.md",
+    "files/Pasted image 20240215055352.png",
+    "OpenCV.md",
+    "CSS.md",
+    "Структуры данных.md",
+    "SOLID, REST, паттерны.md",
+    "Парсинг.md",
+    "ООП.md",
+    "Нейросети.md",
+    "Telegram Bot.md",
+    "React.md",
+    "IDE PyCharm.md",
+    "JavaScript.md",
+    "Алгоритмы.md",
     "_Obsidian.md",
     "DNS.md",
-    "OpenCV.md",
-    "SOLID, REST, паттерны.md",
-    "ООП.md",
-    "Парсинг.md",
-    "Нейросети.md",
-    "Алгоритмы.md",
     "Математика. Комбинаторика и Теор.вер..md",
-    "React.md",
-    "JavaScript.md",
-    "IDE PyCharm.md",
     "Git.md",
-    "CSS.md",
-    "Django.md",
-    "Docker.md",
-    "Структуры данных.md",
-    "Linux.md",
-    "Python.md",
-    "SQL и PostgreSQL.md",
-    "Деплой.md",
-    "Telegram Bot.md",
     "HTML.md",
     "files/vektor_433.gif",
     "files/js.jpg",
@@ -205,10 +208,6 @@
     "files/Pasted image 20231217171004.jpg",
     "files/Pasted image 20231218023825.png",
     "files/Pasted image 20231219034033.png",
-    "files/Pasted image 20231219081151.png",
-    "PEP8.md",
-    "RegEx.md",
-    "Web.md",
     "files"
   ]
 }

@@ -11,9 +11,9 @@ sudo apt autoremove docker* --purge
 
 >[!info] Регистр - место хранения образов(например DockerHub)
 
->[!info] Образы - это готовые решения. Их нельзя изменять. Например образы python3.11, nginx, ubuntu. Запустить образ без контейнера невозможно(он может создастся автоматически)
+>[!info] Образы - это описание того что должно быть установлено, инструкции для настройки окружения(готовые решения). Их нельзя изменять. Например образы python3.11, nginx, ubuntu. Запустить образ без контейнера невозможно(он может создастся автоматически)
 
->[!info] Контейнер - это набор из образов готовый к запуску
+>[!info] Контейнер - это уже запущенный процесс, набор из образов.
 
 |Команда|Описание|
 |-------|-----------|
@@ -52,52 +52,96 @@ sudo apt autoremove docker* --purge
 #### Dockerfile
 Описание только одного образа.
 ```
-FROM openjdk:11          # образ
-COPY . /usr/src/myapp    # какие файлы из нашего проекта копируем в образ
-WORKDIR /usr/src/myapp   # рабочая директория(после запуска автоматически попадаем в эту директорию)
-RUN javac Main.java      # выполнить комманду при первом запуске контейнера
-CMD ["java", "Main"]     # выполнять каждый раз при запуске контейнера(комманда "java Main")
-EXPOSE 8001              # порт в образе
-ENV PASS=12345           # переменные окружения
+FROM python:3.11               # образ
+SHELL ["/bin/bash", "-c"]      # оболочка(-с далее идёт команда, которую нужно выполнить)
+ENV PYTHONDONTWRITEBYTECODE=1  # Python не будет пытаться писать файлы .pyc
+ENV PYTHONUNBUFFERED=1         # Запрещает вывод stdout и stderr буферезировать
+
+RUN pip install --upgrade pip  # выполнить комманду при первом запуске контейнера
+                               # получается "/bin/bash -с pip install --upgrade pip"
+RUN apt update && apt -qy install gcc cron libjpg-dev
+RUN useradd -rms /bin/bash ufo && chmod 777 /opt /run
+
+WORKDIR /ufo   # рабочая директория(после запуска автоматически попадаем в эту директорию)
+
+COPY --chown=ufo:ufo . .    # какие файлы из нашего проекта копируем в образ
+ADD . /code/                # какие файлы из нашего проекта копируем в образ
+
+ENV APP_NAME=DOCKER_DEMO    # задание переменной окружения
+
+RUN mkdir /ufo/static && mkdir /ufo/media && chown -R ufo:ufo /ufo && chmod 775 /ufo
+RUN pip install -r requirements.txt
+USER ufo                 # переключаемся на пользователя ufo
+CMD gunicorn docker_demo.wsgi:application -b 0.0.0.0:8000  # выполнять каждый раз при 
+                         # запуске контейнера
+EXPOSE 8000              # порт в образе
 ```
 Затем:
 ```
 docker build .                      # сбилдить образ используя Dockerfile в текущей директории
-docker build -t my-app:1.01 .       # сбилдить образ используя Dockerfile в текущей директории и
+docker build -t docker-demo:1.01 .  # сбилдить образ используя Dockerfile в текущей директории и
                                     #   указать имя my-app
+docker run -p 8084:8000 docker-demo # выполнить сбилженный контейнер с пробросом портов (8084 на
+                                    #   хосте и 8000 на виртуалке)
 docker tag 94c5f968ae9f myimage:v01 # после билда образа так можно изменить его название и версию
 docker image inspect 94c5f968ae9f   # можно посмотреть какие комманды используются в контейнере
+```
+Пример nginx докерфайла для образа(для этого нужно предварительно создать `nginx.conf` и  `proxy_params` файлы)
+```
+FROM nginx:latest
+
+RUN rm /etc/nginx/conf.d/default.conf
+COPY nginx.conf /etc/nginx/conf.d
+COPY proxy_params /etc/nginx
 ```
 
 #### docker-compose.yml
 Описание нескольких образов
 ```
-version: '3.1'
+version: '3.9'
 
 services:                                        # список образов
-  php:                                           # просто имя
-    build: ./php                                 # путь к уже готовому Dockerfile
-
   db:                                      
-    image: mariadb:10.6                          # точное название образа
+    image: postgres:15                           # точное название образа
+    container_name: ufo_postgres
     restart: always
-    environment:
-      MYSQL_ROOT_PASSWORD: notSecureChangeMe
-  volumes:
-    - /opt/web/html:/var/www/html
-    - /opt/web/pics:/var/www/pictures
-
-  phpmyadmin:
-    image: phpmyadmin
+    volumes:
+      - ~/.pg/pg_data/ufo:/var/lib/postgresql/data
+    env_file:
+      - .env
+      
+  django_project:
+    image: test_django:latest                     # образ сбилдженый из докерфайла
+    container_name: test_django
     restart: always
-    ports:
-      - 8080:80
-    environment:
-      - PMA_ARBITRARY=1
     depends_on:                                   # запускать только после
       - db
-      - php
+    volumes:
+      - static_volume:/ufo/static
+      - media_volume:/ufo/media
+    env_file:
+      - .env
+    command: >
+      bash -c "./manage.py collectstatic --noinput && ./manage.py migrate && gunicorn -b 0.0.0.0:8000 myapp.wsgi:application"
 
+  nginx:
+    build:                                        # билдим из докерфайла
+      ./Dockerfile
+    context: ./docker/nginx/
+    container_name: ufo_nginx
+    volumes:
+      - static_volume:/ufo/static
+      - media_volume:/ufo/media
+    depends_on:                                   # запускать только после
+      - django_project
+    ports:
+      - "${NGINX_EXTERNAL_PORT}:80"               # из переменной окружения
+
+
+volumes:
+  static_volume:
+  media_volume:
+  
 networks:
   default:
     driver: bridge
@@ -113,9 +157,11 @@ docker-compose logs -f             # логи
 
 #### Выгрузка своего образа в DockerHub
 ```
-docker build -t ufodriver007/my-app .  # сбилдить образ используя Dockerfile в текущей директории и
-                                       #   указать имя my-app
+docker build -t ufodriver007/my-app .  # сбилдить образ используя Dockerfile в текущей директории
+                                       #  и указать имя my-app
 docker push ufodriver007/my-app        # запушить образ в DockerHub
+docker pull ufodriver007/my-app        # скачать образ из DockerHub
+docker run ufodriver007/django_test    # запустить скачанный образ
 ```
 
 #### Docker volumes
@@ -145,7 +191,7 @@ version: '3'
 services:
  django:
   build: .
-  container_name django
+  container_name: django
   command: python manage.py runserver 0.0.0.0:8000
   volumes:
     - .:/usr/src/app                           # текущая папка связывается с папкой хоста /usr/src/app

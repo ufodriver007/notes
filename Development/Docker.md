@@ -15,6 +15,8 @@ sudo apt autoremove docker* --purge
 
 >[!info] Контейнер - это уже запущенный процесс, набор из образов.
 
+>[!info] Также существует файл `.dockerignore` работающий по аналогии с `.gitignore`
+
 |Команда|Описание|
 |-------|-----------|
 |`sudo usermod -aG docker ufodriver`| Добавить ufodriver в группу docker
@@ -136,6 +138,8 @@ services:                                        # список образов
       - django_project
     ports:
       - "${NGINX_EXTERNAL_PORT}:80"               # из переменной окружения
+    profiles:
+      - dev                                       # сервис с профилем dev
 
 
 volumes:
@@ -151,8 +155,10 @@ networks:
 ```
 docker-compose build               # сбилдить образ используя файл docker-compose.yml
 docker-compose up -d               # запустить(если образов нет, они будут скачаны) в фоне
+docker-compose up --build          # запустить и ПЕРЕбилдить
 docker-compose down                # остановить
 docker-compose logs -f             # логи
+docker-compose --profile dev up    # запустить сервисы с профилем dev
 ```
 
 #### Выгрузка своего образа в DockerHub

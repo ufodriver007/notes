@@ -128,6 +128,16 @@ SELECT * FROM teacher UNION SELECT * FROM lesson
 sudo apt install postgresql postgresql-contrib
 ```
 
+Отключить сервис postgres
+```
+/etc/init.d/postgresql stop
+```
+
+Включить сервис postgres
+```
+/etc/init.d/postgresql start
+```
+
 Версия
 ```
 pg_config --version

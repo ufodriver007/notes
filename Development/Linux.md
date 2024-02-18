@@ -669,6 +669,17 @@ sudo nano /etc/ssh/sshd_config
 cat ~/.ssh/id_rsa
 ```
 
+#### Передача файлов по SSH
+###### Копирование файла с сервера
+```
+scp root@123.123.123.123:/home/test.txt /directory
+```
+
+###### Загрузка файла на сервер
+```
+scp /home/test.txt root@123.123.123.123:/directory
+```
+
 #### FLATPAK
 |Команда |Описание|
 |------------|------------------|

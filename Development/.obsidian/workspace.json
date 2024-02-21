@@ -8,12 +8,12 @@
         "type": "tabs",
         "children": [
           {
-            "id": "dbe7d604243e0030",
+            "id": "053dbac449b9f44d",
             "type": "leaf",
             "state": {
               "type": "markdown",
               "state": {
-                "file": "JavaScript.md",
+                "file": "Django.md",
                 "mode": "preview",
                 "source": true
               }
@@ -85,7 +85,7 @@
             "state": {
               "type": "backlink",
               "state": {
-                "file": "JavaScript.md",
+                "file": "Django.md",
                 "collapseAll": false,
                 "extraContext": false,
                 "sortOrder": "alphabetical",
@@ -102,7 +102,7 @@
             "state": {
               "type": "outgoing-link",
               "state": {
-                "file": "JavaScript.md",
+                "file": "Django.md",
                 "linksCollapsed": false,
                 "unlinkedCollapsed": true
               }
@@ -125,7 +125,7 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "JavaScript.md"
+                "file": "Django.md"
               }
             }
           }
@@ -146,35 +146,35 @@
       "command-palette:Открыть палитру команд": false
     }
   },
-  "active": "dbe7d604243e0030",
+  "active": "053dbac449b9f44d",
   "lastOpenFiles": [
-    "files/DOM.png",
-    "Linux.md",
-    "Django.md",
-    "Docker.md",
+    "React.md",
+    "JavaScript.md",
     "Деплой.md",
-    "SQL и PostgreSQL.md",
-    "Git.md",
-    "NGINX.md",
     "Python.md",
-    "Web.md",
-    "files/Pasted image 20240215055352.png",
-    "OpenCV.md",
+    "Django.md",
+    "Linux.md",
+    "Git.md",
+    "_Obsidian.md",
+    "NGINX.md",
+    "IDE PyCharm.md",
+    "HTML.md",
+    "Docker.md",
+    "DNS.md",
     "CSS.md",
     "Структуры данных.md",
-    "SOLID, REST, паттерны.md",
     "Парсинг.md",
     "ООП.md",
     "Нейросети.md",
-    "Telegram Bot.md",
-    "React.md",
-    "IDE PyCharm.md",
-    "JavaScript.md",
     "Алгоритмы.md",
-    "_Obsidian.md",
-    "DNS.md",
     "Математика. Комбинаторика и Теор.вер..md",
-    "HTML.md",
+    "SQL и PostgreSQL.md",
+    "files/DOM.png",
+    "Web.md",
+    "files/Pasted image 20240215055352.png",
+    "OpenCV.md",
+    "SOLID, REST, паттерны.md",
+    "Telegram Bot.md",
     "files/vektor_433.gif",
     "files/js.jpg",
     "files/kollinearnye_vektory_434.gif",
@@ -183,7 +183,6 @@
     "files/nginx.png",
     "files/Pasted image 20231217171004.jpg",
     "files/Pasted image 20231218023825.png",
-    "files/Pasted image 20231219034033.png",
     "files"
   ]
 }

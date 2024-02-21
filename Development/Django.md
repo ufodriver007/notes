@@ -622,6 +622,10 @@ class TimestampedModel(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
+    def get_dir(self, filename):
+        dir_name = sha256(f'{self.name}{self.user.username}'.encode('utf-8')).hexdigest()  
+        return f"models/{dir_name}/{filename}"
+
     class Meta:
         abstract = True
 
@@ -631,6 +635,7 @@ class Order(models.Model):
     order_dt = models.DateTimeField(auto_now=True)
     order_name = models.CharField(max_length=200)
     order_phone = models.CharField(max_length=200)
+    file = models.FileField(upload_to=get_dir, default=None, blank=True, verbose_name='Файл модели')
     priсe = models.DecimalField(max_digits=7, decimal_places=2) # Число с запятой(всего цифр - 7,
                                                                 #  из них после запятой 2)
     email = models.EmailField(unique=True)

@@ -870,6 +870,8 @@ let value = await promise;
 ```
 
 ###### FETCH
+>[!info] Это современный подход к работе с AJAX
+
 >[!info] Без options это простой GET-запрос, скачивающий содержимое по адресу `url`
 
 Типичный запрос fetch
@@ -881,7 +883,7 @@ let result = await response.json();           // читать тело отве�
 ```
 let response = await fetch(url);
 
-if (response.ok) {                        // если HTTP-статус в диапазоне 200-299; есть ещё .status
+if (response.ok) {                    // если HTTP-статус в диапазоне 200-299; есть ещё .status
   let json = await response.json();
 } else {
   alert("Ошибка HTTP: " + response.status);
@@ -902,6 +904,27 @@ if (response.ok) {                        // если HTTP-статус в ди�
        Authentication: 'secret'
      }
    });
+```
+
+Реальный пример
+```
+<h1>Тестовые данные</h1>  
+<input id="test_button" value="Получить тестовые данные" type="button" />  
+<p id="data"></p>
+
+<script>  
+    const button = document.getElementById('test_button');  
+    button.addEventListener('click', async () => {
+        let response = await fetch('http://127.0.0.1:8000/categories/');
+              
+        if (response.ok) {
+            let json_data = await response.json();
+            document.getElementById('data').textContent = json_data[0].name
+        } else {
+            alert("Ошибка HTTP: " + response.status);
+        }
+    })
+</script>
 ```
 
 ###### POST метод в Fetch
@@ -930,8 +953,7 @@ let result = await response.json();
 alert(result.message);
 ```
 
-#### Примеры AJAX
-###### AJAX
+Ещё пример
 ```
 document.addEventListener("DOMContentLoaded", function(){             //Создаётся слушатель события полной загрузки страницы и передаём ему функцию
         let btn = document.querySelector('input[type=submit]');       //Создаём переменную btn. Находим в документе кнопку и привязываем её к переменной
@@ -961,7 +983,7 @@ Response(
          media_type="application/json")
 ```
 
-###### AJAX запрос на API
+###### Устаревший подход с XMLHttpRequest(запрос на API)
 ```
 document.addEventListener('DOMContentLoaded', function() {
     var xhr = new XMLHttpRequest();

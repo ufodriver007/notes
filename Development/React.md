@@ -1,61 +1,259 @@
 ![[Pasted image 20240115022815.jpg|300]]
 
-#### Подключение react.js
+>[!info] Код react-приложения с помощью `create-react-app` и `node js` конвертируется в обычный JavaScript, который уже потом скармливается браузеру.
+
+###### Устанавливаем node js
 ```
-<head>
-    <script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
-    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
-    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>  # преобразование
-                                                                              #  кода react в JS.
-</head>
+curl -sL https://deb.nodesource.com/setup_20.x -o nodesource_setup.sh
+```
+```
+sudo bash nodesource_setup.sh
+```
+```
+sudo apt install nodejs
+```
+>[!info] Автоматически установится `npm` - пакетный менеджер для node js
+
+[Статья на DigitalOcean по установке node js](https://www.digitalocean.com/community/tutorials/how-to-install-node-js-on-ubuntu-20-04-ru)
+
+###### Устанавливаем create-react-app
+```
+npx create-react-app@5.0.1 my-app              
+```
+```
+cd my-app
+```
+```
+npm run start
+```
+Затем в браузере откройте [http://localhost:3000/](http://localhost:3000/)
+
+###### NPM и NPX
+- **npm** пакетный менеджер, который скачивает исходники и добавляет в проект
+- **npx** пакетный менеджер, который скачивает, выполняет и затем удаляет исходники
+
+>[!info] package.json - описание проекта(имя, описание, зависимости, скрипты и т.д.)
+
+>[!tip] Дописываем в `package.json` в основную секцию стоку `"homepage": "./",`
+
+Примеры скриптов
+```
+npm run start             # запустить на тестовом сервере
+npm run build             # собрать билд
 ```
 
-Также создадим `<div id="app"></div>` куда будем выводить нужные элементы.
->[!info] Babel ТРЕБУЕТ, чтобы все скрипты react были с особенным типом (`type="text/babel"`)
+После сборки билда можно открывать `index.html` в браузере.
+>[!info]  Директория `node_modules` это аналог виртуального окружения в Python. Её добавляют в `.gitignore`
 
-В конец `<body>` подключаем свой скрипт, например `<script src="js/main.js" type="text/babel"></script>`
-В этом своём скрипте например рендерим заголовок:
 ```
-ReactDOM.render(<h1>Hello from React</h1>, document.getElementById("app"))      # Создаём и рендерим заголовок и помещаем его в элемент с id="app"
+npm init                 # создать package.json
+npm install              # установить зависимости(node_modules) из package.json
+npm install react        # установить библиотеку
+npm uninstall react      # удалить библиотеку
 ```
 
-Весь код:
+#### Import и export
+В файле источнике пишем
 ```
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>React JS</title>
-  <script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
-  <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
-  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
-</head>
-<body>
+export const TEST = 42;
+export my_func() {
+    alert("Hello!")
+}
+```
+В файле, куда хотим подключить
+```
+import { TEST, my_func } from './src.js'
+```
 
-  <div id="app">
+###### Default import
+**Обычный способ подключения React компонентов**
+В файле источнике пишем
+```
+const App = () => {
+    return "Hello, world!";
+}
+export default App
+```
+В файле, куда хотим подключить(Если рефкт-компонент, то в `'src/index.js'` )
+```
+import App from './App';
+
+// подключаем импортированный компонент как тег
+const root = ReactDOM.createRoot(document.getElementById('root'));
+root.render(
+  <React.StrictMode>
+    <App></App >
+  </React.StrictMode>
+);
+```
+
+
+###### Импорт CSS
+```
+import './index.css'
+```
+
+###### Создаём простой компонент
+
+В `'src`' создаём файл `'header.jsx'`
+```
+function Header() {
+    return (
+        <header>
+            <img src="logo.png" />
+
+            <nav>
+                <a href="#">На главную</a>
+                <a href="#">Портфолио</a>
+                <a href="#">Контакты</a>
+            </nav>
+        </header>
+    );
+}
+
+export default Header
+```
+Затем поключаем его в файле `src/index.js`
+```
+import React from 'react';
+import ReactDOM from 'react-dom/client';
+import Header from './header'
+
+const root = ReactDOM.createRoot(document.getElementById('root'));
+root.render(
+    <React.StrictMode>
+    <Header></Header>
+    </React.StrictMode>
+);
+```
+
+#### JSX
+>[!info] JSX — расширение языка JavaScript. Позволяет использовать синтаксис HTML внутри вашего кода JavaScript.
+
+>[!warning] В JSX мы не можем тегам писать `class`, вместо этого пишем `className`.
+>Например `<div className="test"></div>`. Атрибуты также пишем в CamelCase.
+
+###### Передача переменных
+```
+const App = () => {
+    const name = 'Alex'
     
-  </div>
+    return (
+        <div>
+            <p>{name}</p>
+        </div>
+        );
+};
 
-  <script src="js/main.js" type="text/babel"></script>
-</body>
-</html>
+export default App;
 ```
 
-С помощью можно вывести только один элемент. И если нужно вывести много информации, можно выводить `<div>` с дочерними вложенными элементами
+###### Условия
+1. Использование тернарного оператора
+```
+const App = () => {
+    const age = 18
+    
+    return (
+        <div>
+            <p>{age === 18 & 'good' : 'bad'}</p>
+        </div>
+        );
+};
+
+export default App;
+```
+
+2. Через функцию
+```
+const App = () => {
+    const age = 18;
+    function choice() {
+        if (age === 18) {
+            return 'good'    # млм например return <div>test</div>
+        }
+    }
+    
+    return (
+        <div>
+            <p>{choice()}</p>
+        </div>
+        );
+};
+
+export default App;
+```
+
+###### Циклы
+Реакт не понимает объекты JS. Нужно их конвертировать в реакт объекты.
+```
+const array = [{hello: 'world}, {hello: 'world2}]   # объекты JS
+const array ReactElements = []
+
+for (let i = 0; i < array.length; i++) {
+    const onj = array[i];
+
+    arrayReactElements.push(
+        <div>obj.hello</div>                       
+    )
+}
+```
+
+Внутрь JSX надо использовать `map()` либо `reduce()`, т.к. они возвращают результат. Например
+```
+...
+return (
+   <div>
+       {array.reduce((acc, obj) => {
+           acc.push(
+               <p>{obj.hello}</p>
+           );
+
+        return acc;
+       ), [])}
+   </div> 
+)
+...
+```
+
+#### Props
+>[!info] Props представляет коллекцию значений, которые ассоциированы с компонентом. Эти значения позволяют создавать динамические компоненты, которые не зависят от жестко закодированных статических данных.
+
+```
+function Hello(props) {
+    return <div>
+        <p>Имя: {props.name}</p>
+        <p>Возраст: {props.age}</p>
+    </div>
+}
+```
 
 #### События
+`App.jsx`
 ```
-const inputClick = () => console.log("Clicked!")
-const helpText = "Help TEXT"
+import React from "react";
 
-const elements = (<div className="abc">      # встроенный JSX парсер, используем className
-                                             #  вместо class
-    <h1>Example</h1>
-    <input placeholder="help text" onClick={inputClick}>      # вызов функции
-    <p>{helpText == "Help TEXT" ? "Yes" : "No"}</p>           # условие
-</div>)
+const App = () => {
+    const onClickHandler = (event) => {
+        console.log('click', event);
+    };
+    const onChangeHandler = (event) => {
+        console.log('on change', event.target.value);
+    };
 
-const app = document.getElementNyId("app")
-ReactDOM.render(elements, app)
+    return (
+        <form onSubmit = {(event) = {
+            event.preventDefault();
+            console.log('submit');
+        }}>
+            Test form
+            <input type="text" onChange={onChangeHandler} />
+            <button type="submit" onClick={onClickHandler}>BUTTON</button>
+        </form>
+    );
+};
+
+export default App;
 ```
+
+Есть ещё `onMouseEnter` - событие, когда навели мышью

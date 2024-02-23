@@ -12,6 +12,8 @@ python3 manage.py runserver                                  # запустит�
 ```
 python3 manage.py startapp <app_name>                        # создаём приложение
  # затем регистрируем в settings.py в списке INSALLED_APPS как '<app_name>.apps.app_class'
+
+python3 manage.py createsuperuser                            # создаём админа
 ```
 >[!tip] Чтобы обновить  страницу в браузере с перезагрузкой кэша(например если Вы правите css) существует сочетание `CTRL-F5`
 
@@ -1966,18 +1968,71 @@ REST_FRAMEWORK = {
 
 Создадим в приложении `permissions.py`
 ```
-from rest_framework.permissions import BasePermission, SAFR_METHODS
+from rest_framework.permissions import BasePermission, SAFE_METHODS
 
 class IsOwnerOrReadOnly(BasePermission):
    def has_object_permission(self, request, view, obj):  # т.е. работет на те view, которые 
-                                                         #  привязан к какому-то объекту
+                                                         #  привязаны к какому-то объекту
         return bool(
             request.method in SAFE_METHODS or
             request.user and
             request.user.is_authenticated and obj.owner == request.user
         )
+# есть ещё метод has_permission(self, request, view) который влияет на view не привязанный к объекту(список)
 ```
 *Не забудьте импорировать класс во ViewSet*
+
+#### Авторизация
+###### Session-based authentication
+В `settings.py`
+```
+REST_FRAMEWORK = {  
+    'DEFAULT_AUTHENTICATION_CLASSES': [  
+        'rest_framework.authentication.SessionAuthentication',  
+        'rest_framework.authentication.BasicAuthentication',  
+    ],  
+}
+```
+
+Добавляем в `urls.py`
+```
+urlpatterns = [  
+    ...
+    path('api/auth/', include('rest_framework.urls')),  # путь пишем любой
+    ...
+]
+# теперь доступны два адреса api/auth/login и api/auth/logout
+```
+
+###### Простая авторизация по токену(Djoser)
+```
+pip install djoser
+```
+```
+# settings.py
+INSTALLED_APPS = [  
+    ...
+    'rest_framework.authtoken',
+    'djoser',
+]
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework.authentication.TokenAuthentication',
+        (...)
+    ),
+}
+```
+Добавляем в `urlpatterns`
+```
+path(r'api/auth/', include('djoser.urls')),  
+re_path(r'^auth/', include('djoser.urls.authtoken')),  # http://127.0.0.1:8000/auth/token/login
+```
+
+>[!info] [Базовые эндпоинты для управления пользователями](https://djoser.readthedocs.io/en/latest/base_endpoints.html)
+
+Отправляем POST запрос с полями `username` и `password` на `/auth/token/login` и в ответ получаем токен. Например `"auth_token": "911bff0261de434eededec94d587652e25237f00"`
+Чтобы получить доступ к ограниченному контенту, нужно в заголовке слать `Authorization=Token 911bff0261de434eededec94d587652e25237f00`
+Для logout тоже нужно слать токен в заголовках.
 
 #### Фильтрация в DRF
 ```

@@ -13,6 +13,18 @@
             "state": {
               "type": "markdown",
               "state": {
+                "file": "React.md",
+                "mode": "preview",
+                "source": true
+              }
+            }
+          },
+          {
+            "id": "bb71f3ce5fc46601",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
                 "file": "Django.md",
                 "mode": "preview",
                 "source": true
@@ -85,7 +97,7 @@
             "state": {
               "type": "backlink",
               "state": {
-                "file": "Django.md",
+                "file": "React.md",
                 "collapseAll": false,
                 "extraContext": false,
                 "sortOrder": "alphabetical",
@@ -102,7 +114,7 @@
             "state": {
               "type": "outgoing-link",
               "state": {
-                "file": "Django.md",
+                "file": "React.md",
                 "linksCollapsed": false,
                 "unlinkedCollapsed": true
               }
@@ -125,7 +137,7 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "Django.md"
+                "file": "React.md"
               }
             }
           }
@@ -148,25 +160,25 @@
   },
   "active": "053dbac449b9f44d",
   "lastOpenFiles": [
-    "React.md",
-    "JavaScript.md",
-    "Деплой.md",
-    "Python.md",
     "Django.md",
+    "React.md",
+    "_Obsidian.md",
+    "Python.md",
+    "Деплой.md",
+    "Парсинг.md",
+    "Структуры данных.md",
+    "Алгоритмы.md",
+    "JavaScript.md",
     "Linux.md",
     "Git.md",
-    "_Obsidian.md",
     "NGINX.md",
     "IDE PyCharm.md",
     "HTML.md",
     "Docker.md",
     "DNS.md",
     "CSS.md",
-    "Структуры данных.md",
-    "Парсинг.md",
     "ООП.md",
     "Нейросети.md",
-    "Алгоритмы.md",
     "Математика. Комбинаторика и Теор.вер..md",
     "SQL и PostgreSQL.md",
     "files/DOM.png",

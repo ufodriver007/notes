@@ -257,3 +257,42 @@ export default App;
 ```
 
 Есть ещё `onMouseEnter` - событие, когда навели мышью
+
+#### Хуки
+>[!info] Вспомогательные функции, которые помогают работать с компонентом
+>Функция, которая принимает некое значение.
+
+**Основные хуки:**
+- useState
+- useEffect
+- useCallback
+- useRef
+- useMemo
+- useContect
+
+**useState** Позволяет сохранять значения. Если значение изменено, перерисовывает компонент.
+```
+//App.jsx
+import React, { useState } from 'react';
+import './index.css';
+
+const App = () => {
+    const [isDark, setIsDark] = useState(true);  // функция хука возвращ. массив
+        // первое значение - это начальная переменная
+        // второе значение - функция, которая меняет переменную 1го элемента
+
+    const onClickHandler = () => {
+        setIsDark(!isDark);
+    };
+
+    return (
+        <div className={isDark & 'dark' : 'light'}>
+            <button onClick={onClickHandler}>Переключить тему</button>
+        </div>
+    );
+};
+
+export default App;
+```
+
+**useEffect** 

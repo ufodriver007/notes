@@ -1843,13 +1843,12 @@ pip install django-filter             # Filtering support
 ```
 # нужно зарегистрировать rest_framework в settings.py и создать маршрут в urls.py
 # views.py
-from rest_framework.decorators import api_view
+from rest_framework.views import APIView           # базовый класс для представлений DRF
 from rest_framework.response import Response
-from rest_framework.request import Request
 
-@api_view()
-def hello_world_view(request: Request) -> Response:
-    return Response({"message": "Hello, world!"})
+class MyAPIView(APIView):
+    def get(self, request):
+        return Response({'title': 'Bill Gates'})   # просто json-строка
 ```
 
 ###### Реальный пример
@@ -1904,7 +1903,7 @@ urlpatterns += router.urls
 
 Теперь можно получить инфо: `127.0.0.1:8000/book/?format=json`
 
-Чтобы определить дефолтный формат и не писать в url `format=json`, нужно добавить в `settings.py`:
+>[!tip] Чтобы определить дефолтный формат и не писать в url `format=json`, нужно добавить в `settings.py`:
 ```
 REST_FRAMEWORK = {
     'DEFAULT_RENDERER_CLASSES': (
@@ -1914,6 +1913,210 @@ REST_FRAMEWORK = {
         'rest_framework.parsers.JSONParser',
     )
 }
+```
+
+#### Views
+###### Generic views
+[Generic views(Общие представления)](https://ilyachch.gitbook.io/django-rest-framework-russian-documentation/overview/navigaciya-po-api/generic-views)
+```
+from rest_framework import generics
+
+class MyView(generics.CreateAPIView):
+    queryset = User.objects.all()
+    serializer_class = UserSerializer
+    permission_classes = [IsAdminUser]
+```
+
+|класс|описание|
+|-------|-------------|
+|CreateAPIView|Создание данных по POST запросу|
+|ListAPIView|Чтение списка данных по GET запросу
+|RetrieveAPIView|Чтение записи по GET запросу
+|DestroyAPIView|Удаленин записи по DELETE запросу
+|UpdateAPIView|Изменение записи по PUT или PATCH запросу
+|ListCreateAPIView|Чтение по GET запросу и создание списка по POST запросу
+|RetrieveUpdateAPIView|Чтение и изменение записи по GET и POST запросу
+|RetriveDestroyAPIView|Чтение по GET и удаление по DELETE отдельной записи
+|RetrieveUpdateDestroyAPIView|Чтение, изменение и удаление отдельной записи(GET, PUT, PATCH, DELETE)
+
+Пример базового представления
+```
+# views.py
+from rest_framework.views import APIView           # базовый класс для представлений DRF
+from rest_framework.response import Response
+from django.forms import model_to_dict
+
+class MyAPIView(APIView):
+    def get(self, request):
+        lst = Women.objects.all().values()
+        return Response({'posts': list(lst)})      # просто json-строка
+
+    def post(self, request):
+        post_new = Women.objects.create(           # создаём новый объект
+            title=request.data['title'],           # коллекция data в DRF - это замена POST
+            content=request.data['content'],
+            cat_id=request.data['cat_id']
+        )
+
+        return Response({'post': model_to_dict(post_new)})  # возвращаем json-строку с новым 
+                                        # объектом, конвертированным в словарь(а потом в json)
+```
+
+###### Viewsets
+[Viewssets(Наборы)](https://ilyachch.gitbook.io/django-rest-framework-russian-documentation/overview/navigaciya-po-api/viewsets)
+Действия ViewSet
+```
+def list(self, request):
+    pass
+
+def create(self, request):
+    pass
+
+def retrieve(self, request, pk=None):
+    pass
+
+def update(self, request, pk=None):
+    pass
+
+def partial_update(self, request, pk=None):
+    pass
+
+def destroy(self, request, pk=None):
+    pass
+```
+
+**ModelViewSet**
+```
+from rest_framework.viewsets import ModelViewSet
+
+class MyViewSet(ModelViewSet):
+    queryset = User.objects.all()
+    serializer_class = UserSerializer
+```
+
+**ReadOnlyModelViewSet**
+
+#### Роутеры
+>[!info] Связывают методы(GET, POST и тд) с методами ViewSet(list, create, retrieve и тд).
+>Без них бы пришлось писать `path('api/article/', ArticleViewSet.as_view({'get': 'list'}))`
+
+```
+from rest_framework import routers
+from .models import Article
+
+router = routers.SimpleRouter
+router.register(r'article', ArticleViewSet)  # имя в маршруте возьмётся не отсюда, а из модели
+                                             # изменить можно добавив аргумент basename=article22
+urlpatterns = [
+    path('admin/', admin.site.urls),
+]
+urlpatterns += router.urls
+```
+
+###### DefaultRouter
+Обрабатывет дефолтный путь, типа `http://127.0.0.1:8000/api/`
+
+ ###### Добавление нового маршрута в роутере
+```
+# views.py
+from rest_framework.decorators import action
+from rest_framework.viewsets import ModelViewSet
+
+class ArticleViewSet(ModelViewSet):
+    queryset = Article.objects.all()
+    serializer_class = ArticleSerializer
+
+    @action(methods=['get'], detail=False)  # detail=False возвращает список, а не одну запись
+    def category(self, request):           # если detail=True, то нужен ещё аргумент pk
+        cats = Category.objects.all()
+        return Response({'cats': [c.name for c in cats]})
+
+# теперь появится ещё один маршрут /article/category/ куда будет отдаваться список категорий
+```
+
+#### Сериализаторы
+>[!info] Превращают объекты Python и Django в JSON
+
+###### Процесс работы сериализатора
+Кодирование сериализатором объекта:
+- Помещаем объект в сериализатор, он получает атрибут `data`(словарь из например модели)
+- Объект сериализации превращаем в байтовую json строку
+
+Декодирование сериализатором объекта:
+- Получаем байтовую json строку и формируем словарь
+- Помещаем в сериализатор этот словарь
+- У объекта сериализации вызывем метод `is_valid()`
+- У объекта сериализации  появляется коллекция `validated_data`(упорядоченный словарь)
+
+Пример базового сериализатора
+```# serializers.py
+from rest_framework import serializers
+
+class ArticleSerializer(serializers.Serializer):
+    title = serializers.CharField(max_length=255)
+    content = serializers.CharField()
+    time_create = serializers.DateTimeField()
+    cat_id = serializers.IntegerField()
+```
+```
+# views.py
+from rest_framework.views import APIView           # базовый класс для представлений DRF
+from rest_framework.response import Response    # преобразует данные в байтовую json строку
+from .serializers import ArticleSerializer
+from .models import Article
+
+class MyAPIView(APIView):
+    def get(self, request):
+        articles = Article.objects.all()
+        return Response({'posts': ArticleSerializer(articles, many=True).data})
+
+    def post(self, request):
+        serializer = ArticleSerializer
+        serializer.is_valid(raise_exception=True)
+        
+        post_new = Article.objects.create(          # создаём новый объект
+            title=request.data['title'],            # коллекция data в DRF - это замена POST
+            content=request.data['content'],
+            cat_id=request.data['cat_id']
+        )
+
+        return Response({'post':  ArticleSerializer(post_new).data})
+```
+
+###### Методы сериализаторов
+**create(self, validated_data)** создание записи
+```
+from rest_framework import serializers
+
+class ArticleSerializer(serializers.Serializer):
+    title = serializers.CharField(max_length=255)
+    content = serializers.CharField()
+    time_create = serializers.DateTimeField()
+    cat_id = serializers.IntegerField()
+
+    def create(self, validated_data):   # чтобы вызвался этот метод, нужно в представлении
+                                        #   вызвать метод объекта сериализации .save()
+        return Article.objects.create(**validated_data)
+    
+```
+**update(self, instance, validated_data)** изменение записи
+```
+# Во view должен быть метод put или patch
+def update(self, instance, validated_data):
+    instance.title = validated_data.get("title", instance.title)
+    instance.save()
+    return instance
+```
+
+###### ModelSerializer
+Не нужно вручную указывать все поля
+```
+from rest_framework.serializers import ModelSerializer
+
+class UserSerializer(ModelSerializer):
+    class Meta:
+        model = User
+        fields = ('id', 'username', 'first_name', 'last_name', 'email', 'models_count')
 ```
 
 #### Своё поле в сериализаторе
@@ -2085,6 +2288,27 @@ class CategoryViewSet(ModelViewSet):
 И теперь по запросу `http://127.0.0.1:8000/categories/?ordering=name` получаем отсортированный JSON
 по полю `name`. Если `-name`, то сортировка в обратном порядке.
 
+#### Пагинация
+Добавляем в `settings.py`
+```
+REST_FRAMEWORK = {
+    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.LimitOffsetPagination',
+    'PAGE_SIZE': 100
+}
+```
+В ответ будем получать
+```
+HTTP 200 OK
+{
+    "count": 1023,
+    "next": "https://api.example.org/accounts/?page=5",
+    "previous": "https://api.example.org/accounts/?page=3",
+    "results": [
+        ...
+    ]
+}
+```
+
 #### CRUD в DRF
 ###### Создание
 Создавать записи через Django REST Framework можно передавая методом POST данные в JSON
@@ -2161,11 +2385,44 @@ REST_FRAMEWORK = {
 }
 ```
 
-###### Пагинация
+#### Пагинация
 ```
 # settings.py
 REST_FRAMEWORK = {
     'DEFAULT_RENDERER_CLASSES': `rest_framework.pagination.PageNumberPagination`,
     'PAGE_SIZE': 10,
 }
+```
+
+#### CORS(Cross-Origin Resource Sharing)
+>[!info] Cross-Origin Resource Sharing (CORS) — механизм, использующий дополнительные HTTP-заголовки, чтобы дать возможность агенту пользователя получать разрешения на доступ к выбранным ресурсам с сервера на источнике (домене), отличном от того, что сайт использует в данный момент.
+
+В целях безопасности браузеры ограничивают cross-origin запросы, инициируемые скриптами. Например, XMLHttpRequest и Fetch API следуют _политике одного источника. Это значит, что web-приложения, использующие такие API, могут запрашивать HTTP-ресурсы только с того домена, с которого были загружены, пока не будут использованы CORS-заголовки.
+
+Включение заголовков
+```
+pip install django-cors-headers
+```
+
+```
+INSTALLED_APPS = (
+    ...
+    'corsheaders',
+    ...
+)
+```
+
+```
+MIDDLEWARE = [
+    ...,
+    'corsheaders.middleware.CorsMiddleware',
+    'django.middleware.common.CommonMiddleware',
+    ...,
+]
+```
+
+```
+CORS_ALLOWED_ORIGINS = [
+    'http://localhost:3030',
+]
 ```

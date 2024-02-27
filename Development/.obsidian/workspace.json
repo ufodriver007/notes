@@ -8,12 +8,24 @@
         "type": "tabs",
         "children": [
           {
+            "id": "a33f392b20e6660a",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "JavaScript.md",
+                "mode": "preview",
+                "source": true
+              }
+            }
+          },
+          {
             "id": "053dbac449b9f44d",
             "type": "leaf",
             "state": {
               "type": "markdown",
               "state": {
-                "file": "React.md",
+                "file": "IDE PyCharm.md",
                 "mode": "preview",
                 "source": true
               }
@@ -27,6 +39,30 @@
               "state": {
                 "file": "Django.md",
                 "mode": "preview",
+                "source": true
+              }
+            }
+          },
+          {
+            "id": "87fe958c8cf151f9",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "CSS.md",
+                "mode": "preview",
+                "source": true
+              }
+            }
+          },
+          {
+            "id": "1eab2586da721aaa",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "_Obsidian.md",
+                "mode": "source",
                 "source": true
               }
             }
@@ -97,7 +133,7 @@
             "state": {
               "type": "backlink",
               "state": {
-                "file": "React.md",
+                "file": "JavaScript.md",
                 "collapseAll": false,
                 "extraContext": false,
                 "sortOrder": "alphabetical",
@@ -114,7 +150,7 @@
             "state": {
               "type": "outgoing-link",
               "state": {
-                "file": "React.md",
+                "file": "JavaScript.md",
                 "linksCollapsed": false,
                 "unlinkedCollapsed": true
               }
@@ -137,7 +173,7 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "React.md"
+                "file": "JavaScript.md"
               }
             }
           }
@@ -158,25 +194,25 @@
       "command-palette:Открыть палитру команд": false
     }
   },
-  "active": "053dbac449b9f44d",
+  "active": "a33f392b20e6660a",
   "lastOpenFiles": [
-    "Django.md",
-    "React.md",
     "_Obsidian.md",
+    "JavaScript.md",
+    "Django.md",
+    "CSS.md",
+    "IDE PyCharm.md",
+    "React.md",
     "Python.md",
     "Деплой.md",
     "Парсинг.md",
     "Структуры данных.md",
     "Алгоритмы.md",
-    "JavaScript.md",
     "Linux.md",
     "Git.md",
     "NGINX.md",
-    "IDE PyCharm.md",
     "HTML.md",
     "Docker.md",
     "DNS.md",
-    "CSS.md",
     "ООП.md",
     "Нейросети.md",
     "Математика. Комбинаторика и Теор.вер..md",

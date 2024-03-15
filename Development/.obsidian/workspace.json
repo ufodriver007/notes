@@ -8,31 +8,7 @@
         "type": "tabs",
         "children": [
           {
-            "id": "a33f392b20e6660a",
-            "type": "leaf",
-            "state": {
-              "type": "markdown",
-              "state": {
-                "file": "JavaScript.md",
-                "mode": "preview",
-                "source": true
-              }
-            }
-          },
-          {
-            "id": "053dbac449b9f44d",
-            "type": "leaf",
-            "state": {
-              "type": "markdown",
-              "state": {
-                "file": "IDE PyCharm.md",
-                "mode": "preview",
-                "source": true
-              }
-            }
-          },
-          {
-            "id": "bb71f3ce5fc46601",
+            "id": "a069a678b9c430ba",
             "type": "leaf",
             "state": {
               "type": "markdown",
@@ -44,30 +20,43 @@
             }
           },
           {
-            "id": "87fe958c8cf151f9",
+            "id": "f8af9179b9b841b4",
             "type": "leaf",
             "state": {
               "type": "markdown",
               "state": {
-                "file": "CSS.md",
+                "file": "Python.md",
                 "mode": "preview",
                 "source": true
               }
             }
           },
           {
-            "id": "1eab2586da721aaa",
+            "id": "e6c795b2189a907c",
             "type": "leaf",
             "state": {
               "type": "markdown",
               "state": {
-                "file": "_Obsidian.md",
-                "mode": "source",
+                "file": "JavaScript.md",
+                "mode": "preview",
+                "source": true
+              }
+            }
+          },
+          {
+            "id": "4a3b56f53533e6a6",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "Структуры данных.md",
+                "mode": "preview",
                 "source": true
               }
             }
           }
-        ]
+        ],
+        "currentTab": 1
       }
     ],
     "direction": "vertical"
@@ -133,7 +122,7 @@
             "state": {
               "type": "backlink",
               "state": {
-                "file": "JavaScript.md",
+                "file": "Python.md",
                 "collapseAll": false,
                 "extraContext": false,
                 "sortOrder": "alphabetical",
@@ -150,7 +139,7 @@
             "state": {
               "type": "outgoing-link",
               "state": {
-                "file": "JavaScript.md",
+                "file": "Python.md",
                 "linksCollapsed": false,
                 "unlinkedCollapsed": true
               }
@@ -173,7 +162,7 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "JavaScript.md"
+                "file": "Python.md"
               }
             }
           }
@@ -194,35 +183,36 @@
       "command-palette:Открыть палитру команд": false
     }
   },
-  "active": "a33f392b20e6660a",
+  "active": "f8af9179b9b841b4",
   "lastOpenFiles": [
-    "_Obsidian.md",
-    "JavaScript.md",
-    "Django.md",
-    "CSS.md",
-    "IDE PyCharm.md",
-    "React.md",
-    "Python.md",
-    "Деплой.md",
-    "Парсинг.md",
     "Структуры данных.md",
-    "Алгоритмы.md",
+    "Python.md",
     "Linux.md",
-    "Git.md",
+    "JavaScript.md",
+    "React.md",
+    "Django.md",
+    "Парсинг.md",
+    "_Obsidian.md",
+    "RegEx.md",
+    "ООП.md",
+    "Деплой.md",
+    "Алгоритмы.md",
+    "Web.md",
+    "Telegram Bot.md",
+    "SQL и PostgreSQL.md",
+    "SOLID, REST, паттерны.md",
+    "PEP8.md",
     "NGINX.md",
+    "IDE PyCharm.md",
     "HTML.md",
+    "Git.md",
     "Docker.md",
     "DNS.md",
-    "ООП.md",
+    "CSS.md",
     "Нейросети.md",
     "Математика. Комбинаторика и Теор.вер..md",
-    "SQL и PostgreSQL.md",
     "files/DOM.png",
-    "Web.md",
     "files/Pasted image 20240215055352.png",
-    "OpenCV.md",
-    "SOLID, REST, паттерны.md",
-    "Telegram Bot.md",
     "files/vektor_433.gif",
     "files/js.jpg",
     "files/kollinearnye_vektory_434.gif",

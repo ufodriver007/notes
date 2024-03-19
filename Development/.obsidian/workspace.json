@@ -32,31 +32,19 @@
             }
           },
           {
-            "id": "e6c795b2189a907c",
-            "type": "leaf",
-            "state": {
-              "type": "markdown",
-              "state": {
-                "file": "JavaScript.md",
-                "mode": "preview",
-                "source": true
-              }
-            }
-          },
-          {
             "id": "4a3b56f53533e6a6",
             "type": "leaf",
             "state": {
               "type": "markdown",
               "state": {
-                "file": "Структуры данных.md",
+                "file": "CSS.md",
                 "mode": "preview",
                 "source": true
               }
             }
           }
         ],
-        "currentTab": 1
+        "currentTab": 2
       }
     ],
     "direction": "vertical"
@@ -122,7 +110,7 @@
             "state": {
               "type": "backlink",
               "state": {
-                "file": "Python.md",
+                "file": "CSS.md",
                 "collapseAll": false,
                 "extraContext": false,
                 "sortOrder": "alphabetical",
@@ -139,7 +127,7 @@
             "state": {
               "type": "outgoing-link",
               "state": {
-                "file": "Python.md",
+                "file": "CSS.md",
                 "linksCollapsed": false,
                 "unlinkedCollapsed": true
               }
@@ -162,7 +150,7 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "Python.md"
+                "file": "CSS.md"
               }
             }
           }
@@ -183,16 +171,17 @@
       "command-palette:Открыть палитру команд": false
     }
   },
-  "active": "f8af9179b9b841b4",
+  "active": "4a3b56f53533e6a6",
   "lastOpenFiles": [
-    "Структуры данных.md",
+    "_Obsidian.md",
+    "CSS.md",
+    "Парсинг.md",
     "Python.md",
+    "React.md",
+    "Структуры данных.md",
+    "Django.md",
     "Linux.md",
     "JavaScript.md",
-    "React.md",
-    "Django.md",
-    "Парсинг.md",
-    "_Obsidian.md",
     "RegEx.md",
     "ООП.md",
     "Деплой.md",
@@ -208,7 +197,6 @@
     "Git.md",
     "Docker.md",
     "DNS.md",
-    "CSS.md",
     "Нейросети.md",
     "Математика. Комбинаторика и Теор.вер..md",
     "files/DOM.png",

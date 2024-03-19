@@ -170,7 +170,7 @@ const App = () => {
     const age = 18;
     function choice() {
         if (age === 18) {
-            return 'good'    # млм например return <div>test</div>
+            return 'good'    # или например return <div>test</div>
         }
     }
     
@@ -191,7 +191,7 @@ const array = [{hello: 'world}, {hello: 'world2}]   # объекты JS
 const array ReactElements = []
 
 for (let i = 0; i < array.length; i++) {
-    const onj = array[i];
+    const obj = array[i];
 
     arrayReactElements.push(
         <div>obj.hello</div>                       

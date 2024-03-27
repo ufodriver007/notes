@@ -1,3 +1,4 @@
+![[CSS3_logo.png|300]]
 #### Подключение css стилей
 ###### Внешние
 Подключение внешнего файла со стилями - внутрь head добавляем `<link rel="stylesheet" href="static/style.css">`
@@ -200,7 +201,16 @@ body {
 
 #### Bootstrap
 [Сайт Bootstrap](https://getbootstrap.com/docs/5.3/getting-started/introduction/)
+[Документация на русском](https://bootstrap-4.ru/docs/5.3/getting-started/introduction/)
 Docs->Download->CDN копируем пути css и js
+
+|Имя файла|Описание|
+|------|------|
+|`bootstrap.js`|Сама библиотека Bootstrap|
+|`bootstrap.min.js`|Сжатая версия Bootstrap(без пробелов, некоторых точек с запятой и т.д.)|
+|`bootstrap.bundle.js`|Bootstrap + Popper(плагин всплывающих подсказок)|
+|`bootstrap.bundle.min.js`|Сжатая версия Bootstrap + Popper(плагин всплывающих подсказок)|
+|`bootstrap.esm.js`| Версия Bootstrap, построенная как ESM (позволяет использовать Bootstrap в качестве модуля в браузере)|
 
 1. В шапке указываем тег
 ```
@@ -221,6 +231,18 @@ JS(В конец тега body)
 ```
 
 ###### Прижатие footer вниз
+**В Bootstrap**
+```
+<div class="container-fluid">
+    <div class="row">
+        <footer class="footer d-flex fixed-bottom bg-black text-white">
+            FOOTER
+        </footer>
+    </div>
+</div>
+```
+
+**Обычный вариант**
 [Компоновка flex на странице](https://tproger.ru/translations/how-css-flexbox-works)
 HTML
 ```
@@ -276,6 +298,17 @@ container-{breakpoint));
 - рядов или строк (элементов с классом row);
 - адаптивных колонок или блоков, имеющих один или несколько классов col.
 
+Типичный пример сетки
+```
+<div class="container">
+    <div class="row>
+        <div class="col">1</div>
+        <div class="col">2</div>
+        <div class="col">3</div>
+    </div>
+</div>
+```
+
 ###### Контейнеры
 >[!info] Контейнер - это элемент сетки Bootstrap, с которого обычно начинается создание макета страницы или ее части. Другими словами, это ба­зовый элемент, в котором необходимо размещать все другие элементы сетки (ряды и адаптивные блоки). Его основная цель - это установить шаблону ширину и выровнять его по центру страницы
 
@@ -286,6 +319,7 @@ Bootstrap поставляется с двумя базовыми контейн
 ```
 <div class="container-fluid"> ...</div>
 ```
+3. контейнер с указанием брейкпоинта
 
 ###### Ряды(row)
 Элемент сетки страницы, который выступает в роли контейнера для адаптивных блоков (колонок).

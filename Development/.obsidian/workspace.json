@@ -25,7 +25,7 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "Python.md",
+                "file": "JavaScript.md",
                 "mode": "preview",
                 "source": true
               }
@@ -37,14 +37,26 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "CSS.md",
+                "file": "Django.md",
+                "mode": "preview",
+                "source": true
+              }
+            }
+          },
+          {
+            "id": "519a9ae32e8b55f7",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "Git.md",
                 "mode": "preview",
                 "source": true
               }
             }
           }
         ],
-        "currentTab": 2
+        "currentTab": 3
       }
     ],
     "direction": "vertical"
@@ -110,7 +122,7 @@
             "state": {
               "type": "backlink",
               "state": {
-                "file": "CSS.md",
+                "file": "Git.md",
                 "collapseAll": false,
                 "extraContext": false,
                 "sortOrder": "alphabetical",
@@ -127,7 +139,7 @@
             "state": {
               "type": "outgoing-link",
               "state": {
-                "file": "CSS.md",
+                "file": "Git.md",
                 "linksCollapsed": false,
                 "unlinkedCollapsed": true
               }
@@ -150,7 +162,7 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "CSS.md"
+                "file": "Git.md"
               }
             }
           }
@@ -171,21 +183,23 @@
       "command-palette:Открыть палитру команд": false
     }
   },
-  "active": "4a3b56f53533e6a6",
+  "active": "519a9ae32e8b55f7",
   "lastOpenFiles": [
     "_Obsidian.md",
+    "Django.md",
+    "HTML.md",
     "CSS.md",
-    "Парсинг.md",
+    "JavaScript.md",
     "Python.md",
+    "files/CSS3_logo.png",
+    "Алгоритмы.md",
+    "Парсинг.md",
     "React.md",
     "Структуры данных.md",
-    "Django.md",
     "Linux.md",
-    "JavaScript.md",
     "RegEx.md",
     "ООП.md",
     "Деплой.md",
-    "Алгоритмы.md",
     "Web.md",
     "Telegram Bot.md",
     "SQL и PostgreSQL.md",
@@ -193,12 +207,10 @@
     "PEP8.md",
     "NGINX.md",
     "IDE PyCharm.md",
-    "HTML.md",
     "Git.md",
     "Docker.md",
     "DNS.md",
     "Нейросети.md",
-    "Математика. Комбинаторика и Теор.вер..md",
     "files/DOM.png",
     "files/Pasted image 20240215055352.png",
     "files/vektor_433.gif",
@@ -208,7 +220,6 @@
     "files/komplanarnye_vektory_436.gif",
     "files/nginx.png",
     "files/Pasted image 20231217171004.jpg",
-    "files/Pasted image 20231218023825.png",
     "files"
   ]
 }

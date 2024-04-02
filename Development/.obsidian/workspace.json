@@ -8,55 +8,18 @@
         "type": "tabs",
         "children": [
           {
-            "id": "a069a678b9c430ba",
-            "type": "leaf",
-            "state": {
-              "type": "markdown",
-              "state": {
-                "file": "Django.md",
-                "mode": "preview",
-                "source": true
-              }
-            }
-          },
-          {
             "id": "f8af9179b9b841b4",
             "type": "leaf",
             "state": {
               "type": "markdown",
               "state": {
-                "file": "JavaScript.md",
-                "mode": "preview",
-                "source": true
-              }
-            }
-          },
-          {
-            "id": "4a3b56f53533e6a6",
-            "type": "leaf",
-            "state": {
-              "type": "markdown",
-              "state": {
-                "file": "Django.md",
-                "mode": "preview",
-                "source": true
-              }
-            }
-          },
-          {
-            "id": "519a9ae32e8b55f7",
-            "type": "leaf",
-            "state": {
-              "type": "markdown",
-              "state": {
-                "file": "Git.md",
+                "file": "SOLID, REST, паттерны.md",
                 "mode": "preview",
                 "source": true
               }
             }
           }
-        ],
-        "currentTab": 3
+        ]
       }
     ],
     "direction": "vertical"
@@ -122,7 +85,7 @@
             "state": {
               "type": "backlink",
               "state": {
-                "file": "Git.md",
+                "file": "SOLID, REST, паттерны.md",
                 "collapseAll": false,
                 "extraContext": false,
                 "sortOrder": "alphabetical",
@@ -139,7 +102,7 @@
             "state": {
               "type": "outgoing-link",
               "state": {
-                "file": "Git.md",
+                "file": "SOLID, REST, паттерны.md",
                 "linksCollapsed": false,
                 "unlinkedCollapsed": true
               }
@@ -162,7 +125,7 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "Git.md"
+                "file": "SOLID, REST, паттерны.md"
               }
             }
           }
@@ -183,43 +146,43 @@
       "command-palette:Открыть палитру команд": false
     }
   },
-  "active": "519a9ae32e8b55f7",
+  "active": "f8af9179b9b841b4",
   "lastOpenFiles": [
-    "_Obsidian.md",
     "Django.md",
+    "Деплой.md",
+    "files/deploy.png",
+    "SOLID, REST, паттерны.md",
+    "NGINX.md",
+    "Linux.md",
+    "DNS.md",
+    "Python.md",
+    "Web.md",
+    "JavaScript.md",
+    "_Obsidian.md",
+    "files/comp.png",
+    "files/agg.png",
+    "files/ass.png",
+    "files/zav.png",
+    "Алгоритмы.md",
+    "Git.md",
     "HTML.md",
     "CSS.md",
-    "JavaScript.md",
-    "Python.md",
     "files/CSS3_logo.png",
-    "Алгоритмы.md",
     "Парсинг.md",
     "React.md",
     "Структуры данных.md",
-    "Linux.md",
     "RegEx.md",
     "ООП.md",
-    "Деплой.md",
-    "Web.md",
     "Telegram Bot.md",
     "SQL и PostgreSQL.md",
-    "SOLID, REST, паттерны.md",
     "PEP8.md",
-    "NGINX.md",
     "IDE PyCharm.md",
-    "Git.md",
     "Docker.md",
-    "DNS.md",
     "Нейросети.md",
     "files/DOM.png",
     "files/Pasted image 20240215055352.png",
     "files/vektor_433.gif",
     "files/js.jpg",
-    "files/kollinearnye_vektory_434.gif",
-    "files/kollinearnye_vektory_434 1.gif",
-    "files/komplanarnye_vektory_436.gif",
-    "files/nginx.png",
-    "files/Pasted image 20231217171004.jpg",
     "files"
   ]
 }

@@ -133,7 +133,7 @@ sudo nginx -s reload
 
 можно проверить на сайте sslshopper.com
 
-И наконец настраиваем автоматическую переадресайию на ssl. В конфиге nginx
+И наконец настраиваем автоматическую переадресацию на ssl. В конфиге nginx
 ```
 sudo nano /etc/nginx/sites-enabled/demo.conf
 ```
@@ -162,3 +162,17 @@ server {
     ...
 }
 ```
+
+###### CertBot
+Сертификат от certbot на 3 месяца
+
+```
+sudo apt install certbot python3-certbot-nginx
+sudo certbot --nginx
+```
+
+Далее вводим свой email(для напоминания об истекающем сроке действия) и выбираем домен.  
+Certbot сам исправит конфиг nginx и поставит редиректы.
+
+###### Zerossl
+[Выдаёт сертификаты с привязкой к IP](https://zerossl.com/)

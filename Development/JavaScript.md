@@ -305,11 +305,11 @@ calculator.display();   // Result: 9
 const user = new Object();
 ```
 ```
-const user = {};               # более распростанённый способ
-    const user = {            # почти как словарь в Python
-        name: "Tom",
-        age: 26
-    };
+const user = {};          # более распростанённый способ
+const user = {            # почти как словарь в Python
+    name: "Tom",
+    age: 26
+};
 ```
 
 ###### Свойства объекта
@@ -1061,4 +1061,114 @@ document.addEventListener('DOMContentLoaded', function() {
     };
     xhr.send();
 });
+```
+
+#### Indexed DB
+>[!info] IndexedDB – это встроенная объектно-ориентированная база данных. Содержит объекты в JSON виде(ключ - значение)
+
+- Хранит практически любые значения по ключам, несколько типов ключей
+- Поддерживает транзакции для надёжности.
+- Поддерживает запросы в диапазоне ключей и индексы.
+- Позволяет хранить больше данных, чем `localStorage`.
+
+Обычная последовательность шагов при работе с IndexedDB :
+
+1. Открыть базу данных.
+2. Создать хранилище объектов в базе данных, над которой будут выполняться наши операции.
+3. Запустить транзакцию и выдать запрос на выполнение какой-либо операции с базой данных, например, добавление или извлечение данных.
+4. Ждать завершения операции, обрабатывая событие DOM, на которое должен быть установлен наш обработчик.
+5. Сделать что-то с результатами (которые могут быть найдены в возвращаемом по нашему запросу объекте ).
+
+###### Создание и открытие базы данных
+```
+const openRequest = indexedDB.open(``"myDatabase"``, 1);
+
+// Обработайте события `onupgradeneeded` и `onsuccess`, чтобы создать хранилище данных
+//  и установить соединение с базой данных.
+
+openRequest.onupgradeneeded = function(event) {
+  const db = event.target.result;
+
+  if (!db.objectStoreNames.contains("myData")) {
+    db.createObjectStore("myData", { keyPath: "id" });
+  }
+};
+
+openRequest.onsuccess = function(event) {
+  const db = event.target.result;
+  console.log("Database opened:", db);
+};
+```
+
+После того, как база данных открыта, можно добавлять, обновлять, читать и удалять данные.
+
+######  Чтение данных
+Чтение данных осуществляется с помощью метода `get()`
+```
+const getRequest = objectStore.get(1);
+
+getRequest.onsuccess = function(event) {
+  console.log("Data read:", event.target.result);
+};
+```
+
+###### Обновление данных
+Обновление данных происходит аналогично добавлению, но с использованием метода `put()`.
+```
+const updatedData = { id: 1, name: "Jane Doe" };
+
+const updateRequest = objectStore.put(updatedData);
+
+updateRequest.onsuccess = function(event) {
+  console.log("Data updated:", updatedData);
+};
+```
+
+###### Удаление данных
+Для удаления данных используйте метод `delete()`.
+```
+const deleteRequest = objectStore.delete(1);
+
+deleteRequest.onsuccess = function(event) {
+  console.log("Data deleted");
+};
+```
+
+###### Закрытие базы данных
+```
+db.close();
+```
+
+###### Dexie.js
+>[!info] [Обёртка для `indexeddb`](https://dexie.org/docs/Tutorial/Getting-started)
+```
+// Declare DB  
+var db = new Dexie("UserDatabase");  
+db.version(1).stores({  
+    playlists: "++id,playlist",  
+    user: "id,username,savelocal",  
+    files: '++id, name, data'        // Хранилище для файлов  
+});
+```
+
+Пример рассчёта размера хранилища
+```
+function get_db_size() {  
+    // логика рассчёта объёма БД  
+     return new Promise((resolve, reject) => {  
+         totalIndexedDBSize = 0;  
+        db.files.each(item => {  
+            totalIndexedDBSize += (item.content.size / 1024 / 1024); // Не вызывайте здесь toFixed(), чтобы сохранить точность  
+        }).then(() => {  
+            resolve(totalIndexedDBSize.toFixed(1)); // Округление до 1 знака после запятой и передача результата в resolve  
+        }).catch(error => {  
+            reject(error);  
+        });  
+    });  
+}
+
+get_db_size()  
+    .then(result => {  
+    t_size.textContent = "Общий размер локальной базы данных: " + result + "Мб"  
+})
 ```

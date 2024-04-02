@@ -91,6 +91,7 @@
 #### Новый репозиторий можно создать двумя способами:
 1. Создание пустого репозитория в папке с уже существующим проектом и отправка в гитхаб (вместо пароля вводим токен):
     `git init`
+     `git add *`
     `git commit -m "first commit"`
     `git branch -M main`
     `git remote add origin https://github.com/ufodriver007/PassManager.git`

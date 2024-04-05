@@ -13,13 +13,38 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "SOLID, REST, паттерны.md",
+                "file": "Деплой.md",
+                "mode": "preview",
+                "source": true
+              }
+            }
+          },
+          {
+            "id": "258f02154d754243",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "Python.md",
+                "mode": "preview",
+                "source": true
+              }
+            }
+          },
+          {
+            "id": "5b84c70fe982e145",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "Django.md",
                 "mode": "preview",
                 "source": true
               }
             }
           }
-        ]
+        ],
+        "currentTab": 2
       }
     ],
     "direction": "vertical"
@@ -85,7 +110,7 @@
             "state": {
               "type": "backlink",
               "state": {
-                "file": "SOLID, REST, паттерны.md",
+                "file": "Django.md",
                 "collapseAll": false,
                 "extraContext": false,
                 "sortOrder": "alphabetical",
@@ -102,7 +127,7 @@
             "state": {
               "type": "outgoing-link",
               "state": {
-                "file": "SOLID, REST, паттерны.md",
+                "file": "Django.md",
                 "linksCollapsed": false,
                 "unlinkedCollapsed": true
               }
@@ -125,7 +150,7 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "SOLID, REST, паттерны.md"
+                "file": "Django.md"
               }
             }
           }
@@ -146,16 +171,22 @@
       "command-palette:Открыть палитру команд": false
     }
   },
-  "active": "f8af9179b9b841b4",
+  "active": "5b84c70fe982e145",
   "lastOpenFiles": [
-    "Django.md",
+    "Docker.md",
     "Деплой.md",
-    "files/deploy.png",
+    "Python.md",
+    "Парсинг.md",
+    "Django.md",
+    "Git.md",
     "SOLID, REST, паттерны.md",
+    "files/2024-04-03_02-20 1.png",
+    "files/2024-04-03_02-20.png",
+    "files/fabric_method_structure.png",
+    "files/deploy.png",
     "NGINX.md",
     "Linux.md",
     "DNS.md",
-    "Python.md",
     "Web.md",
     "JavaScript.md",
     "_Obsidian.md",
@@ -164,11 +195,9 @@
     "files/ass.png",
     "files/zav.png",
     "Алгоритмы.md",
-    "Git.md",
     "HTML.md",
     "CSS.md",
     "files/CSS3_logo.png",
-    "Парсинг.md",
     "React.md",
     "Структуры данных.md",
     "RegEx.md",
@@ -177,12 +206,8 @@
     "SQL и PostgreSQL.md",
     "PEP8.md",
     "IDE PyCharm.md",
-    "Docker.md",
     "Нейросети.md",
     "files/DOM.png",
-    "files/Pasted image 20240215055352.png",
-    "files/vektor_433.gif",
-    "files/js.jpg",
     "files"
   ]
 }

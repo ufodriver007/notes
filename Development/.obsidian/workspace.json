@@ -25,7 +25,7 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "Python.md",
+                "file": "Docker.md",
                 "mode": "preview",
                 "source": true
               }
@@ -38,6 +38,18 @@
               "type": "markdown",
               "state": {
                 "file": "Django.md",
+                "mode": "preview",
+                "source": true
+              }
+            }
+          },
+          {
+            "id": "70e3cc56c809c752",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "SOLID, REST, паттерны.md",
                 "mode": "preview",
                 "source": true
               }
@@ -173,13 +185,17 @@
   },
   "active": "5b84c70fe982e145",
   "lastOpenFiles": [
+    "SOLID, REST, паттерны.md",
+    "_Obsidian.md",
+    "Django.md",
     "Docker.md",
     "Деплой.md",
+    "JavaScript.md",
     "Python.md",
+    "CSS.md",
+    "Telegram Bot.md",
     "Парсинг.md",
-    "Django.md",
     "Git.md",
-    "SOLID, REST, паттерны.md",
     "files/2024-04-03_02-20 1.png",
     "files/2024-04-03_02-20.png",
     "files/fabric_method_structure.png",
@@ -188,21 +204,17 @@
     "Linux.md",
     "DNS.md",
     "Web.md",
-    "JavaScript.md",
-    "_Obsidian.md",
     "files/comp.png",
     "files/agg.png",
     "files/ass.png",
     "files/zav.png",
     "Алгоритмы.md",
     "HTML.md",
-    "CSS.md",
     "files/CSS3_logo.png",
     "React.md",
     "Структуры данных.md",
     "RegEx.md",
     "ООП.md",
-    "Telegram Bot.md",
     "SQL и PostgreSQL.md",
     "PEP8.md",
     "IDE PyCharm.md",

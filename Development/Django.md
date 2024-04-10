@@ -1022,6 +1022,16 @@ STATICFILES_DIRS = [
 В html указываем путь с помощью шаблонизатора
 `<img src="{% static 'img/1.jpg' %}">`
 
+Ещё пример
+```
+if DEBUG:  
+    STATICFILES_DIRS = [  
+        os.path.join(BASE_DIR, 'static')  
+    ]  
+else:  
+    STATIC_ROOT = os.path.join(BASE_DIR, 'static')
+```
+
 #### Медиа файлы
 Указание пути сохранения
 ```
@@ -2525,3 +2535,191 @@ toolbox.router.get("/images/*", toolbox.cacheFirst);
 toolbox.router.get("/*", toolbox.networkFirst, { networkTimeoutSeconds: 5});
 ```
 
+## Celery
+>[!info] Celery - это  распределенная очередь задач. Она позволяет вам выгрузить работу из вашего приложения на Python. Как только вы интегрируете Celery в свое приложение, вы можете отправлять трудоемкие задачи в очередь задач Celery. Таким образом, ваше веб-приложение может продолжать быстро реагировать на запросы пользователей, в то время как Celery асинхронно выполняет операции, требующие больших затрат в фоновом режиме.
+
+Так как с Celery удобно работать только из докера, будет показана сборка для докера.
+
+Для Celery нужен брокер сообщений (отдельная служба для отправки и получения сообщений). Это может быть Redis (key-value хранилище) или RabbitMQ (полноценный менеджер задач). Здесь будет показана связка с Redis.
+
+```
+pip install celery[redis]
+```
+
+Также установим `flower`(сервер, который наглядно с интерфейсом показывает таски), он будет удобен для дебага.
+
+```
+pip install flower
+```
+
+Обычный `Dockerfile` для `Django` приложения
+```
+FROM python:3.11  
+  
+COPY . /code  
+WORKDIR /code  
+EXPOSE 8000  
+  
+RUN pip install -r requirements.txt  
+  
+CMD python manage.py migrate \  
+        && python manage.py shell -c "from django.contrib.auth import get_user_model; User = get_user_model(); User.objects.filter(username='root').exists() or User.objects.create_superuser('root', 'root@example.com', 'root')" \  
+        && python manage.py collectstatic --no-input \  
+        && gunicorn music_site.wsgi:application --bind 0.0.0.0:8000 --log-level in
+```
+
+В `docker-compose.yml` будут описаны все сервисы, включая `redis`, `celery` и `flower`
+```
+version: "3.9"  
+services:  
+  music_site:  
+    build:  
+      context: .  
+    container_name: music_site  
+    restart: always  
+    volumes:  
+      - .:/code  
+      - static_volume:/code/static  
+    env_file:  
+      - .env  
+    ports:  
+      - "8000:8000"  
+  
+  nginx:  
+    image: nginx:latest  
+    container_name: nginx  
+    restart: always  
+    volumes:  
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf  
+      - static_volume:/code/static  
+    ports:  
+      - "80:80"  
+    depends_on:  
+      - music_site  
+  
+  redis:  
+    image: redis:7.0.5-alpine  
+    hostname: redis  
+  
+  worker:  
+    build:  
+      context: .  
+    hostname: worker                # имя под которым будет существовать сервис в докере
+    entrypoint: celery  
+    command: -A celery_app.app worker --loglevel=info  
+    volumes:  
+      - .:/code  
+    links:  
+      - redis  
+    depends_on:  
+      - redis  
+  
+  flower:  
+    build:  
+      context: .  
+    hostname: flower  
+    entrypoint: celery  
+    command: -A celery_app.app flower  
+    volumes:  
+      - .:/code  
+    links:  
+      - redis  
+    depends_on:  
+      - redis  
+    ports:  
+      - "5555:5555"  
+  
+volumes:  
+  static_volume:
+```
+
+Далее создаём файл `celery_app.py` на одном уровне с `manage.py`
+```
+import os  
+import time  
+  
+from celery import Celery  
+from django.conf import settings  
+  
+  
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'music_site.settings')  
+  
+app = Celery('music_site')  
+app.config_from_object('django.conf:settings')  
+app.conf.broker_url = settings.CELERY_BROKER_URL  
+app.autodiscover_tasks()  
+  
+
+# таск для примера
+@app.task()  
+def debug_task():  
+    time.sleep(50)  
+    print('Hello from debug task!')
+```
+
+ Создаём `__init__.py` на одном уровне с `settings.py`
+```
+from .celery_app import app as celery_app  
+  
+__all__ = ('celery_app',)
+```
+
+В `settings.py` указываем
+```
+CELERY_BROKER_URL = 'redis://redis:6379/0'  # protocol://hostname
+```
+
+Всё. Делаем из директории с `docker-compose.yml`
+```
+docker-compose build
+```
+
+И запускаем
+```
+docker-compose up
+```
+
+---
+Чтобы увидеть тестовую задачу `debug_task()` можно зайти в джанговый шелл
+Заходим в контейнер
+```
+docker exec -it music_site /bin/bash
+```
+
+И затем в шелл
+```
+python manage.py shell
+```
+
+И уже в шелле пишем
+```
+from celery_app import debug_task
+debug_task.delay()
+```
+
+Вывод можно будет увидеть в логах `worker`, а также посмотреть в интерфесе `flower` http://127.0.0.1:5555
+
+###### Таски в других приложениях в Django
+В других приложениях мы описываем таски так
+```
+from celery import shared_task
+
+@shared_task()
+def test_task():
+    pass
+```
+
+###### Celery Singleton
+>[!info] Предотвращает дублирование тасок. Т.е. когда приходит таск с такими же аргументами, он её не принимает.
+```
+pip install celery-singleton
+```
+
+```
+from celery import shared_task
+from celery_singleton import Singleton
+
+@shared_task(base=Singleton)
+def test_task():
+    pass
+```

@@ -154,6 +154,7 @@ networks:
 Затем:
 ```
 docker-compose build               # сбилдить образ используя файл docker-compose.yml
+docker-compose build --no-cache    # сбилдить образ, без кеширования
 docker-compose up -d               # запустить(если образов нет, они будут скачаны) в фоне
 docker-compose up --build          # запустить и ПЕРЕбилдить
 docker-compose down                # остановить

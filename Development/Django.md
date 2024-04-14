@@ -783,14 +783,39 @@ Bicycle.objects.filter(price__lt=50) | Bicycle.objects.filter(description__conta
 ```
 
 ###### Транзакции
-Создание атомарных транзакций. Либо выполняются все, либо ничего.
+>[!info] Для того, чтобы пометить фрагмент кода, как относящийся к одной транзакции, обычно используют _менеджер контекста_ atomic()
+
 ```
-try:
-    with transaction.atomic():
-        # код для работы с БД
-except ValidationError as e:
-    messages.warning(request, str(e))
-    return redirect('somewhere')
+from django.db import transaction
+
+with transaction.atomic():
+   # весь код в этом блоке выполнится в рамках транзакции
+   do_more_stuff()
+```
+
+В результате при первой же ошибке транзакция отменяется.
+Разработчики на Django часто хотят выполнить в транзакции весь код какой-либо `view`. При этом `atomic()` используют как декоратор
+
+```
+from django.db import transaction
+
+@transaction.atomic
+def viewfunc(request):
+    # Вся view работает в рамках транзакции
+    do_stuff()
+```
+
+###### Select For Update
+>[!info] Используется для выполнения SELECT запроса с блокировкой строк базы данных. Это гарантирует, что строки, выбранные в результате запроса, будут заблокированы для других транзакций до завершения текущей транзакции.
+
+Пример
+```
+from django.db import transaction
+from account.models import Profile
+
+with transaction.atomic():
+    Profile.objects.select_for_update().get(uid='dUKzzQvx7nuGHQszA8xdkC')
+    Profile.objects.select_for_update().filter(uid=uid)
 ```
 
 ###### Q объекты
@@ -876,6 +901,29 @@ class Book(models.Model):
 books = Book.objects.prefetch_related('authors').all()
 for book in books:
     print(book.title, [author.name for author in book.authors.all()])
+```
+
+###### Aggregate
+Агрегатные операции позволяют получить одно значение, подсчитанное на наборе данных по определенному критерию. 
+- Avg
+- Min
+- Max
+- Sum
+```
+from .models import Person
+from django.db.models import Avg, Min, Max, Sum
+
+# средний возраст
+avg_age = Person.objects.aggregate(Avg("age"))
+
+# минимальный возраст
+min_age = Person.objects.aggregate(Min("age"))
+
+# максимальный возраст
+max_age = Person.objects.aggregate(Max("age"))
+
+# сумма всех возрастов
+sum = Person.objects.aggregate(Sum("age"))
 ```
 
 #### Связи в ORM

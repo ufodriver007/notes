@@ -13,7 +13,7 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "IDE.md",
+                "file": "Docker.md",
                 "mode": "preview",
                 "source": true
               }
@@ -25,14 +25,26 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "Docker.md",
+                "file": "Деплой.md",
                 "mode": "preview",
                 "source": true
               }
             }
           },
           {
-            "id": "5b84c70fe982e145",
+            "id": "768f25c348cd1efe",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "Linux.md",
+                "mode": "preview",
+                "source": true
+              }
+            }
+          },
+          {
+            "id": "51c459b62750ffb1",
             "type": "leaf",
             "state": {
               "type": "markdown",
@@ -42,9 +54,21 @@
                 "source": true
               }
             }
+          },
+          {
+            "id": "33e5c3f8f7141d92",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "IDE.md",
+                "mode": "preview",
+                "source": true
+              }
+            }
           }
         ],
-        "currentTab": 1
+        "currentTab": 3
       }
     ],
     "direction": "vertical"
@@ -110,7 +134,7 @@
             "state": {
               "type": "backlink",
               "state": {
-                "file": "Docker.md",
+                "file": "Django.md",
                 "collapseAll": false,
                 "extraContext": false,
                 "sortOrder": "alphabetical",
@@ -127,7 +151,7 @@
             "state": {
               "type": "outgoing-link",
               "state": {
-                "file": "Docker.md",
+                "file": "Django.md",
                 "linksCollapsed": false,
                 "unlinkedCollapsed": true
               }
@@ -150,7 +174,7 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "Docker.md"
+                "file": "Django.md"
               }
             }
           }
@@ -171,17 +195,21 @@
       "command-palette:Открыть палитру команд": false
     }
   },
-  "active": "258f02154d754243",
+  "active": "51c459b62750ffb1",
   "lastOpenFiles": [
     "IDE.md",
     "Django.md",
-    "Linux.md",
-    "JavaScript.md",
     "Docker.md",
+    "Linux.md",
     "Деплой.md",
+    "Python.md",
+    "NGINX.md",
+    "Подготовка к собесу.md",
+    "Алгоритмы.md",
+    "DNS.md",
+    "JavaScript.md",
     "SOLID, REST, паттерны.md",
     "_Obsidian.md",
-    "Python.md",
     "CSS.md",
     "Telegram Bot.md",
     "Парсинг.md",
@@ -190,14 +218,11 @@
     "files/2024-04-03_02-20.png",
     "files/fabric_method_structure.png",
     "files/deploy.png",
-    "NGINX.md",
-    "DNS.md",
     "Web.md",
     "files/comp.png",
     "files/agg.png",
     "files/ass.png",
     "files/zav.png",
-    "Алгоритмы.md",
     "HTML.md",
     "files/CSS3_logo.png",
     "React.md",

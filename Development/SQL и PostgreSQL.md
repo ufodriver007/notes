@@ -57,8 +57,8 @@ db.close()
 #### Команды
 |Пример команды|Описание|
 |------------|--------------|
-|`DROP DATABASE new`|удалить БД new|
-|`INSERT INTO table (id, name) VALUES (1, 'Astra')`|вставка значений
+|<font style="color:orange">DROP</font> DATABASE new|удалить БД new|
+|<font style="color:orange">INSERT INTO</font> table (id, name) VALUES (1, 'Astra')|вставка значений
 |`SELECT * FROM table`|выбрать все поля из таблицы
 |`SELECT DISTINCT name FROM table`|выбрать уникальные значения поля name в таблице table
 |`SELECT * FROM table WHERE alive="ok" LIMIT 2`|выбрать все поля с alive=ok, максимум 2 результата

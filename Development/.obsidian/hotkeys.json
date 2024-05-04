@@ -6,5 +6,13 @@
       ],
       "key": "C"
     }
+  ],
+  "workspace:export-pdf": [
+    {
+      "modifiers": [
+        "Mod"
+      ],
+      "key": "G"
+    }
   ]
 }

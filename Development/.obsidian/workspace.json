@@ -13,18 +13,6 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "Docker.md",
-                "mode": "preview",
-                "source": true
-              }
-            }
-          },
-          {
-            "id": "258f02154d754243",
-            "type": "leaf",
-            "state": {
-              "type": "markdown",
-              "state": {
                 "file": "Деплой.md",
                 "mode": "preview",
                 "source": true
@@ -32,19 +20,7 @@
             }
           },
           {
-            "id": "768f25c348cd1efe",
-            "type": "leaf",
-            "state": {
-              "type": "markdown",
-              "state": {
-                "file": "Linux.md",
-                "mode": "preview",
-                "source": true
-              }
-            }
-          },
-          {
-            "id": "51c459b62750ffb1",
+            "id": "4b86d7b8fb5ec288",
             "type": "leaf",
             "state": {
               "type": "markdown",
@@ -56,19 +32,19 @@
             }
           },
           {
-            "id": "33e5c3f8f7141d92",
+            "id": "5b6b2f25136de39d",
             "type": "leaf",
             "state": {
               "type": "markdown",
               "state": {
-                "file": "IDE.md",
+                "file": "Linux.md",
                 "mode": "preview",
                 "source": true
               }
             }
           }
         ],
-        "currentTab": 3
+        "currentTab": 1
       }
     ],
     "direction": "vertical"
@@ -195,30 +171,34 @@
       "command-palette:Открыть палитру команд": false
     }
   },
-  "active": "51c459b62750ffb1",
+  "active": "4b86d7b8fb5ec288",
   "lastOpenFiles": [
-    "IDE.md",
-    "Django.md",
-    "Docker.md",
-    "Linux.md",
     "Деплой.md",
-    "Python.md",
+    "Django.md",
+    "Linux.md",
     "NGINX.md",
-    "Подготовка к собесу.md",
-    "Алгоритмы.md",
-    "DNS.md",
+    "Python.md",
     "JavaScript.md",
+    "IDE.md",
+    "Git.md",
+    "Docker.md",
     "SOLID, REST, паттерны.md",
+    "SQL и PostgreSQL.md",
+    "Алгоритмы.md",
+    "Структуры данных.md",
+    "Telegram Bot.md",
+    "Web.md",
+    "2024-04-15.md",
+    "Без названия.canvas",
+    "Подготовка к собесу.md",
+    "DNS.md",
     "_Obsidian.md",
     "CSS.md",
-    "Telegram Bot.md",
     "Парсинг.md",
-    "Git.md",
     "files/2024-04-03_02-20 1.png",
     "files/2024-04-03_02-20.png",
     "files/fabric_method_structure.png",
     "files/deploy.png",
-    "Web.md",
     "files/comp.png",
     "files/agg.png",
     "files/ass.png",
@@ -226,12 +206,9 @@
     "HTML.md",
     "files/CSS3_logo.png",
     "React.md",
-    "Структуры данных.md",
     "RegEx.md",
     "ООП.md",
-    "SQL и PostgreSQL.md",
     "PEP8.md",
-    "Нейросети.md",
     "files/DOM.png",
     "files"
   ]

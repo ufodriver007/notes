@@ -1445,6 +1445,8 @@ MIDDLEWARE = [
 
 #### Throttling middleware
 ```
+from django.core.cache import cache
+
 class ThrottlingMiddleware:
     def __init__(self, get_response):
         self.get_response = get_response
@@ -1508,6 +1510,28 @@ import logging
 logger = logging.getLogger("my_views")
 
 logger.debug(f'Failed to edit. Model: {model.name}. Owner: {model.user} Errors: {errors}')
+```
+
+###### Логи nginx
+```
+/var/log/nginx/access.log
+/var/log/nginx/error.log
+```
+
+Получение списка уникальных адресов из `/var/log/nginx/access.log` кроме `127.0.0.1`
+```
+grep -oE "\b([0-9]{1,3}\.){3}[0-9]{1,3}\b" /var/log/nginx/access.log | awk '$1 != "127.0.0.1" { print }' | sort | uniq > ips.txt
+```
+
+###### Логи gunicorn
+Пусть логов gunicorn обычно указывается в `--access-logfile` или `--error-logfile`. По умолчанию gunicorn логов не ведёт. Смотреть в конфиграции юнита
+```
+nano /etc/systemd/system/my_service.gunicorn.service
+```
+
+###### System access log
+```
+sudo less /var/log/auth.log
 ```
 
 #### Тесты в Django
@@ -2571,7 +2595,7 @@ Push уведомления.
     }
 </script>
 ```
-Если хочется чтобы ворекер делал что-то ещё кроме простого сохранения страниц, стоит попробывать [PWA Builder](https://www.pwabuilder.com/)
+Если хочется чтобы ворекер делал что-то ещё кроме простого сохранения страниц, стоит попробовать [PWA Builder](https://www.pwabuilder.com/)
 
 - Добавляем `sw-toolbox` в свой проект [Сам файл](https://github.com/GoogleChromeLabs/sw-toolbox/blob/master/sw-toolbox.js)
 - Создаём новый файл `sw.js`

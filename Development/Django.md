@@ -1475,7 +1475,8 @@ class ThrottlingMiddleware:
         return response
 ```
 
-#### Логгирование в Django
+#### Логгирование
+###### Django
 Устанавливаем словарь в `settings.py`(Например настравиваем логгирование для событий `views.py`):
 ```
 LOGGING = {
@@ -1512,7 +1513,7 @@ logger = logging.getLogger("my_views")
 logger.debug(f'Failed to edit. Model: {model.name}. Owner: {model.user} Errors: {errors}')
 ```
 
-###### Логи nginx
+###### nginx
 ```
 /var/log/nginx/access.log
 /var/log/nginx/error.log
@@ -1523,7 +1524,7 @@ logger.debug(f'Failed to edit. Model: {model.name}. Owner: {model.user} Errors: 
 grep -oE "\b([0-9]{1,3}\.){3}[0-9]{1,3}\b" /var/log/nginx/access.log | awk '$1 != "127.0.0.1" { print }' | sort | uniq > ips.txt
 ```
 
-###### Логи gunicorn
+###### gunicorn
 Пусть логов gunicorn обычно указывается в `--access-logfile` или `--error-logfile`. По умолчанию gunicorn логов не ведёт. Смотреть в конфиграции юнита
 ```
 nano /etc/systemd/system/my_service.gunicorn.service

@@ -8,19 +8,43 @@
         "type": "tabs",
         "children": [
           {
-            "id": "4b86d7b8fb5ec288",
+            "id": "c9de93bd77988c67",
             "type": "leaf",
             "state": {
               "type": "markdown",
               "state": {
-                "file": "IDE.md",
+                "file": "Docker.md",
                 "mode": "preview",
                 "source": true
               }
             }
           },
           {
-            "id": "c9de93bd77988c67",
+            "id": "736027729e8ae589",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "Python.md",
+                "mode": "preview",
+                "source": true
+              }
+            }
+          },
+          {
+            "id": "b962c98fdd175d69",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "SQL и PostgreSQL.md",
+                "mode": "preview",
+                "source": true
+              }
+            }
+          },
+          {
+            "id": "95b4d92b6101ea2a",
             "type": "leaf",
             "state": {
               "type": "markdown",
@@ -31,7 +55,8 @@
               }
             }
           }
-        ]
+        ],
+        "currentTab": 2
       }
     ],
     "direction": "vertical"
@@ -97,7 +122,7 @@
             "state": {
               "type": "backlink",
               "state": {
-                "file": "IDE.md",
+                "file": "SQL и PostgreSQL.md",
                 "collapseAll": false,
                 "extraContext": false,
                 "sortOrder": "alphabetical",
@@ -114,7 +139,7 @@
             "state": {
               "type": "outgoing-link",
               "state": {
-                "file": "IDE.md",
+                "file": "SQL и PostgreSQL.md",
                 "linksCollapsed": false,
                 "unlinkedCollapsed": true
               }
@@ -137,7 +162,7 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "IDE.md"
+                "file": "SQL и PostgreSQL.md"
               }
             }
           }
@@ -158,30 +183,35 @@
       "command-palette:Открыть палитру команд": false
     }
   },
-  "active": "4b86d7b8fb5ec288",
+  "active": "b962c98fdd175d69",
   "lastOpenFiles": [
-    "Django.md",
     "Linux.md",
-    "Парсинг.md",
-    "NGINX.md",
-    "Деплой.md",
-    "JavaScript.md",
-    "Telegram Bot.md",
-    "Python.md",
     "SQL и PostgreSQL.md",
-    "IDE.md",
-    "Git.md",
+    "Деплой.md",
+    "Python.md",
     "Docker.md",
-    "SOLID, REST, паттерны.md",
-    "Алгоритмы.md",
-    "Структуры данных.md",
+    "NGINX.md",
+    "Django.md",
+    "Математика. Комбинаторика и Теор.вер..md",
     "Web.md",
-    "2024-04-15.md",
-    "Без названия.canvas",
-    "Подготовка к собесу.md",
+    "Telegram Bot.md",
+    "SOLID, REST, паттерны.md",
+    "RegEx.md",
+    "React.md",
+    "PEP8.md",
+    "OpenCV.md",
+    "JavaScript.md",
+    "IDE.md",
+    "HTML.md",
+    "Git.md",
     "DNS.md",
-    "_Obsidian.md",
     "CSS.md",
+    "Структуры данных.md",
+    "Подготовка к собесу.md",
+    "Парсинг.md",
+    "ООП.md",
+    "Нейросети.md",
+    "Без названия.canvas",
     "files/2024-04-03_02-20 1.png",
     "files/2024-04-03_02-20.png",
     "files/fabric_method_structure.png",
@@ -190,12 +220,7 @@
     "files/agg.png",
     "files/ass.png",
     "files/zav.png",
-    "HTML.md",
     "files/CSS3_logo.png",
-    "React.md",
-    "RegEx.md",
-    "ООП.md",
-    "PEP8.md",
     "files/DOM.png",
     "files"
   ]

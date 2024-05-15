@@ -350,3 +350,85 @@ sudo -u postgres createdb mint_coast
 ```
 sudo -u postgres psql mint_coast < mint_coast_dump.sql
 ```
+
+#### Бэкапы PostgreSQL
+Из под root меняем строчки в файле `/etc/postgresql/14/main/pg_hba.conf`  
+    `local all postgres peer`  
+    меняем на:  
+    `local all postgres md5`  
+    Также добавил своего пользователя:  
+    `local all mintmachine md5`
+
+И делаем рестарт:
+
+```
+sudo systemctl restart postgresql
+```
+
+Чтобы PostgreSQL при дампе не спрашивал пароль создаём файл `.pgpass`
+```
+hostname:port:database:username:password
+```
+
+Задаём ему нужные права
+```
+chmod 600 ~/.pgpass
+```
+
+Python скрипт для создания дампов
+```
+import os  
+import time  
+import glob  
+  
+  
+def dump_database():  
+    POSTGRES_USER = os.getenv('POSTGRES_USER')  
+    POSTGRES_DB = os.getenv('POSTGRES_DB')  
+  
+    try:  
+        if not os.path.exists(f'{os.getenv("HOME")}/db_dumps/'):  
+            os.mkdir(f'{os.getenv("HOME")}/db_dumps')  
+  
+        # получаем все файлы в директории с дампами  
+        files = [os.path.abspath(f) for f in glob.glob(f"{os.getenv('HOME')}/db_dumps/*")]  
+        dumps = {}  
+        # создаём словарь "время создания файла": "абсолютный путь к файлу"  
+        for file in files:  
+            dumps[os.path.getmtime(file)] = file  
+  
+        # удаляем файлы, если их больше 7  
+        while len(dumps) >= 7:  
+            os.remove(dumps.pop(min(dumps.keys())))  
+  
+    except Exception as e:  
+        print(e)  
+  
+    # создаём файл дампа  
+    print("Preparing database backup started")  
+    dump_db_operation_status = os.WEXITSTATUS(os.system(  
+        f"pg_dump -U {POSTGRES_USER} -d {POSTGRES_DB} -f {os.getenv('HOME')}/db_dumps/{time.strftime('%d-%m-%Y_%H:%M:%S')}.sql"  
+    ))  
+    if dump_db_operation_status != 0:  
+        exit(f"Dump database command exits with status {dump_db_operation_status}.")  
+    print("DB dumped")  
+  
+  
+dump_database()
+```
+
+Добавляем в cron
+```
+crontab -e
+```
+
+Каждый день в 5 утра
+*(минута)-(час)-(день месяца)-(месяц)-(день недели)*
+```
+0 5 * * 0-6 /home/www/pg_backup.bash
+```
+
+Логи CRON
+```
+sudo grep CRON /var/log/syslog
+```

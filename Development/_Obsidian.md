@@ -34,6 +34,6 @@ $$
 P₇(3, 4) = \frac{7!}{3! *  4!} = 35
 $$
 
-[[Django#Fixtures]]
+[[Django, DRF#Fixtures]]
 
 ---

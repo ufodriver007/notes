@@ -836,10 +836,17 @@ iptables -L -n --line-numbers
 
 Очистка правил
 ```
-sudo iptables –F
+sudo iptables -F
 ```
 
 Сохранение правила
 ```
 sudo /sbin/iptables-save
+```
+
+###### VLC
+Проблема заикания звука решается при помощи редактирования  `/etc/pulse/daemon.conf`
+```
+default-fragments = 5  
+default-fragment-size-msec = 2
 ```

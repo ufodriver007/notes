@@ -312,7 +312,7 @@ python manage.py **migrate**
 ```
 
 #### Перенос самой базы данных с сервера на сервер
->[!info] Можно просто использовать фикстуры. Т.е. экспорт моделей в JSON и последующий импорт данных в другую БД. [[Django#Fixtures]]
+>[!info] Можно просто использовать фикстуры. Т.е. экспорт моделей в JSON и последующий импорт данных в другую БД. [[Django, DRF#Fixtures]]
 
 1) Из под root меняем строчки в файле `/etc/postgresql/14/main/pg_hba.conf`
 `local all postgres peer` 
@@ -351,7 +351,7 @@ sudo -u postgres createdb mint_coast
 sudo -u postgres psql mint_coast < mint_coast_dump.sql
 ```
 
-#### Бэкапы PostgreSQL
+#### Резервное копирование(бэкап) PostgreSQL
 Из под root меняем строчки в файле `/etc/postgresql/14/main/pg_hba.conf`  
     `local all postgres peer`  
     меняем на:  
@@ -383,28 +383,24 @@ import glob
   
   
 def dump_database():  
-    POSTGRES_USER = os.getenv('POSTGRES_USER')  
-    POSTGRES_DB = os.getenv('POSTGRES_DB')  
+    POSTGRES_USER = example_user 
+    POSTGRES_DB = example_db
   
     try:  
         if not os.path.exists(f'{os.getenv("HOME")}/db_dumps/'):  
             os.mkdir(f'{os.getenv("HOME")}/db_dumps')  
   
-        # получаем все файлы в директории с дампами  
-        files = [os.path.abspath(f) for f in glob.glob(f"{os.getenv('HOME')}/db_dumps/*")]  
-        dumps = {}  
-        # создаём словарь "время создания файла": "абсолютный путь к файлу"  
-        for file in files:  
-            dumps[os.path.getmtime(file)] = file  
+        # получаем все файлы в директории с дампами(словарь "время создания":"путь")  
+        files = {os.path.getmtime(x): os.path.abspath(x) for x in glob.glob(f"{os.getenv('HOME')}/db_dumps/*")}  
   
         # удаляем файлы, если их больше 7  
-        while len(dumps) >= 7:  
-            os.remove(dumps.pop(min(dumps.keys())))  
+        while len(files) >= 7:  
+            os.remove(files.pop(min(files.keys())))  
   
     except Exception as e:  
         print(e)  
   
-    # создаём файл дампа  
+        # создаём файл дампа  
     print("Preparing database backup started")  
     dump_db_operation_status = os.WEXITSTATUS(os.system(  
         f"pg_dump -U {POSTGRES_USER} -d {POSTGRES_DB} -f {os.getenv('HOME')}/db_dumps/{time.strftime('%d-%m-%Y_%H:%M:%S')}.sql"  
@@ -417,7 +413,7 @@ def dump_database():
 dump_database()
 ```
 
-Добавляем в cron
+Добавляем в cron  [[Linux#Планировщик CRON]]
 ```
 crontab -e
 ```

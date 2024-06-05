@@ -1,5 +1,6 @@
 ![[Pasted image 20231219081151.png]]
 ![[2023-12-19_08-37.png]]
+[[Django, DRF#Django REST Framework(DRF)]]
 ```
 pip install django
 ```
@@ -209,7 +210,7 @@ def change_params(context, **kwargs):
                                                          # след. аргументы через пробел
 ```
 
->[!tip] Можно использовать для вывода списка категорий, [[Django##### Фильтры для поиска на сайте|проброса GET параметров]] и т.д.
+>[!tip] Можно использовать для вывода списка категорий, [[Django, DRF##### Фильтры для поиска на сайте|проброса GET параметров]] и т.д.
 
 ###### Обратное разрешение URL-адреса
 ```
@@ -692,7 +693,7 @@ class CartQuerySet(models.QuerySet):
         return sum([cart.products_price() for cart in self])  
 ```
 
-Далее создаём [[Django#Свои теги в шаблонизаторе|свой шаблонный тег]]. Создаём в приложении папку `templatetags` и в ней `__init__.py` и например `cart_tag.py`
+Далее создаём [[Django, DRF#Свои теги в шаблонизаторе|свой шаблонный тег]]. Создаём в приложении папку `templatetags` и в ней `__init__.py` и например `cart_tag.py`
 ```
 from django import template 
 from cart.models import Cart
@@ -1750,7 +1751,7 @@ def catalog(request):
     return render(request, 'catalog.html', context={'goods': goods})
 ```
 
->[!tip] Чтобы пагинация работала вместе с фильтрами, можно сделать свой [[Django#Свои теги в шаблонизаторе|тэг]] для шаблонизатора, в функции которого пробрасывать GET-параметры на следующую страницу.
+>[!tip] Чтобы пагинация работала вместе с фильтрами, можно сделать свой [[Django, DRF#Свои теги в шаблонизаторе|тэг]] для шаблонизатора, в функции которого пробрасывать GET-параметры на следующую страницу.
 
 #### Bootstrap
 ###### Подключение
@@ -2021,7 +2022,7 @@ class MyView(generics.CreateAPIView):
 |CreateAPIView|Создание данных по POST запросу|
 |ListAPIView|Чтение списка данных по GET запросу
 |RetrieveAPIView|Чтение записи по GET запросу
-|DestroyAPIView|Удаленин записи по DELETE запросу
+|DestroyAPIView|Удаление записи по DELETE запросу
 |UpdateAPIView|Изменение записи по PUT или PATCH запросу
 |ListCreateAPIView|Чтение по GET запросу и создание списка по POST запросу
 |RetrieveUpdateAPIView|Чтение и изменение записи по GET и POST запросу
@@ -2521,6 +2522,74 @@ CORS_ALLOWED_ORIGINS = [
 ```
 CORS_ALLOW_ALL_ORIGINS = True
 ```
+
+#### Документирование API(Django REST Swagger)
+```
+pip install PyYAML
+pip install uritemplate
+pip install django-rest-swagger
+```
+
+[Документация Django REST Swagger](https://django-rest-swagger.readthedocs.io/en/latest/)
+
+В `settings.py`
+```
+INSTALLED_APPS = [
+... 
+'rest_framework_swagger',
+...
+]
+```
+
+Добавляем в `urls.py`
+```
+from rest_framework.schemas import get_schema_view
+
+urlpatterns = [
+    # ...
+    path('api_schema/', get_schema_view(
+        title='API Schema',
+        description='Guide for the REST API'
+    ), name='api_schema'),
+    path('docs/', TemplateView.as_view(
+        template_name='docs.html',
+        extra_context={'schema_url':'api_schema'}
+        ), name='swagger-ui'),
+]
+```
+Схему можно скачать по адресу [http://http//127.0.0.1:8000/api_schema
+](http://http//127.0.0.1:8000/api_schema)
+
+Создаём файл `docs.html`
+```
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>My Site Documentation</title>
+    <meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" type="text/css" href="//unpkg.com/swagger-ui-dist@3/swagger-ui.css" />
+  </head>
+  <body>
+    <div id="swagger-ui"></div>
+    <script src="//unpkg.com/swagger-ui-dist@3/swagger-ui-bundle.js"></script>
+    <script>
+    const ui = SwaggerUIBundle({
+        url: "{% url schema_url %}",
+        dom_id: '#swagger-ui',
+        presets: [
+          SwaggerUIBundle.presets.apis,
+          SwaggerUIBundle.SwaggerUIStandalonePreset
+        ],
+        layout: "BaseLayout"
+      })
+    </script>
+  </body>
+</html>
+```
+
+Теперь документация доступна по адресу http://127.0.0.1:8000/docs/
+
 
 ## PWA
 >[!info] Progressive Web Application - промежуточная технология между сайтами и нативными приложениями. (косметически похожее на нативное приложение)

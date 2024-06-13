@@ -236,6 +236,9 @@ my_car_engine = Engine.new_car_engine(3, 3)
 print(my_car_engine)                           # x: 6, y: 6
 ```
 
+Простое объяснение
+>[!info] Чтобы создавать разные объекты в одном классе при этом не городя огород в инициализаторе. Есть несколько методов, каждый из которых создаёт экземпляр класса **по особенному**
+
 Дополнение:
 - [Абстрактные классы в Python](https://www.codecamp.ru/blog/python-abstract-base-classes-abc/)
 - [Видео про фабричный метод](https://www.youtube.com/watch?v=FONWO-xdqYo)

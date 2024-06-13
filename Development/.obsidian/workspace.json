@@ -8,7 +8,19 @@
         "type": "tabs",
         "children": [
           {
-            "id": "736027729e8ae589",
+            "id": "7aab6c14d6452510",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "Django, DRF.md",
+                "mode": "preview",
+                "source": true
+              }
+            }
+          },
+          {
+            "id": "12071784c2161d6a",
             "type": "leaf",
             "state": {
               "type": "markdown",
@@ -20,31 +32,31 @@
             }
           },
           {
-            "id": "72c024e4d3c0a93e",
+            "id": "045576d32d028cbc",
             "type": "leaf",
             "state": {
               "type": "markdown",
               "state": {
-                "file": "React.md",
-                "mode": "preview",
+                "file": "ООП.md",
+                "mode": "source",
                 "source": true
               }
             }
           },
           {
-            "id": "82a19a74f992e06b",
+            "id": "5ffbd7094ffacb76",
             "type": "leaf",
             "state": {
               "type": "markdown",
               "state": {
-                "file": "FastAPI.md",
+                "file": "Структуры данных.md",
                 "mode": "preview",
                 "source": true
               }
             }
           }
         ],
-        "currentTab": 2
+        "currentTab": 1
       }
     ],
     "direction": "vertical"
@@ -110,7 +122,7 @@
             "state": {
               "type": "backlink",
               "state": {
-                "file": "FastAPI.md",
+                "file": "Python.md",
                 "collapseAll": false,
                 "extraContext": false,
                 "sortOrder": "alphabetical",
@@ -127,7 +139,7 @@
             "state": {
               "type": "outgoing-link",
               "state": {
-                "file": "FastAPI.md",
+                "file": "Python.md",
                 "linksCollapsed": false,
                 "unlinkedCollapsed": true
               }
@@ -150,7 +162,7 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "FastAPI.md"
+                "file": "Python.md"
               }
             }
           }
@@ -171,23 +183,26 @@
       "command-palette:Открыть палитру команд": false
     }
   },
-  "active": "82a19a74f992e06b",
+  "active": "12071784c2161d6a",
   "lastOpenFiles": [
-    "Python.md",
-    "FastAPI.md",
-    "files/fastapi.png",
-    "React.md",
-    "Django, DRF.md",
-    "Linux.md",
-    "Python. Асинхронное программирование..md",
-    "CSS.md",
-    "RegEx.md",
-    "SQL и PostgreSQL.md",
+    "Структуры данных.md",
     "SOLID, REST, паттерны.md",
-    "Деплой.md",
-    "_Obsidian.md",
-    "Парсинг.md",
     "ООП.md",
+    "Python.md",
+    "_Obsidian.md",
+    "Python. Асинхронное программирование..md",
+    "FastAPI.md",
+    "Django, DRF.md",
+    "CSS.md",
+    "JavaScript.md",
+    "React.md",
+    "RegEx.md",
+    "files/jwt-structure.png",
+    "files/fastapi.png",
+    "Linux.md",
+    "SQL и PostgreSQL.md",
+    "Деплой.md",
+    "Парсинг.md",
     "Нейросети.md",
     "Математика. Комбинаторика и Теор.вер..md",
     "Алгоритмы.md",
@@ -198,7 +213,6 @@
     "Web.md",
     "Telegram Bot.md",
     "PEP8.md",
-    "JavaScript.md",
     "Без названия.canvas",
     "files/2024-04-03_02-20 1.png",
     "files/2024-04-03_02-20.png",
@@ -208,7 +222,6 @@
     "files/agg.png",
     "files/ass.png",
     "files/zav.png",
-    "files/CSS3_logo.png",
     "files"
   ]
 }

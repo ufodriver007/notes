@@ -2088,7 +2088,7 @@ class MyViewSet(ModelViewSet):
 
 #### Роутеры
 >[!info] Связывают методы(GET, POST и тд) с методами ViewSet(list, create, retrieve и тд).
->Без них бы пришлось писать `path('api/article/', ArticleViewSet.as_view({'get': 'list'}))`
+> Без них бы пришлось писать `path('api/article/', ArticleViewSet.as_view({'get': 'list'}))`
 
 ```
 from rest_framework import routers
@@ -2328,6 +2328,102 @@ re_path(r'^auth/', include('djoser.urls.authtoken')),  # http://127.0.0.1:8000/a
 `Authorization=Token 911bff0261de434eededec94d587652e25237f00`
 Для logout тоже нужно слать токен в заголовках.
 
+###### Использование JWT-токенов
+>[!info] `JSON Web Token (JWT)` — это _JSON_ объект, который определен в открытом стандарте [RFC 7519](https://tools.ietf.org/html/rfc7519). Он считается одним из безопасных способов передачи информации между двумя участниками. Для его создания необходимо определить заголовок (header) с общей информацией по токену, полезные данные (payload), такие как id пользователя, его роль и т.д. и подписи (signature).
+
+Простыми словами, _JWT_ — это лишь строка в следующем формате `header.payload.signature`.
+
+![[jwt-structure.png]]
+
+>[!warning] Важно! Расшифровать токен может кто угодно (например, на сайте [jwt.io](http://jwt.io/)). Поэтому ни в коем случае нельзя передавать в нем компрометирующую информацию: чувствительные данные пользователей, пароли и прочее.
+
+Сигнатура создаётся так
+```
+signature = HMAC_SHA256(secret, base64urlEncoding(header) + '.' + base64urlEncoding(payload))
+```
+
+Почему такой формат токена гарантирует нам сохранность данных и невозможность их подмены? Фокус в том, что для проверки подлинности токена серверу достаточно взять из него `header` и `payload`,  добавить к ним секретныую строку и получить по ним `signature` по алгоритму выше и сравнить сигнатуру с той, что реально присутствует в токене.
+
+Недобросовестный пользователь решил докинуть лишнего в свой токен или поменять юзера, которому он был выдан? Токен будет признан недействительным из-за несовпадения фактической и посчитанной signature, запрос будет отклонен сервером.
+
+Сценарий использования
+- пользователь регистрируется и получает пару токенов: `access` и `refresh`;
+- все свои запросы он сопровождает access-токеном и получает ответ "(как раньше, с обычным jwt-токеном)";
+- когда срок жизни access-токена уже истек или начинает подходить к концу, пользователь (или клиентское приложение) отправляет свой refresh-токен серверу, который его отзывает и возвращает новую пару.
+
+Что будет, если истечет refresh-токен? Пользователю будет нужно пройти авторизацию, чтобы подтвердить свою личность и получить новую пару токенов.
+
+######  Использование `simplejwt`
+
+[Документация](https://django-rest-framework-simplejwt.readthedocs.io/en/latest/getting_started.html)
+```
+pip install djangorestframework-simplejwt
+```
+
+В `settings.py`
+```
+INSTALLED_APPS = [
+    ...
+    'rest_framework_simplejwt',
+    ...
+]
+
+REST_FRAMEWORK = {
+    ...
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        ...
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
+    )
+    ...
+}
+
+SIMPLE_JWT_SIGNING_KEY = "b=72^ado*%1(v3r7rga9ch)03xr=d*f)lroz94kosf!61((9=i"  
+  
+SIMPLE_JWT = {  
+    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=30),  
+    'REFRESH_TOKEN_LIFETIME': timedelta(days=3),  
+    'ROTATE_REFRESH_TOKENS': False,  
+    'BLACKLIST_AFTER_ROTATION': True,  
+  
+    'ALGORITHM': 'HS256',  
+    'SIGNING_KEY': SIMPLE_JWT_SIGNING_KEY,  
+    'VERIFYING_KEY': None,  
+    'AUDIENCE': None,  
+    'ISSUER': None,  
+  
+    'AUTH_HEADER_TYPES': ('Bearer',),  
+    'USER_ID_FIELD': 'id',  
+    'USER_ID_CLAIM': 'user_id',  
+  
+    'AUTH_TOKEN_CLASSES': ('rest_framework_simplejwt.tokens.AccessToken',),  
+    'TOKEN_TYPE_CLAIM': 'token_type',  
+  
+    'JTI_CLAIM': 'jti',  
+  
+    'SLIDING_TOKEN_REFRESH_EXP_CLAIM': 'refresh_exp',  
+    'SLIDING_TOKEN_LIFETIME': timedelta(minutes=50),  
+    'SLIDING_TOKEN_REFRESH_LIFETIME': timedelta(days=5),  
+}
+```
+
+В `urls.py`
+```
+from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView, TokenVerifyView
+
+urlpatterns = [  
+    ...
+    path('api/token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),  
+    path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),  
+    path('api/token/verify/', TokenVerifyView.as_view(), name='token_verify'),
+]  
+urlpatterns +=
+```
+
+- Получение пары токенов: POST запрос с полями `username`, `password` и заголовками `Content-Type: application/json` на `http://localhost:8000/api/token/`
+- Доступ ко view защищённому аутентификацией: с заголовком `Authorization: Bearer <access token>`
+- Когда короткоживущий `access` токен уже не действителен, используем `refresh` токен для 
+получения нового `access` токена:  POST запрос с полем `refresh` и заголовками `Content-Type: application/json` на `http://localhost:8000/api/token/refresh/`
+
 #### Фильтрация в DRF
 ```
 pip install django-filter                             # (author: Alex Gaynor)
@@ -2384,6 +2480,7 @@ class CategoryViewSet(ModelViewSet):
 ```
 REST_FRAMEWORK = {
     'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.LimitOffsetPagination',
+    'DEFAULT_RENDERER_CLASSES': `rest_framework.pagination.PageNumberPagination`,
     'PAGE_SIZE': 100
 }
 ```
@@ -2473,15 +2570,6 @@ REST_FRAMEWORK = {
         'user': '100/minute',  # Лимит для UserRateThrottle
         'anon': '10/minute',   # Лимит для AnonRateThrottle
     }
-}
-```
-
-#### Пагинация
-```
-# settings.py
-REST_FRAMEWORK = {
-    'DEFAULT_RENDERER_CLASSES': `rest_framework.pagination.PageNumberPagination`,
-    'PAGE_SIZE': 10,
 }
 ```
 

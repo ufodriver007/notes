@@ -1516,8 +1516,8 @@ logger.debug(f'Failed to edit. Model: {model.name}. Owner: {model.user} Errors: 
 
 ###### nginx
 ```
-/var/log/nginx/access.log
-/var/log/nginx/error.log
+sudo less /var/log/nginx/access.log
+sudo less /var/log/nginx/error.log
 ```
 
 Получение списка уникальных адресов из `/var/log/nginx/access.log` кроме `127.0.0.1`

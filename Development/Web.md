@@ -43,6 +43,8 @@ HOST: ...
 ```
 
 #### Коды ответов(статус коды)
+[Подробное описание](https://developer.mozilla.org/en-US/docs/Web/HTTP/Status)
+
 |Коды|Описание|
 |-----|-----------|
 |`1xx`|информационный
@@ -54,8 +56,11 @@ HOST: ...
 Например
 ```
 200           Ок
+201           Created
 301           Moved Permanently
 400           Bad request
+401           Unauthorized
+403           Forbidden
 404           Page not found
 500           Internal server error
 ```

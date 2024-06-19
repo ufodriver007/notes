@@ -37,26 +37,26 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "ООП.md",
-                "mode": "source",
+                "file": "Парсинг.md",
+                "mode": "preview",
                 "source": true
               }
             }
           },
           {
-            "id": "5ffbd7094ffacb76",
+            "id": "2a6b5c79af0956d1",
             "type": "leaf",
             "state": {
               "type": "markdown",
               "state": {
-                "file": "Структуры данных.md",
+                "file": "Безоастность web-приложений.md",
                 "mode": "preview",
                 "source": true
               }
             }
           }
         ],
-        "currentTab": 1
+        "currentTab": 3
       }
     ],
     "direction": "vertical"
@@ -122,7 +122,7 @@
             "state": {
               "type": "backlink",
               "state": {
-                "file": "Python.md",
+                "file": "Безоастность web-приложений.md",
                 "collapseAll": false,
                 "extraContext": false,
                 "sortOrder": "alphabetical",
@@ -139,7 +139,7 @@
             "state": {
               "type": "outgoing-link",
               "state": {
-                "file": "Python.md",
+                "file": "Безоастность web-приложений.md",
                 "linksCollapsed": false,
                 "unlinkedCollapsed": true
               }
@@ -162,7 +162,7 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "Python.md"
+                "file": "Безоастность web-приложений.md"
               }
             }
           }
@@ -183,45 +183,45 @@
       "command-palette:Открыть палитру команд": false
     }
   },
-  "active": "12071784c2161d6a",
+  "active": "2a6b5c79af0956d1",
   "lastOpenFiles": [
+    "files/fernet_decrypt.png",
+    "files/fernet.png",
+    "Python.md",
+    "Безоастность web-приложений.md",
+    "files/hmac.png",
+    "Парсинг.md",
+    "Python. Асинхронное программирование..md",
+    "RegEx.md",
+    "Telegram Bot.md",
+    "files/2024-06-15_18-15.png",
+    "_Obsidian.md",
+    "Django, DRF.md",
+    "Linux.md",
+    "Web.md",
+    "NGINX.md",
+    "Нейросети.md",
+    "ООП.md",
     "Структуры данных.md",
     "SOLID, REST, паттерны.md",
-    "ООП.md",
-    "Python.md",
-    "_Obsidian.md",
-    "Python. Асинхронное программирование..md",
     "FastAPI.md",
-    "Django, DRF.md",
     "CSS.md",
     "JavaScript.md",
     "React.md",
-    "RegEx.md",
     "files/jwt-structure.png",
     "files/fastapi.png",
-    "Linux.md",
     "SQL и PostgreSQL.md",
     "Деплой.md",
-    "Парсинг.md",
-    "Нейросети.md",
     "Математика. Комбинаторика и Теор.вер..md",
     "Алгоритмы.md",
     "OpenCV.md",
     "Подготовка к собесу.md",
-    "NGINX.md",
-    "Docker.md",
-    "Web.md",
-    "Telegram Bot.md",
-    "PEP8.md",
     "Без названия.canvas",
     "files/2024-04-03_02-20 1.png",
     "files/2024-04-03_02-20.png",
     "files/fabric_method_structure.png",
     "files/deploy.png",
     "files/comp.png",
-    "files/agg.png",
-    "files/ass.png",
-    "files/zav.png",
     "files"
   ]
 }

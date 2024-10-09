@@ -1373,7 +1373,22 @@ if request.GET.get('next', None):
 
 Теперь `view` с `@login_required` будет перенаправлять на страницу логина, а затем обратно
 
+###### Миксин `LoginRequiredMixin`
+>[!info] При использовании представлений на основе классов вы можете добиться того же поведения, что и `login_required` при использовании `LoginRequiredMixin`
+
+```
+from django.contrib.auth.mixins import LoginRequiredMixin
+from django.shortcuts import render
+from django.views.generic import View
+
+class ProfileView(LoginRequiredMixin, View):
+	def get(self, request):
+		return render(request, 'profile.html')
+```
+
 #### Регистрация
+>[!info] Можно воспользоваться такой регистрацией https://pypi.org/project/django-registration/
+
 Можно наследоваться от встроенного `User`. Удаляем из БД таблицы `auth`
 ```
 # models.py

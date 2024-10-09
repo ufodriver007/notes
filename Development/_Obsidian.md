@@ -6,10 +6,10 @@
 *курсив*
 ~~зачёркнутый~~
 ==выделенный текст==
-`def hello():
+```
+def hello():
     `print('Hello, world!')
-    
-
+```
 - first
 - second
 - thrid

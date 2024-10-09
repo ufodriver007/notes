@@ -335,6 +335,12 @@ crwx------         символьное устройство
 |`debugfs -w /dev/sdb1`|дебаг файловой системы(далее можно воспользоваться коммандой `help`, выйти - `q`)
 |`dumpe2fs /dev/sdb1 `|дамп диска
 
+###### Тест скорости чтения/записи
+```
+lsblk                                  # список устройств
+sudo hdparm -t --direct /dev/sdd       # тест устройства
+```
+
 #### УСТАНОВКА ПО
 |Команда|Описание|
 |------------|------------------|
@@ -615,6 +621,15 @@ ssh pi@[IP Address]
 интерфейс конфигуратора Raspberry: `sudo raspi-config`
 температура процессора: `vcgencmd measure_temp`
 
+###### Установка raspi-config в Ubuntu
+```
+wget https://archive.raspberrypi.org/debian/pool/main/r/raspi-config/raspi-config_20200601_all.deb -P /tmp
+sudo apt-get install libnewt0.52 whiptail parted triggerhappy lua5.1 alsa-utils -y
+# Auto install dependancies on eg. ubuntu server on RPI
+sudo apt-get install -fy
+sudo dpkg -i /tmp/raspi-config_20200601_all.deb
+```
+
 #### NGINX
 |Команда|Описание|
 |------------|------------------|
@@ -725,6 +740,14 @@ sudo nano /etc/ssh/sshd_config
 ```
 cat ~/.ssh/id_rsa
 ```
+
+Типичные разрешения для ключей:
+
+|  Item   | Sample    | Numeric | Bitwise |
+| --- | --- | --- | --- |
+| SSH folder    |  `~/.ssh`   | `700` | `drwx------` |
+|Public key|`~/.ssh/id_rsa.pub`|`644`|`-rw-r--r--`|
+|Private key|``/.ssh/id_rsa`|`600`|`-rw------`|
 
 #### Передача файлов по SSH
 ###### Копирование файла с сервера

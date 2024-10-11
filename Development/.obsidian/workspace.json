@@ -13,7 +13,7 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "Python. PEP8.md",
+                "file": "Telegram Bot.md",
                 "mode": "preview",
                 "source": true
               }
@@ -48,7 +48,7 @@
             "state": {
               "type": "search",
               "state": {
-                "query": "",
+                "query": "bootst",
                 "matchingCase": false,
                 "explainSearch": false,
                 "collapseAll": false,
@@ -85,7 +85,7 @@
             "state": {
               "type": "backlink",
               "state": {
-                "file": "Python. PEP8.md",
+                "file": "Telegram Bot.md",
                 "collapseAll": false,
                 "extraContext": false,
                 "sortOrder": "alphabetical",
@@ -102,7 +102,7 @@
             "state": {
               "type": "outgoing-link",
               "state": {
-                "file": "Python. PEP8.md",
+                "file": "Telegram Bot.md",
                 "linksCollapsed": false,
                 "unlinkedCollapsed": true
               }
@@ -125,7 +125,7 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "Python. PEP8.md"
+                "file": "Telegram Bot.md"
               }
             }
           }
@@ -148,20 +148,19 @@
   },
   "active": "12071784c2161d6a",
   "lastOpenFiles": [
-    "Python. Асинхронное программирование..md",
-    "Python. PEP8.md",
-    "Python. ООП.md",
-    "Python.md",
     "Web.md",
-    "Telegram Bot.md",
     "SQL и PostgreSQL.md",
+    "Linux.md",
     "SOLID, REST, паттерны.md",
     "RegEx.md",
     "React.md",
-    "OpenCV.md",
     "NGINX.md",
-    "Linux.md",
+    "sslshopper.com.md",
+    "_Obsidian.md",
     "JavaScript.md",
+    "Telegram Bot.md",
+    "OpenCV.md",
+    "Python.md",
     "IDE.md",
     "HTML.md",
     "Git.md",
@@ -174,6 +173,7 @@
     "Подготовка к собесу.md",
     "Парсинг.md",
     "Нейросети.md",
+    "Математика. Комбинаторика и Теор.вер..md",
     "files/registration.png",
     "files/certificate.png",
     "files/sign_2.png",

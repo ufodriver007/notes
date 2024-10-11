@@ -131,7 +131,7 @@ server {
 sudo nginx -s reload
 ```
 
-можно проверить на сайте sslshopper.com
+можно проверить на сайте [sslshopper.com](https://www.sslshopper.com/)
 
 И наконец настраиваем автоматическую переадресацию на ssl. В конфиге nginx
 ```

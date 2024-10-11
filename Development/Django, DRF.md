@@ -328,6 +328,40 @@ class CommentArticleView(View):
             comment.save()
 ```
 
+###### Генерация форм
+Создаём `forms.py`
+```
+from django import forms
+
+class OrderForm(forms.Form):
+    name = forms.CharField(max_length=200, required=False)  # не обязательное поле
+    phone = forms.CharField(max_length=200)        # доп. аргумент widget=forms.TextInput(attrs={'class': 'css_input'})
+                                                #  так подключается класс .css_input из вёрстки
+```
+
+Во `views.py` импортируем `from .forms import OrderForm`
+Далее рендерим её:
+```
+ def first_page(request):
+    initial_data = {
+                'first_name': user.first_name,
+                'last_name': user.last_name,
+                'email': user.email,
+    }
+    form = OrderForm(initial=initial_data)         # initial - это словарь для заполнения формы
+    return render(request, './index.html', {'form': form})
+```
+
+В html подставляем шаблон:
+```
+<form action="{% url 'home' %}" method="POST">
+    {% csrf_token %}
+    {{ form }}                                         # {{ form.as_p }}
+    <button type="submit">Отправить</button>
+</form>
+```
+Таким образом получает форма со встренной валидацией.
+
 ###### ModelForm
 >[!info] Формы, построенные на основе моделей, отличаются тем, что УЖЕ имеют встроенные валидаторы полей, которые создаются на основе оганичений описанных в моделях, типа `max_length=100`  или `blank=True` и т.д.
 
@@ -953,7 +987,7 @@ class Student(models.Model):
     name = models.CharField(max_length=30)
     courses = models.ManyToManyField(Course)
 ```
-Также имеется директива `through`, т.е. `models.ManyToManyField(Course, through='CourseStudentRealtion')`. Тоесть мы напрямую указываем существующую таблицу, в которой связваются отношнения и соответственно друная промеж. таблица НЕ будет создана.
+Также имеется директива `through`, т.е. `models.ManyToManyField(Course, through='CourseStudentRealtion')`. Тоесть мы напрямую указываем существующую таблицу, в которой связваются отношнения и соответственно другая промеж. таблица НЕ будет создана.
 Пример промежуточной модели `CourseStudentRealtion`:
 ```
 class CourseStudentRealtion(models.Model):
@@ -1020,40 +1054,6 @@ python3 manage.py loaddata location/to/your/data.json
 # или
 python3 manage.py loaddata data.json
 ```
-
-#### Генерация форм
-Создаём `forms.py`
-```
-from django import forms
-
-class OrderForm(forms.Form):
-    name = forms.CharField(max_length=200, required=False)  # не обязательное поле
-    phone = forms.CharField(max_length=200)        # доп. аргумент widget=forms.TextInput(attrs={'class': 'css_input'})
-                                                #  так подключается класс .css_input из вёрстки
-```
-
-Во `views.py` импортируем `from .forms import OrderForm`
-Далее рендерим её:
-```
- def first_page(request):
-    initial_data = {
-                'first_name': user.first_name,
-                'last_name': user.last_name,
-                'email': user.email,
-    }
-    form = OrderForm(initial=initial_data)         # initial - это словарь для заполнения формы
-    return render(request, './index.html', {'form': form})
-```
-
-В html подставляем шаблон:
-```
-<form action="{% url 'home' %}" method="POST">
-    {% csrf_token %}
-    {{ form }}                                         # {{ form.as_p }}
-    <button type="submit">Отправить</button>
-</form>
-```
-Таким образом получает форма со встренной валидацией.
 
 #### Статический контент
 В `settings.py` в `STATIC_URL` указывем пути для статических файлов
@@ -1288,7 +1288,7 @@ DEBUG = os.getenv('DEBUG', False)
 DEBUG = False
 ALLOWED_HOSTS = ['127.0.0.1']
 ```
-Django будет искать `404.html` в `templates` директории
+Django будет искать `404.html` в директории `templates`
 
 #### Отправка почты
 В `settings.py`:
@@ -1541,7 +1541,7 @@ grep -oE "\b([0-9]{1,3}\.){3}[0-9]{1,3}\b" /var/log/nginx/access.log | awk '$1 !
 ```
 
 ###### gunicorn
-Пусть логов gunicorn обычно указывается в `--access-logfile` или `--error-logfile`. По умолчанию gunicorn логов не ведёт. Смотреть в конфиграции юнита
+Путь логов gunicorn обычно указывается в `--access-logfile` или `--error-logfile`. По умолчанию gunicorn логов не ведёт. Смотреть в конфиграции юнита
 ```
 nano /etc/systemd/system/my_service.gunicorn.service
 ```
@@ -1642,6 +1642,7 @@ VK: https://vk.com/editapp?act=create (`Адрес сайта`: `http://127.0.0.
 От этих сайтов получаем `client ID` и `secret key`
 Заходим в админку Django и создаем соответственно 2 социальных приложения(github и vk):
 Нужно выбрать `провайдер` из списка, вписать `имя`, `ID клиента `и `секретный ключ`. 
+
 Вставляем в шаблон для перехода на встроенный view allauth:
 ```
 {% load socialaccount %}
@@ -2591,7 +2592,7 @@ REST_FRAMEWORK = {
 #### CORS(Cross-Origin Resource Sharing)
 >[!info] Cross-Origin Resource Sharing (CORS) — механизм, использующий дополнительные HTTP-заголовки, чтобы дать возможность агенту пользователя получать разрешения на доступ к выбранным ресурсам с сервера на источнике (домене), отличном от того, что сайт использует в данный момент.
 
-В целях безопасности браузеры ограничивают cross-origin запросы, инициируемые скриптами. Например, XMLHttpRequest и Fetch API следуют _политике одного источника. Это значит, что web-приложения, использующие такие API, могут запрашивать HTTP-ресурсы только с того домена, с которого были загружены, пока не будут использованы CORS-заголовки.
+В целях безопасности браузеры ограничивают cross-origin запросы, инициируемые скриптами. Например, XMLHttpRequest и Fetch API следуют _политике одного источника_. Это значит, что web-приложения, использующие такие API, могут запрашивать HTTP-ресурсы только с того домена, с которого были загружены, пока не будут использованы CORS-заголовки.
 
 Включение заголовков
 ```

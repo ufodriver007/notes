@@ -1657,6 +1657,11 @@ VK: https://vk.com/editapp?act=create (`Адрес сайта`: `http://127.0.0.
 </form>
 ```
 
+###### Авторизация через VK ID
+[Документация](https://id.vk.com/about/business/go/docs/ru/vkid/latest/methods)
+[Мои приложения VK](https://vk.com/apps?act=manage)
+
+
 #### CAPTCHA
 reCaptcha3
 
@@ -2879,7 +2884,7 @@ volumes:
   static_volume:
 ```
 
-Далее создаём файл `celery_app.py` на одном уровне с `manage.py`
+Далее создаём файл `celery_app.py` на одном уровне с `settings.py`
 ```
 import os  
 import time  
@@ -2945,6 +2950,29 @@ debug_task.delay()
 
 Вывод можно будет увидеть в логах `worker`, а также посмотреть в интерфесе `flower` http://127.0.0.1:5555
 
+###### Получение результатов
+В `settings.py` добавляем
+```
+CELERY_RESULT_BACKEND = 'redis://127.0.0.1:6379/0'
+```
+
+При запуске таски, получаем `ID` и сохраняем его куда-нибудь
+```
+task = process_file.delay()  
+task_id = task.id
+```
+
+Теперь с помощью этого `ID` можно получать статус таски и её результат
+```
+from celery.result import AsyncResult
+
+task_result = AsyncResult(task_id)  
+if task_result.status == 'SUCCESS' or task_result.status == 'FAILURE':  
+    print(task_result.result)  
+else:  
+    print(task_result.status)
+```
+
 ###### Таски в других приложениях в Django
 В других приложениях мы описываем таски так
 ```
@@ -2968,4 +2996,156 @@ from celery_singleton import Singleton
 @shared_task(base=Singleton)
 def test_task():
     pass
+```
+
+###### Запуск без Докера
+```
+pip install celery[redis]
+pip install flower
+```
+
+Запуск воркера Celery
+```
+celery -A my_project worker
+```
+
+Запуск Flower
+```
+celery -A my_project flower
+```
+
+## Elasticsearch
+>[!info] Движок для полнотекстового поиска с JSON REST API. По сути это масштабируемое хранилище для быстрого поиска и анализа Big Data в онлайн-режиме. На выходе мы получаем, например, нужные `id `записей БД и затем идём в БД за конкретными записями.
+
+###### Индекс
+(Можно сравнить с таблицей в реляционной БД)
+Это логическое хранилище документов, которые объединены одним смыслом. Такое хранилище является по сути коллекцией, которая оптимизирована под поисковые запросы. Содержимое полей документов сканируется и сохраняется в соответствующие структуры данных
+
+У индекса есть и физическое представление, заключающееся в том, что Elasticsearch имеет распределенные свойства и способен к горизонтальному масштабированию. Индекс может биться по шардам, а у каждого шарда могут быть реплики и т.д.
+
+###### Документ
+(Можно сравнить с записью в реляционной БД)
+
+###### Запрос
+(Можно сравнить с SQL запросом)
+
+###### Анализатор
+
+#### Установка и запуск через Docker
+```
+docker run -p 9200:9200 -e "discovery.type=single.node" elasticsearch:7.17.22
+```
+Теперь можно перейти в браузер `localhost:9200`
+
+#### API Elasticsearch
+###### Создание индекса
+PUT-запрос `localhost:9200/first_index`
+```
+{
+    "mappings": {
+        "properties": {
+            "title": {
+                "type": "text",
+                "analyzer": "russian"
+            },
+            "price": {
+                "type": "float"
+            },
+            "available": {
+                "type": "boolean"
+            }
+        }
+    }
+}
+```
+
+###### Добавление и обновление документов
+PUT-запрос `localhost:9200/first_index/_doc/1`
+```
+{
+    "title": "Беспроводные наушники",
+    "price": 49.99,
+    "available": true
+}
+```
+
+###### Создание документов
+>[!warning] Если документ уже существует, вернётся ошибка
+
+PUT-запрос `localhost:9200/first_index/_doc/2/_create`
+```
+{
+    "title": "Кабель USB",
+    "price": 3.99,
+    "available": true
+}
+```
+
+###### Добавление нескольких документов ОДНИМ запросом
+POST-запрос `localhost:9200/first_index/_bulk`
+```
+{"index": {"_index": "first_index", "_id": 100}}
+{"title": "Зарядная станция", "price": 273.99, "available": true}
+{"index": {"_index": "first_index", "_id": 101}}
+{"title": "Кулер для процессора", "price": 70.99, "available": true}
+
+```
+>[!warning] Последняя строка должна быть пустой!
+
+
+###### Получение документов
+GET-запрос `localhost:9200/first_index/_doc/1`
+
+###### Удаление документа
+DELETE-запрос `localhost:9200/first_index/_doc/1`
+
+###### Поиск
+**Не конкретизированный поиск**
+GET-запрос `localhost:9200/first_index/_search`
+
+**Поиск без конкретного запроса, но со сдвигом 20 и размером 3**
+GET-запрос `localhost:9200/first_index/_search`
+```
+{
+    "from": 20,
+    "size": 3
+}
+```
+
+**Поисковой запрос по слову 'беспроводной' в полях 'title'**
+GET-запрос `localhost:9200/first_index/_search`
+```
+{
+    "query": {
+        "match": {
+            "title": "беспроводной"
+        }
+    }
+}
+```
+
+**Поисковой запрос в диапазоне цен**
+GET-запрос `localhost:9200/first_index/_search`
+```
+{
+    "query": {
+        "bool": {
+            "must": [
+                {
+                    "range": {
+                        "price": {
+                            "gte": 15,
+                            "lte": 50
+                        }
+                    }
+                },
+                {
+                    "term": {
+                        "available": true
+                    }
+                }
+            ]
+        }
+    }
+}
 ```

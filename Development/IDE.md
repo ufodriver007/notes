@@ -1,5 +1,9 @@
 ## PyCharm
 [Спсок пиратских License servers](https://search.censys.io/search?resource=hosts&sort=RELEVANCE&per_page=25&virtual_hosts=EXCLUDE&q=services.http.response.headers.location%3A+account.jetbrains.com%2Ffls-auth) Вводить адрес только с `http://`
+
+[Инструкция для активации](https://teletype.in/@djangocmsrus/OHlHBt-flUS)
+[Ключи](https://3.jetbra.in/)
+
 #### Сочетания клавиш
 |Описание|Хоткей|
 |------|--------|

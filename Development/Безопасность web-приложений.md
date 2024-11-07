@@ -126,6 +126,59 @@ Bandit (Python — бесплатный);
 ###### Динамический анализ
 Selenium
 
+## Чек-лист для Django
+- Настройки для `settings.py`
+```
+DEBUG = False
+
+ALLOWED_HOSTS = ['your_domain', 'www.your_domain']
+
+SECURE_SSL_REDIRECT = True
+SESSION_COOKIE_SECURE = True
+CSRF_COOKIE_SECURE = True
+SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
+SECURE_HSTS_SECONDS = 31536000
+SECURE_HSTS_INCLUDE_SUBDOMAINS = True
+SECURE_HSTS_PRELOAD = True
+```
+- Смена дефолтного пути админки на рандомный
+```
+urlpatterns = [
+    path('whjbfgwilbefvbwoeuibfuiwb/', admin.site.urls),
+]
+```
+
+- Также перед деплоем советую проверять проект с помощью `django-admin check --deploy --fail-level WARNING`
+Есть онлайн ресурс, так скажем [black box проверка](https://djcheckup.com/)
+
+- [django-allauth](https://github.com/pennersr/django-allauth): Добавляет функции для управления учетными записями, включая регистрацию, аутентификацию и управление паролями.
+
+- [django-csp](https://django-csp.readthedocs.io/en/latest/configuration.html): Устанавливает Content Security Policy (CSP) для защиты от XSS. [ТУТ](https://csp-evaluator.withgoogle.com/) вы можете достать сэмпл безопасной конфигурации CSP, а [ТУТ](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Content-Security-Policy) посмотреть все возможные атрибуты для CSP
+
+- [django-admin-honeypot](https://github.com/dmpayton/django-admin-honeypot): фейковая админка
+```
+urlpatterns = [
+    ...
+    path('admin/', include('admin_honeypot.urls', namespace='admin_honeypot')),
+    path('whjbfgwilbefvbwoeuibfuiwb/', admin.site.urls),
+]
+```
+
+- [django-ratelimit](https://django-ratelimit.readthedocs.io/en/stable): простое ограничение на кол-во запросов с одного IP
+```
+@ratelimit(key='ip', rate='10/s')
+def secondview(request):
+    # ...
+```
+
+- [django-defender](https://github.com/jazzband/django-defender): защита от брутфорса и также rate limit, на основе IP и username'а. В отличии от axes, используется отдельная Redis, а не PG самого проекта.Из удобного, данную либу можно "вставить" в админку. Это удобно) 
+
+- [django-guardian](https://github.com/django-guardian/django-guardian): эта либа позволяет гибко управлять разрешениями для объеков Django. Из коробки у нас есть django.contrib.auth. Более подробно [ТУТ](https://gadjimuradov.ru/post/django-guardian-dobavlyaem-upravlenie-razresheniyami-na-urovne-obektov/) читать.
+
+- [django-guardian для DRF](https://github.com/rpkilby/django-rest-framework-guardian): тоже самое, но для Django Rest Framework
+
+- Дополнительный способ защиты - [отслеживание свежих CVE в Django](https://www.cvedetails.com/vulnerability-list/vendor_id-10199/product_id-18211/Djangoproject-Django.html)
+
 ## Основные принципы безопасности
 - целостность данных (изменены ли данные?);
 - проверка подлинности (это кто?);

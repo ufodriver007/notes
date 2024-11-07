@@ -1661,6 +1661,106 @@ VK: https://vk.com/editapp?act=create (`Адрес сайта`: `http://127.0.0.
 [Документация](https://id.vk.com/about/business/go/docs/ru/vkid/latest/methods)
 [Мои приложения VK](https://vk.com/apps?act=manage)
 
+#### OAuth в Django REST Framework
+1. 
+```
+pip install social-auth-app-django
+```
+2. Создаём приложение(Например в ВК)
+[Мои приложения VK](https://vk.com/apps?act=manage)
+Указываем `redirect_uri` как `http://127.0.0.1:8000/social-auth/complete/vk-oauth2/`
+3.  `settings.py`
+```
+# Подключаем djoser и social-auth-app-django
+INSTALLED_APPS = [
+    ...,
+    'djoser',
+    'social_django',
+    ...
+]
+
+# Настройка backend для аутентификации через ВК
+AUTHENTICATION_BACKENDS = (
+    'social_core.backends.vk.VKOAuth2',
+    'django.contrib.auth.backends.ModelBackend',  # Обычный бэкенд аутентификации Django
+)
+
+# Настройка параметров для подключения к ВКонтакте
+SOCIAL_AUTH_VK_OAUTH2_KEY = '<Ваш VK client_id>'
+SOCIAL_AUTH_VK_OAUTH2_SECRET = '<Ваш VK client_secret>'
+SOCIAL_AUTH_LOGIN_REDIRECT_URL = '/auth/complete/vk/'  # URL, куда будет перенаправлен пользователь после успешной аутентификации
+SOCIAL_AUTH_LOGIN_ERROR_URL = '/login-error/'  # URL в случае ошибки аутентификации
+
+# Djoser настройки для токенов
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework.authentication.SessionAuthentication',
+        'rest_framework.authentication.TokenAuthentication',
+    ),
+}
+
+# Добавьте social_django context processors
+TEMPLATES = [
+    {
+        ...,
+        'OPTIONS': {
+            'context_processors': [
+                ...,
+                'social_django.context_processors.backends',
+                'social_django.context_processors.login_redirect',
+            ],
+        },
+    },
+]
+
+```
+4. `urls.py`
+```
+from django.urls import path, include
+
+urlpatterns = [
+    path('auth/', include('djoser.urls')),  # Маршруты djoser
+    path('auth/', include('djoser.urls.jwt')),  # JWT маршруты
+    path('auth/complete/vk/', OAuthCompleteView.as_view()), # маршрут для успешного логина
+    path('social-auth/', include('social_django.urls', namespace='social')),  # маршруты social-auth
+]
+```
+5. Делаем view
+```
+# views.py
+from rest_framework_simplejwt.tokens import RefreshToken
+
+class OAuthCompleteView(APIView):  
+    def get(self, request):  
+        if request.user.is_authenticated:  
+            user_id = request.user.id  
+            refresh = RefreshToken.for_user(request.user)  
+  
+            return Response({'user_id': user_id,  
+                             'access': str(refresh.access_token),  
+                             'refresh': str(refresh)  
+                             })  
+        else:  
+            return Response({'error': 'User is not authenticated'}, status=401)
+```
+6. 
+```
+python manage.py migrate
+```
+7. Логинимся
+```
+GET http://127.0.0.1:8000/social-auth/login/vk-oauth2/
+```
+8. Поскольку мы получили `id`, и пару `JWT` токенов мы можем дальше логинится с помощью djoser отправляя токен в заголовках
+``` # уже должно быть настроено в settings.py
+SIMPLE_JWT = {  
+    'AUTH_HEADER_TYPES': ('JWT',),  
+    'ACCESS_TOKEN_LIFETIME': timedelta(days=1),  
+    'REFRESH_TOKEN_LIFETIME': timedelta(days=1),  
+  
+}
+```
+Соответственно ставим заголовок `Authorization`: `JWT <your access token>`
 
 #### CAPTCHA
 reCaptcha3
@@ -2666,8 +2766,8 @@ urlpatterns = [
         ), name='swagger-ui'),
 ]
 ```
-Схему можно скачать по адресу [http://http//127.0.0.1:8000/api_schema
-](http://http//127.0.0.1:8000/api_schema)
+Схему можно скачать по адресу [http://127.0.0.1:8000/api_schema
+](http://127.0.0.1:8000/api_schema)
 
 Создаём файл `docs.html`
 ```

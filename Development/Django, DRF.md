@@ -3249,3 +3249,72 @@ GET-запрос `localhost:9200/first_index/_search`
     }
 }
 ```
+
+## CI/CD
+>[!info] Continuous Integration/Continuous Delivery. DevOps-практика. Автоматизация развёртывания.
+
+>[!info] Смысл в том, чтобы через `webhook` `github` обновлять код на продакшен сервере.
+>Создаём небольшое веб приложение, которое на вызов API(который будет делать `GitHub` автоматически при пуше изменений в репозиторий) будет после тестов обновлять код на продакшене и перезагружать `gunicorn`.
+
+1. Создаём приложение. Для примера на Flask [[Flask#Пример приложения для CI/CD]]
+```
+pip install flask
+```
+
+```
+pip install python-dotenv
+```
+
+```
+import hashlib  
+import hmac  
+from flask import Flask, request, abort  
+from dotenv import load_dotenv  
+import os  
+import subprocess  
+  
+app = Flask(__name__)  
+  
+load_dotenv()  
+SECRET_TOKEN = os.getenv('SECRET_KEY')  # получаем из .env значение токена для доступа к API  
+  
+  
+def verify_signature(request):  
+    signature = request.headers.get('X-Hub-Signature')  # заголовок в котором github шлёт токен  
+    if signature is None:  
+        abort(403)  
+    sha_name, signature = signature.split('=')  
+    mac = hmac.new(SECRET_TOKEN.encode(), msg=request.data, digestmod=hashlib.sha1)  
+    if not hmac.compare_digest(mac.hexdigest(), signature):  
+        abort(403)  
+  
+  
+@app.route('/webhook', methods=['POST'])  
+def webhook():  
+    verify_signature(request)  
+    if request.method == 'POST':  
+        subprocess.run(['git', 'pull'], cwd='/root/app_tasks')  
+        # Run Django tests  
+        test_process = subprocess.run(['/path/to.python', 'manage.py', 'test'], cwd='/path/to/app_tasks')  
+  
+        # Check if tests passed  
+        if test_process.returncode == 0:  
+            restart_process = subprocess.run(['sudo', 'systemctl', 'restart', 'gunicorn'])  
+            if restart_process.returncode == 0:  
+                return 'Updated, tests passed and server restarted', 200  
+            else:  
+                return 'Updated, tests passed, but failed to restart server', 500  
+    else:  
+        return 'Invalid request', 400  
+  
+  
+if __name__ == '__main__':  
+    app.run(host='0.0.0.0', port=5000)
+```
+
+2. Настраиваем `github`
+Заходим в свой репозиторий. Наверху `settings` -> `Webhooks` -> `Add webhook`
+- Вписываем URL своего API
+- Добавляем токен в строку `Secret`(его будет слать `github` в заголовках)
+
+>[!tip] По нормальному должен быть тестовый сервер, где проверяется работоспособность со свежими изменениями. И только после него заливать изменения на продакшн.

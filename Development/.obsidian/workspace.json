@@ -8,62 +8,6 @@
         "type": "tabs",
         "children": [
           {
-            "id": "12071784c2161d6a",
-            "type": "leaf",
-            "state": {
-              "type": "markdown",
-              "state": {
-                "file": "Django, DRF.md",
-                "mode": "source",
-                "source": true
-              },
-              "icon": "lucide-file",
-              "title": "Django, DRF"
-            }
-          },
-          {
-            "id": "9e6ce48b32865087",
-            "type": "leaf",
-            "state": {
-              "type": "markdown",
-              "state": {
-                "file": "_Obsidian.md",
-                "mode": "source",
-                "source": true
-              },
-              "icon": "lucide-file",
-              "title": "_Obsidian"
-            }
-          },
-          {
-            "id": "cc6ef1730394c101",
-            "type": "leaf",
-            "state": {
-              "type": "markdown",
-              "state": {
-                "file": "Rapberry Pi.md",
-                "mode": "preview",
-                "source": true
-              },
-              "icon": "lucide-file",
-              "title": "Rapberry Pi"
-            }
-          },
-          {
-            "id": "28ee00779266ce9f",
-            "type": "leaf",
-            "state": {
-              "type": "markdown",
-              "state": {
-                "file": "JavaScript.md",
-                "mode": "preview",
-                "source": true
-              },
-              "icon": "lucide-file",
-              "title": "JavaScript"
-            }
-          },
-          {
             "id": "202e2b33cc68f30e",
             "type": "leaf",
             "state": {
@@ -78,21 +22,35 @@
             }
           },
           {
-            "id": "0cde280bd2ac7bdd",
+            "id": "81694357f771f5e2",
             "type": "leaf",
             "state": {
               "type": "markdown",
               "state": {
-                "file": "Структуры данных.md",
+                "file": "Flask.md",
                 "mode": "preview",
                 "source": true
               },
               "icon": "lucide-file",
-              "title": "Структуры данных"
+              "title": "Flask"
+            }
+          },
+          {
+            "id": "d19fbaa639e624d8",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "Flask.md",
+                "mode": "preview",
+                "source": true
+              },
+              "icon": "lucide-file",
+              "title": "Flask"
             }
           }
         ],
-        "currentTab": 5
+        "currentTab": 1
       }
     ],
     "direction": "vertical"
@@ -233,18 +191,23 @@
       "command-palette:Открыть палитру команд": false
     }
   },
-  "active": "0cde280bd2ac7bdd",
+  "active": "81694357f771f5e2",
   "lastOpenFiles": [
-    "Rapberry Pi.md",
+    "Django, DRF.md",
+    "Flask.md",
+    "_Obsidian.md",
     "Структуры данных.md",
+    "Docker.md",
+    "English.md",
+    "files/Pasted image 20241107180646.jpg",
+    "Rapberry Pi.md",
+    "JavaScript.md",
+    "Linux.md",
+    "files/tablica-glagolov-petrova2.webp",
+    "files/tablica-glagolov-petrova1.webp",
     "Подготовка к собесу.md",
     "Git.md",
-    "Docker.md",
-    "_Obsidian.md",
-    "JavaScript.md",
-    "Django, DRF.md",
     "files/Raspberry-Pi-Logo-01-300x300.png",
-    "Linux.md",
     "Без названия",
     "RegEx.md",
     "Python.md",
@@ -261,17 +224,12 @@
     "NGINX.md",
     "sslshopper.com.md",
     "OpenCV.md",
-    "HTML.md",
-    "FastAPI.md",
     "files/registration.png",
     "files/certificate.png",
     "files/sign_2.png",
     "files/sign_1.png",
     "files/assymetric_cypher.png",
     "files/fernet_decrypt.png",
-    "files/fernet.png",
-    "files/hmac.png",
-    "files/2024-06-15_18-15.png",
     "Без названия.canvas",
     "files"
   ]

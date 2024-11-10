@@ -13,20 +13,6 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "Docker.md",
-                "mode": "preview",
-                "source": true
-              },
-              "icon": "lucide-file",
-              "title": "Docker"
-            }
-          },
-          {
-            "id": "81694357f771f5e2",
-            "type": "leaf",
-            "state": {
-              "type": "markdown",
-              "state": {
                 "file": "Flask.md",
                 "mode": "preview",
                 "source": true
@@ -36,21 +22,35 @@
             }
           },
           {
-            "id": "d19fbaa639e624d8",
+            "id": "628ca8abab1a15e3",
             "type": "leaf",
             "state": {
               "type": "markdown",
               "state": {
-                "file": "Flask.md",
+                "file": "Парсинг.md",
                 "mode": "preview",
                 "source": true
               },
               "icon": "lucide-file",
-              "title": "Flask"
+              "title": "Парсинг"
+            }
+          },
+          {
+            "id": "bb2b5fe467a6240b",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "Scrapy.md",
+                "mode": "preview",
+                "source": true
+              },
+              "icon": "lucide-file",
+              "title": "Scrapy"
             }
           }
         ],
-        "currentTab": 1
+        "currentTab": 2
       }
     ],
     "direction": "vertical"
@@ -122,7 +122,7 @@
             "state": {
               "type": "backlink",
               "state": {
-                "file": "Django, DRF.md",
+                "file": "English.md",
                 "collapseAll": false,
                 "extraContext": false,
                 "sortOrder": "alphabetical",
@@ -132,7 +132,7 @@
                 "unlinkedCollapsed": true
               },
               "icon": "links-coming-in",
-              "title": "Обратные ссылки для Django, DRF"
+              "title": "Обратные ссылки для English"
             }
           },
           {
@@ -191,26 +191,34 @@
       "command-palette:Открыть палитру команд": false
     }
   },
-  "active": "81694357f771f5e2",
+  "active": "bb2b5fe467a6240b",
   "lastOpenFiles": [
-    "Django, DRF.md",
-    "Flask.md",
+    "Парсинг.md",
+    "CSS.md",
+    "Scrapy.md",
     "_Obsidian.md",
-    "Структуры данных.md",
+    "files/d4225331e73538ba9b32a883ad0317de.webp",
+    "files/Pasted image 20241110010134.png",
+    "Python.md",
     "Docker.md",
+    "Алгоритмы.md",
+    "Django, DRF.md",
+    "FastAPI.md",
     "English.md",
+    "Подготовка к собесу.md",
+    "Flask.md",
+    "files/flask@logotyp.us.png",
+    "Структуры данных.md",
     "files/Pasted image 20241107180646.jpg",
     "Rapberry Pi.md",
     "JavaScript.md",
     "Linux.md",
     "files/tablica-glagolov-petrova2.webp",
     "files/tablica-glagolov-petrova1.webp",
-    "Подготовка к собесу.md",
     "Git.md",
     "files/Raspberry-Pi-Logo-01-300x300.png",
     "Без названия",
     "RegEx.md",
-    "Python.md",
     "Деплой.md",
     "React.md",
     "Безопасность web-приложений.md",
@@ -219,17 +227,9 @@
     "SQL и PostgreSQL.md",
     "Python. PEP8.md",
     "Telegram Bot.md",
-    "Web.md",
-    "SOLID, REST, паттерны.md",
-    "NGINX.md",
-    "sslshopper.com.md",
-    "OpenCV.md",
     "files/registration.png",
     "files/certificate.png",
     "files/sign_2.png",
-    "files/sign_1.png",
-    "files/assymetric_cypher.png",
-    "files/fernet_decrypt.png",
     "Без названия.canvas",
     "files"
   ]

@@ -1,3 +1,11 @@
+![[flask@logotyp.us.png|300]]
+>[!info] Это микрофреймворк для создания веб-приложений.
+
+#### Документация
+[pypi.org](https://pypi.org/project/Flask/)
+[Документация](https://flask.palletsprojects.com/en/stable/)
+[Мега-Учебник  Flask](https://habr.com/ru/articles/804245/)
+
 #### WSGI(Web Server Gateway Interface)
 
 Основная идея WSGI — простое взаимодействие Python-приложения и веб-сервера. Согласно стандарту, веб-приложение — это просто функция или другой callable объект, которая принимает два аргумента:
@@ -371,6 +379,7 @@ def webhook():
 if __name__ == '__main__':  
     app.run(host='0.0.0.0', port=5000)
 ```
+
 
 
 

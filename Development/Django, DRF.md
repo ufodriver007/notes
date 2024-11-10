@@ -2034,11 +2034,42 @@ TEMPLATES = [
     },  
 ]
 ```
-
 ###### Компрессоры CSS и JS
 >[!info] Смысл  в том, чтобы подгружался единый файл со стилями и javascript кодом
 >Для этого можно использовать `Django Compressor` или упаковщики типа WebPack.
 
+#### Автозагрузка
+Реализация автозагрузки(однократного выполнения кода) при запуске веб-приложения
+```
+# wsgi.py
+
+import os  
+from django.core.wsgi import get_wsgi_application  
+import requests  
+from django.conf import settings  
+  
+  
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'drf_downloader.settings')  
+  
+application = get_wsgi_application()  
+  
+# Автозагрузка при старте WSGI  
+try:  
+    if settings.AUTOLOAD_ENABLED:  
+        url = 'http://elasticsearch:9200/file_index'  
+        data = {  
+            "mappings": {  
+                "properties": {  
+                    "title": {  
+                        "type": "text"  
+                    }  
+                }  
+            }  
+        }  
+        response = requests.put(url, json=data)  
+except Exception as e:  
+    print(e)
+```
 
 ## Django REST Framework(DRF)
 ![[drf.png]]

@@ -13,12 +13,12 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "Flask.md",
+                "file": "CSS.md",
                 "mode": "preview",
                 "source": true
               },
               "icon": "lucide-file",
-              "title": "Flask"
+              "title": "CSS"
             }
           },
           {
@@ -36,7 +36,7 @@
             }
           },
           {
-            "id": "bb2b5fe467a6240b",
+            "id": "031eb8304854cf21",
             "type": "leaf",
             "state": {
               "type": "markdown",
@@ -191,22 +191,22 @@
       "command-palette:Открыть палитру команд": false
     }
   },
-  "active": "bb2b5fe467a6240b",
+  "active": "031eb8304854cf21",
   "lastOpenFiles": [
     "Парсинг.md",
-    "CSS.md",
     "Scrapy.md",
+    "CSS.md",
+    "Django, DRF.md",
+    "Flask.md",
     "_Obsidian.md",
     "files/d4225331e73538ba9b32a883ad0317de.webp",
     "files/Pasted image 20241110010134.png",
     "Python.md",
     "Docker.md",
     "Алгоритмы.md",
-    "Django, DRF.md",
     "FastAPI.md",
     "English.md",
     "Подготовка к собесу.md",
-    "Flask.md",
     "files/flask@logotyp.us.png",
     "Структуры данных.md",
     "files/Pasted image 20241107180646.jpg",

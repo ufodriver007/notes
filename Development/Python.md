@@ -1742,6 +1742,57 @@ output = os.popen(cmd).read()                               # отправляе
 
 logger.warning(f'Free disk space is running out! {output} Mb left!')     # пишем в лог с уровнем warning
 ```
+##### Loguru
+```
+pip install loguru
+```
+
+```
+from loguru import logger
+
+logger.add('logs/main.log', rotation='10mb', level='DEBUG')
+# rotation='1 day'
+# rotation='12:00'
+```
+Уровень логгера 'DEBUG' означает, что запишется `debug` и выше
+###### Уровни в Loguru
+```
+logger.debug('Hello!)
+logger.info('Hello!)
+logger.warning('Hello!)
+logger.error('Hello!)
+logger.critical('Hello!)
+```
+
+###### Уведомления
+Пример уведомления в Telegram
+```
+pip install notifiers
+```
+
+```
+import os
+from loguru import logger
+from notifiers.logging import NotificationHandler
+from dotenv import load_dotenv                            # pip install python-dotenv
+
+load_dotenv()
+
+params = {
+    'token': os.getenv("TOKEN"),
+    'chat_id': os.getenv("CHAT_ID")
+}
+
+tg_handler = NotificationHandler('telegram', defaults=params)
+
+logger.add(tg_handler, level='CRITICAL')
+
+logger.add('logs/log.log', rotation='10 mb', level='DEBUG')
+
+logger.critical("Не загружается страница")
+```
+Токен бота можно взять у `@BotFather`. Создать группу и пригласить туда бота.
+[Как получить chat_id](https://stackoverflow.com/questions/32423837/telegram-bot-how-to-get-a-group-chat-id/32572159#32572159)
 
 #### ТЕСТЫ
 ###### Assert
@@ -1800,3 +1851,140 @@ unittest.main()
 - Красный (red): тесты не проходят. Так и должно быть. Ведь вы еще не написали код;
 - Зеленый (green): все тесты проходят при изменении кода;
 - Рефакторинг (refactor): чистка и улучшение кода, устранение дублирования.
+
+#### FLET
+>[!info] Это фреймворк для разработки кроссплатформенных приложений
+
+```
+pip install flet
+```
+
+Запуск десктоп приложения
+```
+flet run counter.py
+```
+
+Запуск в браузере
+```
+flet run --web counter.py
+ ИЛИ
+flet run --web --port 8000 counter.py
+```
+
+###### Минимальное приложение
+```
+import flet as ft
+
+def main(page: ft.Page):
+    page.title = "Flet App"
+
+ft.app(target=main)
+```
+
+Добавление строчки с виджетами
+```
+page.add(  
+    ft.Row(  
+        [  
+            ft.IconButton(ft.icons.REMOVE, on_click=minus_click),  
+            txt_number,  
+            ft.IconButton(ft.icons.ADD, on_click=plus_click),  
+            ft.Checkbox()  
+        ],  
+        alignment=ft.MainAxisAlignment.CENTER,  
+    )  
+)
+```
+
+###### Пример навигации
+```
+def navigate(e):  
+    index = page.navigation_bar.selected_index  
+    page.clean()  
+  
+    if index == 0:  
+        page.add(panel_1)  
+    elif index == 1:  
+        page.add(panel_2)  
+  
+panel_1 = ft.Row(  
+    [  
+        ft.IconButton(ft.icons.REMOVE, on_click=minus_click),  
+        txt_number,  
+        ft.IconButton(ft.icons.ADD, on_click=plus_click),  
+        ft.Checkbox()  
+    ],  
+    alignment=ft.MainAxisAlignment.CENTER,  
+)  
+  
+panel_2 = ft.Row(  
+    [  
+        ft.Text(value="HELLO!"),  
+    ],  
+    alignment=ft.MainAxisAlignment.CENTER,  
+)  
+  
+page.add(panel_1)  
+  
+page.navigation_bar = ft.NavigationBar(  
+    destinations=[  
+        ft.NavigationDestination(icon=ft.icons.VERIFIED, label='Registration'),  
+        ft.NavigationDestination(icon=ft.icons.VERIFIED_USER_OUTLINED, label='Something')  
+    ], on_change=navigate  
+)  
+page.update()
+```
+
+![[2024-11-19_16-33.png|400]]
+
+###### Пример File Picker
+```
+import flet as ft  
+  
+def main(page: ft.Page):  
+    page.title = "Flet picker example"  
+    page.theme_mode = 'dark'  
+    page.vertical_alignment = ft.MainAxisAlignment.CENTER  
+  
+    page.window.width = 850  
+    page.window.height = 600  
+    page.window.resizable = False  
+  
+    selected_files = ft.Text(value='Uploaded file')  
+  
+    def pick_result(e: ft.FilePickerResultEvent):  
+        if not e.files:  
+            selected_files.value = 'Ничего не выбрано'  
+        else:  
+            selected_files.value = ''  
+            path = ''  
+            for elem in e.files:  
+                path = elem.path  
+  
+            selected_files.value = path  
+            with open(path, 'r') as f:  
+                print(f.read())  
+  
+        page.update()  
+  
+    pick_dialog = ft.FilePicker(on_result=pick_result)  
+    page.overlay.append(pick_dialog)  
+    page.add(  
+        ft.Row(  
+            [  
+                ft.ElevatedButton(  
+                    'Выбрать файл',  
+                    icon=ft.icons.UPLOAD_FILE,  
+                    on_click=lambda _: pick_dialog.pick_files(allow_multiple=False)  
+                ),  
+                selected_files  
+            ],  
+            alignment=ft.MainAxisAlignment.CENTER,  
+        )  
+    )  
+  
+  
+ft.app(main)
+```
+
+![[2024-11-20_11-30.png|400]]

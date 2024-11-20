@@ -8,20 +8,6 @@
         "type": "tabs",
         "children": [
           {
-            "id": "202e2b33cc68f30e",
-            "type": "leaf",
-            "state": {
-              "type": "markdown",
-              "state": {
-                "file": "CSS.md",
-                "mode": "preview",
-                "source": true
-              },
-              "icon": "lucide-file",
-              "title": "CSS"
-            }
-          },
-          {
             "id": "628ca8abab1a15e3",
             "type": "leaf",
             "state": {
@@ -47,6 +33,34 @@
               },
               "icon": "lucide-file",
               "title": "Scrapy"
+            }
+          },
+          {
+            "id": "2d45d040e15750b1",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "Python.md",
+                "mode": "preview",
+                "source": true
+              },
+              "icon": "lucide-file",
+              "title": "Python"
+            }
+          },
+          {
+            "id": "69468c255fd88356",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "SQL и PostgreSQL.md",
+                "mode": "preview",
+                "source": true
+              },
+              "icon": "lucide-file",
+              "title": "SQL и PostgreSQL"
             }
           }
         ],
@@ -81,7 +95,7 @@
             "state": {
               "type": "search",
               "state": {
-                "query": "bootst",
+                "query": "Tkinter",
                 "matchingCase": false,
                 "explainSearch": false,
                 "collapseAll": false,
@@ -191,17 +205,21 @@
       "command-palette:Открыть палитру команд": false
     }
   },
-  "active": "031eb8304854cf21",
+  "active": "2d45d040e15750b1",
   "lastOpenFiles": [
-    "Парсинг.md",
-    "Scrapy.md",
-    "CSS.md",
+    "files/2024-11-20_11-30.png",
+    "files/2024-11-19_16-33.png",
+    "SQL и PostgreSQL.md",
+    "Python.md",
     "Django, DRF.md",
+    "Scrapy.md",
+    "Парсинг.md",
+    "Безопасность web-приложений.md",
+    "CSS.md",
     "Flask.md",
     "_Obsidian.md",
     "files/d4225331e73538ba9b32a883ad0317de.webp",
     "files/Pasted image 20241110010134.png",
-    "Python.md",
     "Docker.md",
     "Алгоритмы.md",
     "FastAPI.md",
@@ -221,15 +239,11 @@
     "RegEx.md",
     "Деплой.md",
     "React.md",
-    "Безопасность web-приложений.md",
     "archive.org.md",
     "IDE.md",
-    "SQL и PostgreSQL.md",
     "Python. PEP8.md",
-    "Telegram Bot.md",
     "files/registration.png",
     "files/certificate.png",
-    "files/sign_2.png",
     "Без названия.canvas",
     "files"
   ]

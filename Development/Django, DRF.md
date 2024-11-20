@@ -238,6 +238,26 @@ urlpatterns = [
 ```
 /catalog/product/2
 ```
+#### Custom user
+Стандартная модель пользователя Django `User` может быть недостаточной для некоторых проектов, особенно если требуется хранить дополнительные данные о пользователях. В таких случаях рекомендуется создать свою пользовательскую модель, наследуясь от `AbstractUser` или `AbstractBaseUser`.
+```
+# models.py
+from django.contrib.auth.models import AbstractUser
+from django.db import models
+
+class CustomUser(AbstractUser):
+    # Добавляем дополнительные поля
+    phone_number = models.CharField(max_length=15, blank=True, null=True)
+    
+	def __str__(self):
+	    return self.username
+```
+
+Чтобы Django использовал нашу кастомную модель пользователя, нужно указать её в настройках проекта.
+```
+# settings.py
+AUTH_USER_MODEL = 'your_app_name.CustomUser'
+```
 
 #### Формы
 ```
@@ -2905,7 +2925,7 @@ Push уведомления.
     }
 </script>
 ```
-Если хочется чтобы ворекер делал что-то ещё кроме простого сохранения страниц, стоит попробовать [PWA Builder](https://www.pwabuilder.com/)
+Если хочется чтобы воркер делал что-то ещё кроме простого сохранения страниц, стоит попробовать [PWA Builder](https://www.pwabuilder.com/)
 
 - Добавляем `sw-toolbox` в свой проект [Сам файл](https://github.com/GoogleChromeLabs/sw-toolbox/blob/master/sw-toolbox.js)
 - Создаём новый файл `sw.js`

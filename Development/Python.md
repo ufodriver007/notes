@@ -57,8 +57,23 @@ sudo apt install python3.11-venv                 virtual environment
 sudo apt install python3.11-tk                   tkinter
 ```
 
+#### Простая защита скрипта
+1. Обфускация кода
+2. Трансляция в Си и компиляция в исполняемый файл
+3. Привязка в железу
+4. Ограничение времени действия программы с помощью получения времени с NTP-сервера
 
-#### Nuitka(компиляция в исполняемый файл)
+###### Обфускация кода
+```
+pip install pyarmor
+```
+Генерация
+```
+pyarmor gen foo.py
+```
+
+
+###### Nuitka(компиляция в исполняемый файл)
 EXE в Windows и BIN в Linux
 1. `sudo apt install nuitka`
 2. `sudo apt install gcc`   компилятор си
@@ -78,6 +93,81 @@ EXE в Windows и BIN в Linux
 >[!tip] В Windows можно затем использовать InnoSetup для создания установщика(чтобы передавать один файл)
 
 >[!tip] Чтобы из терминала передаввать аргументы, нужно импортировать `sys`. А `sys.argv` будет массивом с аргументами
+
+###### Получение времени с NTP-сервера
+```
+pip install ntplib
+```
+Пример функции проверки даты
+```
+import ntplib  
+from datetime import datetime, timezone  
+  
+  
+def get_time_from_ntp():  
+    try:  
+        ntp_client = ntplib.NTPClient()  
+        response = ntp_client.request('pool.ntp.org')  # Используем публичный NTP-сервер  
+        ntp_time = datetime.fromtimestamp(response.tx_time, tz=timezone.utc)  # Преобразуем время в формат UTC  
+        return ntp_time  
+    except Exception as e:  
+        print(f"Ошибка при обращении к NTP-серверу: {e}")  
+        return None  
+  
+  
+def check_expiration_date(expiration_date_str):  
+    expiration_date = datetime.strptime(expiration_date_str, "%Y-%m-%d").date()  # Преобразуем в date  
+  
+    # Получаем текущую дату с NTP-сервера    current_date = get_time_from_ntp()  
+  
+    if current_date is None:  
+        print("Ошибка: не удалось получить текущую дату с NTP-сервера.")  
+        return False  # Если не удалось получить дату, возвращаем ошибку и не продолжаем выполнение  
+  
+    if current_date.date() <= expiration_date:  # Преобразуем current_date в date для сравнения  
+        return True  
+    else:  
+        return False  
+  
+  
+print(check_expiration_date('2024-12-07'))  # True
+```
+
+###### Получение серийного номера жёсткого диска
+```
+import subprocess  
+import os  
+  
+  
+def get_disk_serial_number():  
+    if os.name == 'nt':  # Для Window возвращает 'nt', для unix-подобных возвращает 'posix'  
+        try:  
+            output = subprocess.check_output('wmic diskdrive get serialnumber', shell=True)  
+            serial = output.decode().split("\n")[1].strip()  
+            return serial  
+        except Exception as e:  
+            print(f"Ошибка выполнения команды: {e}")  
+            return None  
+    else:  
+        try:  
+            result = subprocess.run(  
+                ["udevadm", "info", f"/dev/sda"],  
+                capture_output=True,  
+                text=True,  
+                check=True  
+            )  
+            # Найти строку с серийным номером  
+            for line in result.stdout.splitlines():  
+                if "ID_SERIAL=" in line:  
+                    return line.split("ID_SERIAL=")[1]  
+            return None  
+        except subprocess.CalledProcessError as e:  
+            print(f"Ошибка выполнения команды: {e}")  
+            return None  
+  
+  
+print(get_disk_serial_number())
+```
 
 #### Способы хранения паролей в программе
 1. Создать отдельный файл и хранить пароль в нём, предварительно указав этот файл в `.gitignore`
@@ -364,7 +454,6 @@ subprocess.call(['open', '/home/ufodriver/Загрузки/RegEx.txt'])   # Дл
 ```
 cmd = "df -m / | awk 'NR==2 {print $4}'"
 output = os.popen(cmd).read()
-
 ```
 
 #### Создание списка

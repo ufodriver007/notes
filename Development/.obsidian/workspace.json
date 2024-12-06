@@ -8,35 +8,7 @@
         "type": "tabs",
         "children": [
           {
-            "id": "628ca8abab1a15e3",
-            "type": "leaf",
-            "state": {
-              "type": "markdown",
-              "state": {
-                "file": "Парсинг.md",
-                "mode": "preview",
-                "source": true
-              },
-              "icon": "lucide-file",
-              "title": "Парсинг"
-            }
-          },
-          {
-            "id": "031eb8304854cf21",
-            "type": "leaf",
-            "state": {
-              "type": "markdown",
-              "state": {
-                "file": "Scrapy.md",
-                "mode": "preview",
-                "source": true
-              },
-              "icon": "lucide-file",
-              "title": "Scrapy"
-            }
-          },
-          {
-            "id": "2d45d040e15750b1",
+            "id": "69468c255fd88356",
             "type": "leaf",
             "state": {
               "type": "markdown",
@@ -48,23 +20,8 @@
               "icon": "lucide-file",
               "title": "Python"
             }
-          },
-          {
-            "id": "69468c255fd88356",
-            "type": "leaf",
-            "state": {
-              "type": "markdown",
-              "state": {
-                "file": "SQL и PostgreSQL.md",
-                "mode": "preview",
-                "source": true
-              },
-              "icon": "lucide-file",
-              "title": "SQL и PostgreSQL"
-            }
           }
-        ],
-        "currentTab": 2
+        ]
       }
     ],
     "direction": "vertical"
@@ -95,8 +52,8 @@
             "state": {
               "type": "search",
               "state": {
-                "query": "Tkinter",
-                "matchingCase": false,
+                "query": "",
+                "matchingCase": true,
                 "explainSearch": false,
                 "collapseAll": false,
                 "extraContext": false,
@@ -205,46 +162,46 @@
       "command-palette:Открыть палитру команд": false
     }
   },
-  "active": "2d45d040e15750b1",
+  "active": "69468c255fd88356",
   "lastOpenFiles": [
-    "files/2024-11-20_11-30.png",
-    "files/2024-11-19_16-33.png",
-    "SQL и PostgreSQL.md",
+    "Python. Асинхронное программирование..md",
+    "Python. PEP8.md",
+    "Python. ООП.md",
     "Python.md",
-    "Django, DRF.md",
+    "Telegram Bot.md",
     "Scrapy.md",
     "Парсинг.md",
+    "Нейросети.md",
+    "Математика. Комбинаторика и Теор.вер..md",
+    "Деплой.md",
     "Безопасность web-приложений.md",
+    "Алгоритмы.md",
+    "Без названия.canvas",
+    "SQL и PostgreSQL.md",
+    "2024-12-06.md",
+    "IDE.md",
+    "Структуры данных.md",
+    "RegEx.md",
+    "Django, DRF.md",
+    "_Obsidian.md",
+    "English.md",
+    "files/2024-11-20_11-30.png",
+    "files/2024-11-19_16-33.png",
     "CSS.md",
     "Flask.md",
-    "_Obsidian.md",
     "files/d4225331e73538ba9b32a883ad0317de.webp",
     "files/Pasted image 20241110010134.png",
     "Docker.md",
-    "Алгоритмы.md",
     "FastAPI.md",
-    "English.md",
     "Подготовка к собесу.md",
     "files/flask@logotyp.us.png",
-    "Структуры данных.md",
     "files/Pasted image 20241107180646.jpg",
     "Rapberry Pi.md",
-    "JavaScript.md",
-    "Linux.md",
     "files/tablica-glagolov-petrova2.webp",
     "files/tablica-glagolov-petrova1.webp",
-    "Git.md",
     "files/Raspberry-Pi-Logo-01-300x300.png",
     "Без названия",
-    "RegEx.md",
-    "Деплой.md",
-    "React.md",
-    "archive.org.md",
-    "IDE.md",
-    "Python. PEP8.md",
     "files/registration.png",
-    "files/certificate.png",
-    "Без названия.canvas",
     "files"
   ]
 }

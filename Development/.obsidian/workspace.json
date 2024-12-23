@@ -8,7 +8,7 @@
         "type": "tabs",
         "children": [
           {
-            "id": "69468c255fd88356",
+            "id": "23582f730f658d9c",
             "type": "leaf",
             "state": {
               "type": "markdown",
@@ -20,8 +20,79 @@
               "icon": "lucide-file",
               "title": "Python"
             }
+          },
+          {
+            "id": "544ab900c0ebff9f",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "HTML.md",
+                "mode": "preview",
+                "source": true
+              },
+              "icon": "lucide-file",
+              "title": "HTML"
+            }
+          },
+          {
+            "id": "cd7edf26dd6d1b0c",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "CSS.md",
+                "mode": "preview",
+                "source": true
+              },
+              "icon": "lucide-file",
+              "title": "CSS"
+            }
+          },
+          {
+            "id": "32617b48253d910a",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "JavaScript.md",
+                "mode": "preview",
+                "source": true
+              },
+              "icon": "lucide-file",
+              "title": "JavaScript"
+            }
+          },
+          {
+            "id": "69468c255fd88356",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "React.md",
+                "mode": "preview",
+                "source": true
+              },
+              "icon": "lucide-file",
+              "title": "React"
+            }
+          },
+          {
+            "id": "e8b837f08229a84e",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "IDE.md",
+                "mode": "preview",
+                "source": true
+              },
+              "icon": "lucide-file",
+              "title": "IDE"
+            }
           }
-        ]
+        ],
+        "currentTab": 5
       }
     ],
     "direction": "vertical"
@@ -162,41 +233,41 @@
       "command-palette:Открыть палитру команд": false
     }
   },
-  "active": "69468c255fd88356",
+  "active": "e8b837f08229a84e",
   "lastOpenFiles": [
+    "HTML.md",
+    "JavaScript.md",
+    "React.md",
+    "IDE.md",
+    "CSS.md",
+    "Python.md",
+    "Python. ООП.md",
+    "Django, DRF.md",
+    "Безопасность web-приложений.md",
+    "Linux.md",
+    "Деплой.md",
     "Python. Асинхронное программирование..md",
     "Python. PEP8.md",
-    "Python. ООП.md",
-    "Python.md",
     "Telegram Bot.md",
     "Scrapy.md",
     "Парсинг.md",
     "Нейросети.md",
     "Математика. Комбинаторика и Теор.вер..md",
-    "Деплой.md",
-    "Безопасность web-приложений.md",
     "Алгоритмы.md",
     "Без названия.canvas",
     "SQL и PostgreSQL.md",
     "2024-12-06.md",
-    "IDE.md",
     "Структуры данных.md",
     "RegEx.md",
-    "Django, DRF.md",
     "_Obsidian.md",
     "English.md",
     "files/2024-11-20_11-30.png",
     "files/2024-11-19_16-33.png",
-    "CSS.md",
     "Flask.md",
     "files/d4225331e73538ba9b32a883ad0317de.webp",
     "files/Pasted image 20241110010134.png",
-    "Docker.md",
-    "FastAPI.md",
-    "Подготовка к собесу.md",
     "files/flask@logotyp.us.png",
     "files/Pasted image 20241107180646.jpg",
-    "Rapberry Pi.md",
     "files/tablica-glagolov-petrova2.webp",
     "files/tablica-glagolov-petrova1.webp",
     "files/Raspberry-Pi-Logo-01-300x300.png",

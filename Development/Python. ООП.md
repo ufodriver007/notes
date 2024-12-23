@@ -39,6 +39,26 @@ a_cat.age = 2
 a_cat.name = Nik
 ```
 
+#### Dataclass
+Ещё один вариант задания структуры — dataclass:
+```
+from dataclasses import dataclass
+
+@dataclass
+class Coordinates:
+    longitude: float
+    latitude: float
+```
+Можно сделать класс неизменяемым
+```
+@dataclass(slots=True, frozen=True)
+class CoordinatesDT2:
+    longitude: float
+    latitude: float
+```
+- Флаг `slots=True` автоматически добавляет `__slots__` нашему датаклассу (более быстрый доступ к атрибутам и более эффективное хранение в памяти).
+- По расходу памяти такой датакласс даже эффективнее кортежа.
+
 При создании объекта:
 1. Создаётся объект (метод `__new__`)
 2. Инициализируется объект (метод `__init__`)

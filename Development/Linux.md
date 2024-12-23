@@ -716,6 +716,23 @@ sudo wg-quick down wg0                   закрыть туннель
 |`service wg-quick@wg0 status`|статус службы wireguard
 |`cat /etc/wireguard/wg.conf`|конфиг сервера
 
+#### Смена порта SSH
+```
+sudo nano /etc/ssh/sshd_config
+```
+Меняем настройку `Port`
+```
+Port 10022
+```
+Затем
+```
+systemctl daemon-reload
+```
+И перезапускаем службу
+```
+systemcl restart ssh
+```
+
 #### SSH ключи
 ###### добавить ssh-ключ на сервер
 *делаем это на др. машине*
@@ -758,6 +775,48 @@ scp root@123.123.123.123:/home/test.txt /directory
 ###### Загрузка файла на сервер
 ```
 scp /home/test.txt root@123.123.123.123:/directory
+```
+
+#### Firewall
+Включение файервола и разрешение подключения по порту 22(ssh)
+```
+ufw enable && ufw allow 22/tcp
+```
+
+#### Запрет пинга
+Сначала открываем нужные порты на сервере(если стоит VPN например)
+```
+ufw allow 51820
+```
+Далее открываем конфиг файерволла
+```
+nano /etc/ufw/before.rules
+```
+В блок `# ok icmp codes for INPUT` добавляем сточку
+```
+-A ufw-before-input -p icmp --icmp-type source-quench -j DROP
+```
+Во всех строчках этого кода `ACCEPT` меняем на `DROP` и также меняем в блоке `# ok icmp code for FORWARD`
+
+Перезапускаем файервол
+```
+ufw disable && ufw enable
+```
+
+#### Speedtest CLI
+Установка с помощью Python
+```
+python3 -m venv venv
+```
+```
+source venv/bin/activate
+```
+```
+pip install speedtest-cli
+```
+Запуск
+```
+speedtest-cli --secure
 ```
 
 #### FLATPAK

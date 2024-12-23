@@ -200,6 +200,8 @@ body {
 ```
 
 #### Bootstrap
+>[!info] Это фреймворк для создания сайтов и веб-приложений с открытым исходным кодом. Включает в себя HTML- и CSS-шаблоны оформления для типографики, веб-форм, кнопок, меток, блоков навигации и прочих компонентов веб-интерфейса, включая JavaScript-расширения.
+
 [Сайт Bootstrap](https://getbootstrap.com/docs/5.3/getting-started/introduction/)
 [Документация на русском](https://bootstrap-4.ru/docs/5.3/getting-started/introduction/)
 Docs->Download->CDN копируем пути css и js

@@ -225,6 +225,16 @@ sudo systemctl enable hello.service
 
 >[!example] Например в файл `/home/ufodriver/.profile` добавить строчку `exec /usr/bin/firefox &` (выполнить скрипт firefox в фоновом режиме)
 
+###### Автозагрузка через CRON
+Откроем файл для редактирования
+```
+crontab -e
+```
+
+В конце файла добавляем
+```
+@reboot /путь/к/вашему/скрипту.sh
+```
 
 #### ПЕРЕМЕННЫЕ СРЕДЫ
 |Команда|Описание|
@@ -445,6 +455,7 @@ sudo add-apt-repository --remove ppa:danielrichter2007/grub-customizer      уд
 |`sudo useradd Sergey`|Добавить пользователя Seregey
 |`adduser Sergey sudo`|Добавить пользователя в группу sudo, чтобы он мог временно повышать свои привилегии
 |`sudo passwd Sergey `|Задать пароль для пользователя Seregey
+|`su Sergey`|Переключиться на пользователя Sergey
 |`sudo userdel Sergey`|Удалить пользователя Seregey
 |`sudo usermod -L Sergey`|Заблокировать учётную запись пользователя Seregey
 

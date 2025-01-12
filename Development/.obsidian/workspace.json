@@ -4,95 +4,52 @@
     "type": "split",
     "children": [
       {
-        "id": "2112ec5c0a6a1fc9",
+        "id": "1ac0a62198edc711",
         "type": "tabs",
         "children": [
           {
-            "id": "23582f730f658d9c",
+            "id": "673554d496510d92",
             "type": "leaf",
             "state": {
               "type": "markdown",
               "state": {
-                "file": "Python.md",
+                "file": "Linux.md",
                 "mode": "preview",
                 "source": true
               },
               "icon": "lucide-file",
-              "title": "Python"
+              "title": "Linux"
             }
           },
           {
-            "id": "544ab900c0ebff9f",
+            "id": "91d38307724333d9",
             "type": "leaf",
             "state": {
               "type": "markdown",
               "state": {
-                "file": "HTML.md",
+                "file": "English.md",
                 "mode": "preview",
                 "source": true
               },
               "icon": "lucide-file",
-              "title": "HTML"
+              "title": "English"
             }
           },
           {
-            "id": "cd7edf26dd6d1b0c",
+            "id": "a84d70740ee8194e",
             "type": "leaf",
             "state": {
               "type": "markdown",
               "state": {
-                "file": "CSS.md",
+                "file": "Docker.md",
                 "mode": "preview",
                 "source": true
               },
               "icon": "lucide-file",
-              "title": "CSS"
-            }
-          },
-          {
-            "id": "32617b48253d910a",
-            "type": "leaf",
-            "state": {
-              "type": "markdown",
-              "state": {
-                "file": "JavaScript.md",
-                "mode": "preview",
-                "source": true
-              },
-              "icon": "lucide-file",
-              "title": "JavaScript"
-            }
-          },
-          {
-            "id": "69468c255fd88356",
-            "type": "leaf",
-            "state": {
-              "type": "markdown",
-              "state": {
-                "file": "React.md",
-                "mode": "preview",
-                "source": true
-              },
-              "icon": "lucide-file",
-              "title": "React"
-            }
-          },
-          {
-            "id": "e8b837f08229a84e",
-            "type": "leaf",
-            "state": {
-              "type": "markdown",
-              "state": {
-                "file": "IDE.md",
-                "mode": "preview",
-                "source": true
-              },
-              "icon": "lucide-file",
-              "title": "IDE"
+              "title": "Docker"
             }
           }
-        ],
-        "currentTab": 5
+        ]
       }
     ],
     "direction": "vertical"
@@ -210,13 +167,14 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "Django, DRF.md"
+                "file": "English.md"
               },
               "icon": "lucide-list",
-              "title": "Структура Django, DRF"
+              "title": "Структура English"
             }
           }
-        ]
+        ],
+        "currentTab": 2
       }
     ],
     "direction": "horizontal",
@@ -233,37 +191,38 @@
       "command-palette:Открыть палитру команд": false
     }
   },
-  "active": "e8b837f08229a84e",
+  "active": "673554d496510d92",
   "lastOpenFiles": [
-    "HTML.md",
-    "JavaScript.md",
-    "React.md",
-    "IDE.md",
-    "CSS.md",
-    "Python.md",
-    "Python. ООП.md",
-    "Django, DRF.md",
-    "Безопасность web-приложений.md",
-    "Linux.md",
     "Деплой.md",
-    "Python. Асинхронное программирование..md",
-    "Python. PEP8.md",
-    "Telegram Bot.md",
-    "Scrapy.md",
-    "Парсинг.md",
-    "Нейросети.md",
-    "Математика. Комбинаторика и Теор.вер..md",
-    "Алгоритмы.md",
-    "Без названия.canvas",
-    "SQL и PostgreSQL.md",
-    "2024-12-06.md",
-    "Структуры данных.md",
-    "RegEx.md",
-    "_Obsidian.md",
     "English.md",
+    "Linux.md",
+    "Docker.md",
+    "Python.md",
+    "_Obsidian.md",
+    "OpenCV.md",
+    "NGINX.md",
+    "Telegram Bot.md",
+    "SQL и PostgreSQL.md",
+    "SOLID, REST, паттерны.md",
+    "Scrapy.md",
+    "RegEx.md",
+    "React.md",
+    "Rapberry Pi.md",
+    "Python. PEP8.md",
+    "Python. ООП.md",
+    "Python. Асинхронное программирование..md",
+    "JavaScript.md",
+    "IDE.md",
+    "HTML.md",
+    "Git.md",
+    "Flask.md",
+    "FastAPI.md",
+    "DNS.md",
+    "Django, DRF.md",
+    "all",
+    "Без названия.canvas",
     "files/2024-11-20_11-30.png",
     "files/2024-11-19_16-33.png",
-    "Flask.md",
     "files/d4225331e73538ba9b32a883ad0317de.webp",
     "files/Pasted image 20241110010134.png",
     "files/flask@logotyp.us.png",
@@ -271,7 +230,6 @@
     "files/tablica-glagolov-petrova2.webp",
     "files/tablica-glagolov-petrova1.webp",
     "files/Raspberry-Pi-Logo-01-300x300.png",
-    "Без названия",
     "files/registration.png",
     "files"
   ]

@@ -277,7 +277,7 @@ message();
 
 ###### Стрелочные функции
 ```
-const sum = (x, y)=> console.log("Sum =", x + y);
+const sum = (x, y) => console.log("Sum =", x + y);
 sum(2, 5);
 ```
 

@@ -3008,7 +3008,7 @@ services:
       context: .  
     hostname: worker                # имя под которым будет существовать сервис в докере
     entrypoint: celery  
-    command: -A celery_app.app worker --loglevel=info  
+    command: -A celery_app worker --loglevel=info  
     volumes:  
       - .:/code  
     links:  
@@ -3081,6 +3081,23 @@ docker-compose build
 docker-compose up
 ```
 
+###### Запуск без Докера
+```
+pip install celery[redis]
+pip install flower
+```
+
+Запуск воркера Celery
+```
+# Из уровня с manage.py
+celery -A my_project worker  # my_project - папка с settings.py
+```
+
+Запуск Flower
+```
+# Из уровня с manage.py
+celery -A my_project flower
+```
 ---
 Чтобы увидеть тестовую задачу `debug_task()` можно зайти в джанговый шелл
 Заходим в контейнер
@@ -3149,21 +3166,48 @@ def test_task():
     pass
 ```
 
-###### Запуск без Докера
+#### Celery Beat
+>[!info] Celery Beat - это планировщик и он запускает задачи с установленными интервалами.
+
 ```
-pip install celery[redis]
-pip install flower
+pip install django_celery_beat
 ```
 
-Запуск воркера Celery
+В `settings.py`
 ```
-celery -A my_project worker
+INSTALLED_APPS = [
+    ...
+    "django_celery_beat",
+]
+
+CELERY_BEAT_SCHEDULER = "django_celery_beat.schedulers:DatabaseScheduler"
 ```
 
-Запуск Flower
 ```
-celery -A my_project flower
+python manage.py migrate
 ```
+Стартуем сервис Celery Beat
+```
+# Из уровня с manage.py
+celery -A AvitoStats beat -l info -S django_celery_beat.schedulers:DatabaseScheduler
+# AvitoStats - папка с settings.py
+```
+
+Мы можем определять расписание так
+```
+# celery_app.py
+from datetime import timedelta
+
+app.conf.beat_schedule = {  
+    'add-every-1-min': {  
+        'task': 'main.tasks.periodic_parsing',  
+        'schedule': timedelta(hours=1),  # или например crontab(minute='*/5')
+    },  
+}
+```
+
+Затем вы сможете увидеть таски в админке Django
+>[!info] Когда вы захотите выключить периодическую задачу, вы должны удалить таск из `settings.py` и также из таблицы **Periodic Task**
 
 ## Elasticsearch
 >[!info] Движок для полнотекстового поиска с JSON REST API. По сути это масштабируемое хранилище для быстрого поиска и анализа Big Data в онлайн-режиме. На выходе мы получаем, например, нужные `id `записей БД и затем идём в БД за конкретными записями.

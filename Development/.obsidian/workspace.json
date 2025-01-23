@@ -13,12 +13,12 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "Linux.md",
+                "file": "JavaScript.md",
                 "mode": "preview",
                 "source": true
               },
               "icon": "lucide-file",
-              "title": "Linux"
+              "title": "JavaScript"
             }
           },
           {
@@ -27,29 +27,16 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "English.md",
+                "file": "React.md",
                 "mode": "preview",
                 "source": true
               },
               "icon": "lucide-file",
-              "title": "English"
-            }
-          },
-          {
-            "id": "a84d70740ee8194e",
-            "type": "leaf",
-            "state": {
-              "type": "markdown",
-              "state": {
-                "file": "Docker.md",
-                "mode": "preview",
-                "source": true
-              },
-              "icon": "lucide-file",
-              "title": "Docker"
+              "title": "React"
             }
           }
-        ]
+        ],
+        "currentTab": 1
       }
     ],
     "direction": "vertical"
@@ -191,34 +178,35 @@
       "command-palette:Открыть палитру команд": false
     }
   },
-  "active": "673554d496510d92",
+  "active": "91d38307724333d9",
   "lastOpenFiles": [
+    "JavaScript.md",
+    "React.md",
     "Деплой.md",
     "English.md",
-    "Linux.md",
-    "Docker.md",
+    "SQL и PostgreSQL.md",
     "Python.md",
+    "Python. PEP8.md",
+    "Docker.md",
+    "Linux.md",
+    "Git.md",
+    "Django, DRF.md",
+    "SQLAlchemy.md",
+    "Парсинг.md",
+    "Алгоритмы.md",
+    "Python. Асинхронное программирование..md",
     "_Obsidian.md",
+    "SQLAlchemy",
+    "Telegram Bot.md",
     "OpenCV.md",
     "NGINX.md",
-    "Telegram Bot.md",
-    "SQL и PostgreSQL.md",
     "SOLID, REST, паттерны.md",
     "Scrapy.md",
     "RegEx.md",
-    "React.md",
     "Rapberry Pi.md",
-    "Python. PEP8.md",
     "Python. ООП.md",
-    "Python. Асинхронное программирование..md",
-    "JavaScript.md",
     "IDE.md",
     "HTML.md",
-    "Git.md",
-    "Flask.md",
-    "FastAPI.md",
-    "DNS.md",
-    "Django, DRF.md",
     "all",
     "Без названия.canvas",
     "files/2024-11-20_11-30.png",

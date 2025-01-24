@@ -192,9 +192,11 @@ root.render(
 #### JSX
 >[!info] JSX — расширение языка JavaScript. Позволяет использовать синтаксис HTML внутри вашего кода JavaScript.
 
->[!warning] В JSX мы не можем тегам писать `class`, вместо этого пишем `className`.
->Например `<div className="test"></div>`. Атрибуты также пишем в CamelCase.
-
+>[!warning] В JSX мы не можем тегам писать `class`, вместо этого пишем `className`. Например `<div className="test"></div>`. 
+>- Атрибуты также пишем в CamelCase !
+>- JS код пишем в фигурных скобках. Например `<p>{obj.hello}</p>`
+>- Комментарий `{/* */}
+`
 ###### Передача переменных
 ```
 const App = () => {
@@ -261,9 +263,33 @@ for (let i = 0; i < array.length; i++) {
 }
 ```
 
-Внутрь JSX надо использовать `map()` либо `reduce()`, т.к. они возвращают результат. Например
+Внутрь JSX надо использовать `map()` либо `reduce()`, т.к. они возвращают результат. 
+
+С помощью `map()`
 ```
-...
+const MENU = [
+    {
+        name: 'Home',
+        link: '/'
+    },
+        name: 'Products',
+        link: '/products'
+    {
+    }
+]
+
+export function App() {
+    return (
+        {MENU.map(item => (
+            <div key={item.link}>{item.name}</div>  // key обязателен всегда
+        ))}
+    )
+}
+```
+
+С помощью `reduce()`
+```
+// reduce()
 return (
    <div>
        {array.reduce((acc, obj) => {
@@ -275,10 +301,11 @@ return (
        }, [])}
    </div> 
 )
-...
 ```
 
 #### Создание нового компонента
+>[!info] Желательно не делать компоненты гигантскими. Ориентир - 100 строк кода.
+
 - Создаём файл `MyComponent.jsx` с функцией и нужными импортами. В конце файла добавляем
 ```
 export default MyComponent;
@@ -289,7 +316,9 @@ import { useState } from 'react'
 
 function MyComponent() {
     return (
-        <>
+        <>                       // Это React фрагмент. Пустой тег, который никак не обрабатывается
+                                 // Поскольку нельзя возвращать больше одного элемента
+            <h1>New component</h1>
             <p>MyComponent </p>
         </>
     );
@@ -412,7 +441,7 @@ export default App;
 - useCallback
 - useRef
 - useMemo
-- useContect
+- useContext
 
 **useState** Позволяет сохранять значения. Если значение изменено, перерисовывает компонент.
 ```
@@ -431,7 +460,7 @@ const App = () => {
         setIsDark(!isDark);  // вызывая эту функцию, которая описана в недрах реакта,
                              // мы передаём её свой код
                              // функция исполняет наш код, обновляет состояние компонента
-                             // и перерисовывает его
+                             // и перерисовывает(!!!) его
     };
 
     return (
@@ -452,4 +481,357 @@ const onClickHandler = () => {
     };
 ```
 
-**useEffect** 
+>[!tip] Чтобы не плодить в одном компоненте кучу дублирующегося кода с useState, можно передавать один объект с кучей значений
+
+###### useEffect
+Служит для определённых side эффектов. Мы можем за чем-либо(переменная, координаты мыши и т.п.) наблюдать и выполнять в случае чего нашу логику
+
+```
+import { useEffect } from "react";
+```
+
+Базовое использование
+```
+useEffect(() => {
+    console.log('render')  // выполнится при каждом рендере и если здесь будет код,
+                // после которого нужно будет перередерить, то хук выполнит рендер
+})
+```
+
+С пустым массивом зависимостей
+```
+useEffect(() => {
+    console.log('Component mounted')  // выполнится один раз
+}, [])
+```
+
+Отслеживание переменной из массива зависимостей
+```
+let myVar = 123;
+
+useEffect(() => {
+    console.log(myVar)   // выполнится при каждом изменении переменой myVar
+}, [myVar])
+```
+
+###### useRef
+Позволяет сохранять значения. Ели мы не хотим лишний раз рендерить
+
+Увеличение счётчика без дополнительного рендера
+```
+const renderCounter = useRef(1)  // возвращает объект
+
+renderCounter.current++
+```
+
+Фокус на элементе
+```
+const inputRef = useRef(null)
+
+function focus() {
+    inputRef.current.focus()
+}
+...
+<button onClick={focus}>Фокус</button>
+...
+```
+
+Также с его помощью можно получить предыдущее состояние
+
+###### useMemo
+Используется для оптимизации производительности компонента, позволяя мемоизировать вычисленные значения. Это полезно, если вычисление значений требует значительных ресурсов или времени
+
+`useMemo` запоминает результат вычислений до тех пор, пока не изменятся зависимости, указанные в массиве зависимостей. Если зависимости не изменились, то возвращается мемоизированное значение из предыдущего рендера.
+
+```
+const memoizedValue = useMemo(() => computeExpensiveValue(a, b), [a, b]);
+
+// computeExpensiveValue функция, возвращающая значение, которое нужно мемоизировать.
+// [a, b] массив зависимостей. Когда их значения меняются, функция
+// computeExpensiveValue вызывается заново.
+```
+
+Пример мемоизации
+```
+import React, { useState, useMemo } from "react";
+
+function ExpensiveComputationComponent() {
+  const [count, setCount] = useState(0);
+  const [otherState, setOtherState] = useState(0);
+
+  // "Тяжелое" вычисление
+  const computeExpensiveValue = (num) => {
+    console.log("Выполняется тяжелое вычисление...");
+    for (let i = 0; i < 1000000000; i++) {}
+    return num * 2;
+  };
+
+  // Мемоизация результата
+  const memoizedValue = useMemo(() => computeExpensiveValue(count), [count]);
+
+  return (
+    <div>
+      <h1>Тяжелое значение: {memoizedValue}</h1>
+      <button onClick={() => setCount(count + 1)}>Увеличить счетчик</button>
+      <button onClick={() => setOtherState(otherState + 1)}>
+        Изменить другое состояние
+      </button>
+    </div>
+  );
+}
+
+export default ExpensiveComputationComponent;
+```
+
+- Функция `computeExpensiveValue` вызывается только тогда, когда `count` изменяется.
+- При изменении `otherState` функция **не выполняется повторно**, так как `otherState` не включен в зависимости.
+
+>[!warning] Когда **не нужно** использовать `useMemo`:
+> 1.  Если вычисления легковесные — использование `useMemo` не оправдано.
+2. Если мемоизация усложняет читаемость кода.
+3. Если оптимизация не имеет заметного эффекта (профилируйте перед использованием).
+
+###### useCallback
+>[!info] Callback — это функция, переданная другой функции, которая вызывается позже.
+
+**`useCallback`** — это хук в React, который возвращает **мемоизированную** версию функции. Он предотвращает создание новой функции при каждом рендере компонента, что может быть полезно для оптимизации производительности, особенно при передаче функций дочерним компонентам или при работе с `useEffect`.
+```
+
+const memoizedCallback = useCallback(
+	() => {
+	                 // Ваш код функции   
+	},
+	[dependencies]   // Зависимости
+);
+```
+
+- **Первый аргумент**: функция, которая будет запоминаться.
+- **Второй аргумент**: массив зависимостей, определяющий, когда нужно пересоздать функцию.
+
+Если массив зависимостей пуст (`[]`), функция будет создаваться только один раз — при первом рендере.
+
+`useCallback` полезен в следующих случаях:
+
+1. **Передача функции в дочерний компонент**: Если дочерний компонент оптимизирован с помощью `React.memo`, передача новой функции при каждом рендере может нарушить мемоизацию. Хук `useCallback` предотвращает это, создавая одну и ту же функцию между рендерами, если зависимости не изменились.
+    
+2. **Использование функций в зависимости от `useEffect` или других хуков**:`useCallback` позволяет избежать повторного создания функции, что может вызывать ненужные эффекты.
+
+###### useContext
+**`useContext`** — это хук в React, который позволяет получать доступ к значениям из контекста без необходимости оборачивать компоненты в `Consumer`. В отличии от глобальных переменных хук автоматически ренднрит при изменении состояния(реактивность).
+
+>[!info] Контекст в React — это механизм для передачи данных через дерево компонентов без необходимости явно передавать пропсы на каждом уровне. Например, вы можете передавать глобальные настройки, тему, язык или состояние авторизации.
+
+```
+const value = useContext(MyContext);
+// MyContext — это объект контекста, созданный с помощью React.createContext.
+```
+
+Порядок действий:
+1. Сначала создается контекст с помощью `React.createContext`.
+2. Значение контекста предоставляется с помощью компонента `Provider`.
+3. Любой дочерний компонент может получить доступ к этому значению с помощью хука `useContext`.
+
+Пример смены темы:
+```
+import React, { createContext, useContext, useState } from "react";
+
+// Создаем контекст
+const ThemeContext = createContext();
+
+function App() {
+  const [theme, setTheme] = useState("light");
+
+  return (
+    // Предоставляем значение контекста
+    <ThemeContext.Provider value={{ theme, setTheme }}>
+      <Toolbar />
+    </ThemeContext.Provider>
+  );
+}
+
+function Toolbar() {
+  return (
+    <div>
+      <h1>Toolbar</h1>
+      <ThemeSwitcher />
+    </div>
+  );
+}
+
+function ThemeSwitcher() {
+  // Получаем значение контекста
+  const { theme, setTheme } = useContext(ThemeContext);
+
+  return (
+    <div>
+      <p>Текущая тема: {theme}</p>
+      <button onClick={() => setTheme(theme === "light" ? "dark" : "light")}>
+        Переключить тему
+      </button>
+    </div>
+  );
+}
+
+export default App;
+```
+
+Пример авторизации пользователя:
+```
+import React, { createContext, useContext, useState } from "react";
+
+// Создаем контекст для авторизации
+const AuthContext = createContext();
+
+function App() {
+  const [user, setUser] = useState(null);
+
+  return (
+    <AuthContext.Provider value={{ user, setUser }}>
+      <Header />
+      <Main />
+    </AuthContext.Provider>
+  );
+}
+
+function Header() {
+  const { user, setUser } = useContext(AuthContext);
+
+  return (
+    <header>
+      <h1>Приложение</h1>
+      {user ? (
+        <p>Добро пожаловать, {user.name}!</p>
+      ) : (
+        <button onClick={() => setUser({ name: "Иван" })}>Войти</button>
+      )}
+    </header>
+  );
+}
+
+function Main() {
+  const { user } = useContext(AuthContext);
+
+  return (
+    <main>
+      {user ? <p>Вы вошли как {user.name}</p> : <p>Пожалуйста, войдите.</p>}
+    </main>
+  );
+}
+
+export default App;
+```
+Пояснение к коду:
+1. Создан контекст для управления состоянием авторизации пользователя.
+2. Значение контекста (пользователь и функция для его обновления) предоставляется через `AuthContext.Provider`.
+3. Компоненты `Header` и `Main` используют `useContext` для доступа к состоянию авторизации.
+
+>[!warning] `useContext` не подходит если значение контекста обновляется очень часто, это может привести к повторным рендерам всех компонентов, использующих этот контекст.
+
+#### Роутинг
+[Встроенный роутер React. Документация](https://reactrouter.com/home)
+>[!info] Нужен для того чтобы можно было переходить между страницами
+
+Установка
+```
+npm i react-router
+```
+
+Добавляем в `main.jsx`
+```
+import { BrowserRouter, Routes, Route } from "react-router";
+
+createRoot(document.getElementById("root")).render(
+    <StrictMode>
+        <BrowserRouter>
+            <Routes>
+                <Route path="/" element={<App />} />
+                <Route path="/new" element={<MyApp />} />
+            </Routes>
+        </BrowserRouter>
+    </StrictMode>
+);
+```
+
+Пример вложенных путей
+```
+<Routes>
+  <Route path="dashboard" element={<Dashboard />}>
+    <Route index element={<Home />} />
+    <Route path="settings" element={<Settings />} />
+  </Route>
+</Routes>
+```
+
+Ссылка на новую страницу БЕЗ перезагрузки
+```
+<Link to='/new'>Go to new page</Link>
+```
+
+Программный переход на другую страницу
+```
+import { useEffect } from "react";
+import { useNavigate } from "react-router";
+
+...
+const navigate = useNavigate();
+useEffect(() => {
+    navigate("/new");  // При загрузи страницы автоматически перейдёт на "/new"
+}, [])
+...
+```
+
+#### Модульные стили
+>[!info] Класс стиля будет привязан к определённому компоненту, потому что сгенерируется уникальный ключ. И можно будет лаконично назвать свой класс стиля и он не будет конфликтовать с др. классами.
+
+Создаём файл стилей `MyApp.module.css`
+```
+.mystyle {
+    font-size: 3.2em;
+    line-height: 1.1;
+    color: green;
+}
+```
+
+Импортируем в требуемый компонент
+```
+import styles from "./MyApp.module.css";
+```
+
+Используем
+```
+<h1 className={styles.mystyle}>My component!</h1>
+```
+
+В браузере после рендера будет что-то вроде
+```
+<h1 class="_myh_16g1c_1">My component!</h1>
+```
+
+#### React Bootstrap
+[Документация](https://react-bootstrap.github.io/docs/getting-started/introduction/)
+
+```
+npm install react-bootstrap bootstrap
+```
+
+В `App.jsx` импортируем
+```
+import "bootstrap/dist/css/bootstrap.min.css";
+```
+
+В нужном компоненте импортируем отдельные компоненты бутстрапа
+```
+import Button from 'react-bootstrap/Button';
+```
+
+И далее используем
+```
+function onClickHandler() {
+    alert("Button is clicked!);
+}
+
+<Button variant="primary" size="lg" onClick={onClickHandler}>
+    Click me!
+</Button>
+```
+

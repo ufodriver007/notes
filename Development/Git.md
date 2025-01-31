@@ -43,6 +43,7 @@
 |`git reset HEAD~1`|*сбросить 1 коммит(soft: изменения остаются в                                                                                                   working directory)*
 |`git reset --hard HEAD~1`|*сбросить 1 коммит(hard: вообще удаляются                                                                                                         изменения)*
 |`git reset --hard`|*откатить к последнему коммиту и удалить все                                                                                                   изменения в локальном репозитории*
+|`git reset --hard 7c4ea66`| *откатить к коммиту `7c4ea66` и удалить все изменения в лок. репозитории*
 |`touch .gitignore`|*создать файл списка игнорируемых (можно                                                                                                        записать venv/ .idea/ *.txt)*
 |`git branch xxx`|*создать ветку xxx*
 |`git branch`|*посмотреть ветки лок. репозитория*
@@ -105,3 +106,21 @@ git push origin main
     `git remote add origin https://github.com/ufodriver007/PassManager.git`
     `git push -u origin main`
 2. 
+
+#### SSH соединение с GitHub
+1. Создаём ssh ключ на сервере
+создаём ключ
+```
+ssh-keygen -t rsa
+```
+сам ключ
+```
+cat ~/.ssh/id_rsa.pub
+```
+
+2. Заходим в наш GitHub -> Settings -> SSH and GPG keys. Добавляем наш SSH ключ.
+3. Теперь на сервере можно управлять git'ом без дополнительных авторизаций.
+Например клонируем git репозиторий(вместо HTTPS выбираем вкладку SSH)
+```
+git clone git@github.com:ufodriver007/drf_celerybeat_stats_demo.git
+```

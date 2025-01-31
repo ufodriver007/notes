@@ -34,9 +34,77 @@
               "icon": "lucide-file",
               "title": "React"
             }
+          },
+          {
+            "id": "9bdace50c63aa75d",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "Python.md",
+                "mode": "preview",
+                "source": true
+              },
+              "icon": "lucide-file",
+              "title": "Python"
+            }
+          },
+          {
+            "id": "af9d740e1e8e0253",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "SQL и PostgreSQL.md",
+                "mode": "preview",
+                "source": true
+              },
+              "icon": "lucide-file",
+              "title": "SQL и PostgreSQL"
+            }
+          },
+          {
+            "id": "baf22be967f70b98",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "RegEx.md",
+                "mode": "preview",
+                "source": true
+              },
+              "icon": "lucide-file",
+              "title": "RegEx"
+            }
+          },
+          {
+            "id": "30001ee8d712e704",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "Парсинг.md",
+                "mode": "source",
+                "source": true
+              },
+              "icon": "lucide-file",
+              "title": "Парсинг"
+            }
+          },
+          {
+            "id": "4d399e8980ec719c",
+            "type": "leaf",
+            "state": {
+              "type": "release-notes",
+              "state": {
+                "currentVersion": "1.8.3"
+              },
+              "icon": "lucide-book-up",
+              "title": "Release Notes 1.8.3"
+            }
           }
         ],
-        "currentTab": 1
+        "currentTab": 6
       }
     ],
     "direction": "vertical"
@@ -55,7 +123,8 @@
             "state": {
               "type": "file-explorer",
               "state": {
-                "sortOrder": "alphabetical"
+                "sortOrder": "alphabetical",
+                "autoReveal": false
               },
               "icon": "lucide-folder-closed",
               "title": "Файловый менеджер"
@@ -178,35 +247,35 @@
       "command-palette:Открыть палитру команд": false
     }
   },
-  "active": "91d38307724333d9",
+  "active": "4d399e8980ec719c",
   "lastOpenFiles": [
-    "JavaScript.md",
+    "Python.md",
+    "RegEx.md",
+    "CSS.md",
+    "Парсинг.md",
+    "Git.md",
+    "SQL и PostgreSQL.md",
     "React.md",
+    "Django, DRF.md",
+    "NGINX.md",
+    "Linux.md",
+    "Безопасность web-приложений.md",
+    "Алгоритмы.md",
+    "JavaScript.md",
+    "Rapberry Pi.md",
+    "SOLID, REST, паттерны.md",
+    "HTML.md",
+    "FastAPI.md",
+    "Flask.md",
+    "Структуры данных.md",
+    "Математика. Комбинаторика и Теор.вер..md",
     "Деплой.md",
     "English.md",
-    "SQL и PostgreSQL.md",
-    "Python.md",
     "Python. PEP8.md",
     "Docker.md",
-    "Linux.md",
-    "Git.md",
-    "Django, DRF.md",
     "SQLAlchemy.md",
-    "Парсинг.md",
-    "Алгоритмы.md",
     "Python. Асинхронное программирование..md",
-    "_Obsidian.md",
     "SQLAlchemy",
-    "Telegram Bot.md",
-    "OpenCV.md",
-    "NGINX.md",
-    "SOLID, REST, паттерны.md",
-    "Scrapy.md",
-    "RegEx.md",
-    "Rapberry Pi.md",
-    "Python. ООП.md",
-    "IDE.md",
-    "HTML.md",
     "all",
     "Без названия.canvas",
     "files/2024-11-20_11-30.png",

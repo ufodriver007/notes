@@ -814,6 +814,67 @@ nano /etc/ufw/before.rules
 ufw disable && ufw enable
 ```
 
+
+#### Fail2ban
+>[!info] Инструмент, который блокирует злоумышленнику доступ к SSH-серверу. Анализируя журналы, `fail2ban` обнаруживает повторяющиеся неудачные попытки аутентификации и автоматически устанавливает правила брандмауэра для отбрасывания трафика, исходящего с IP-адреса злоумышленника.
+
+```
+sudo apt install fail2ban
+```
+
+Проверка запущена ли служба
+```
+sudo systemctl status fail2ban
+```
+
+Какие jails активны
+```
+sudo fail2ban-client status
+```
+
+Статистика по sshd
+```
+sudo fail2ban-client status sshd
+```
+
+Файл конфигурации(может перезатереться при обновлении)
+```
+nano /etc/fail2ban/jail.conf
+```
+
+Но **рекомендуется** создать `jail.local`. В него вставляем только те настройки, которые нужно изменить. Правила этого файла перезаписывают правила файла `jail.conf`
+```
+sudo nano /etc/fail2ban/jail.local
+```
+
+Настройка времени бана
+```
+[DEFAULT] 
+bantime = 10m      # 1h или 1d или пермач -1
+maxretry = 5       # количество неудачных попыток входа
+```
+
+Глобальная настройка белого листа
+```
+[DEFAULT]
+ignoreip = 127.0.0.1/8 192.168.1.100
+```
+
+Список белого листа
+```
+sudo fail2ban-client get sshd ignoreip
+```
+
+Разблокировка IP вручную
+```
+sudo fail2ban-client set sshd unbanip 192.168.1.200
+```
+
+Перезапуск службы
+```
+sudo systemctl restart fail2ban
+```
+
 #### Speedtest CLI
 Установка с помощью Python
 ```

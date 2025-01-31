@@ -1204,7 +1204,20 @@ if request.method == "POST":
     pass
 ```
 
-#### Маршрутизация
+#### Маршрутизация(Роутинг)
+
+###### Общепринятные маршруты и методы CRUD
+
+|Метод|     Маршрут |              Шаблон   |           Описание|
+|---|---|---|---|
+|GET |      /schools      |       schools/index.html   | Список школ|
+|GET  |     /schools/{id}  |      schools/show.html    | Информация о школе
+|GET  |     /schools/new  |       schools/new.html    |  Форма создания новой школы
+|POST |     /schools       |                           | Создание новой школы
+|GET  |     /schools/{id}/edit |  schools/edit.html   |  Форма редактирования школы
+|PATCH/PUT| /schools/{id}  |                          |  Обновление школы
+|DELETE |  /schools/{id}   |                          | Удаление школы
+
 ###### Статическая
 ```
 # urls.py

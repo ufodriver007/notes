@@ -763,6 +763,8 @@ document.cookie = "user=John";
    `document.cookie = "user=John; secure";` Эти куки будут доступны только по `https`
 
 #### Callback
+>[!info] Callback — это функция, переданная другой функции, которая вызывается позже.
+
 Асинхронное программирование с использованием колбэков
 ```
 function loadScript(src, callback) {

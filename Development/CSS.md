@@ -52,7 +52,7 @@
 `<style></style>` встраивание css стилей
 
 #### Выпадающее меню
-```
+```css
 .drop:hover .nav-list {
     display: block;
     position: absolute;
@@ -65,130 +65,130 @@
 #### Селекторы
 ##### По типу
 ###### id
-```
+```css
 #main { ... }
 ```
 
 ###### class
-```
+```css
 .main { ... }
 ```
 
 ###### tag
-```
+```css
 p { ... }
 ```
 
 ###### атрибут
 все инпуты с типом `submit`
-```
+```css
 input[type="submit"] { ... }
 ```
 
 все элементы с атрибутом `id`
-```
+```css
 [id] { ... }
 ```
 
 ##### Комбинации и группирование
 ###### Перечисление (группировка)
 класс `main`,  класс `baby`
-```
+```css
 .main,
 .baby { ... }
 ```
 
 ###### И
 обращение по классу И тэгу(вес 11)
-```
+```css
 div.main { ... }
 ```
 
 ###### дочерний комбинатор(прямые потомки)
 обращение ко всем img с классом container (`>` дочерний комбинатор(прямые потомки))
-```
+```css
 .container > img { ... }
 ```
 
 ###### дочерний комбинатор(все потомки)
 обращение ко всем span внутри p (дочерний комбинатор(все потомки))
-```
+```css
 p span { ... }
 ```
 
 ###### следующий элемент
 следующий `p` после элемента с классом `my_form`
-```
+```css
 .my_form + p { ... }
 ```
 
 ###### соседи
 Все элементы `h2`, которые находятся после элемента `h1` внутри одного родителя
-```
+```css
 h1 ~ h2 { ... }
 ```
 
 ###### все элементы
 обращение ко всем элементам
-```
+```css
 * { ... }
 ```
 
 ##### Псевдоклассы
 элемент в фокусе
-```
+```css
 input:focus { ... }
 ```
 
 первый потомок
-```
+```css
 li:first-child { ... }
 ```
 
 последний потомок
-```
+```css
 li:last-child { ... }
 ```
 
 n-потомок
-```
+```css
 li:nth-child(2) { ... }
 ```
 
 n-потомок (только чётные)
-```
+```css
 li:nth-child(even) { ... }
 ```
 
 n-потомок (каждый третий)
-```
+```css
 li:nth-child(3n) { ... }
 ```
 
 Первый из одноуровневых p
-```
+```css
 p:first-of-type { font-weight: 700; }
 ```
 
 Второй  из одноуровневых p
-```
+```css
 p:nth-of-type(2) { color: green; }
 ```
 
 Последний  из одноуровневых p
-```
+```css
 p:last-of-type { text-decoration: underline; }
 ```
 
 Кроме (все параграфы, кроме параграфов с классом `main`)
-```
+```css
 p:not(.main) { color: green; }
 ```
 
 ##### Псевдоэлементы
 ###### after
 Создаёт пседоэлемент после всех ссылок
-```
+```css
 a::after {
 	color: red;
 	content: " ! "
@@ -197,7 +197,7 @@ a::after {
 
 ###### before
 Создаёт пседоэлемент до всех ссылок
-```
+```css
 a::before {
 	color: red;
 	content: " ! "
@@ -206,7 +206,7 @@ a::before {
 
 ###### selection
 Стилизация выделения
-```
+```css
 *::selection {
 	color: red;
 	background-color: yellow;
@@ -234,7 +234,7 @@ a::before {
 >[!info] Обычно используют `max-width` когда сайт в основном десктопный, а `min-width` когда сайт в первую очередь под мобильные.
 
 медиа запрос. стили, которые будут применяться с шириной экрана от 1 до 900px
-```
+```css
 @media (max-width: 900px){  
 
 }
@@ -296,10 +296,10 @@ a::before {
 - ==vmax== размер в процентах от большего из 2х значений(высоты и ширины вьюпорта)
 
 #### Кнопка с картинкой
-```
+```html
 <button class="image-button"></button>
 ```
-```
+```css
 .image-button {
   width: 100px;
   height: 50px;
@@ -312,13 +312,13 @@ a::before {
 #### Шрифты
 >[!tip] Для адаптивной вёрстки удобно устанавливать размер шрифта в `vw` или `vmin`/`vmax`
 
-```
+```css
 font-size: 4vw;
 ```
 
 ###### Локально
 [Справочник](https://developer.mozilla.org/ru/docs/Web/CSS/@font-face)
-```
+```css
 @font-face {
   font-family: "Open Sans";
   src:
@@ -336,7 +336,7 @@ font-size: 4vw;
 
 #### Переменные
 Инициализация
-```
+```css
 :root {
   --bg-color: #f5f5f5;
   --text-color: #6c757d;
@@ -345,7 +345,7 @@ font-size: 4vw;
 }
 ```
 Использование
-```
+```css
 body {
   background-color: var(--bg-color);
   color: var(--text-color);
@@ -354,17 +354,17 @@ body {
 
 #### Математические функции
 ###### Calc
-```
+```css
 width: calc(100% - 20px);
 ```
 
 ###### Min
-```
+```css
 width: min(20%, 100px);
 ```
 
 ###### Max
-```
+```css
 font-size: max(4vmax, 48px);
 ```
 
@@ -372,14 +372,14 @@ font-size: max(4vmax, 48px);
 >[!info] Задаёт значение в диапазоне между указанными нижней и верхней границами. Функция принимает три аргумента: минимальное значение, предпочитаемое значение и максимально допустимое.
 
 Задаём рамки для ширины. Желательно 80%, но минимум 200px, а максимум 600px
-```
+```css
 width: clamp(200px, 80%, 600px);
 ```
 
 #### Анимация
 ###### Простейшая анимация
 Все свойства
-```
+```css
 .my_button {
 	background-color: blue;
 	transition: all 300ms;
@@ -391,7 +391,7 @@ width: clamp(200px, 80%, 600px);
 ```
 
 Определённое свойство
-```
+```css
 .my_button {
 	background-color: blue;
 	transition: background-color 300ms;
@@ -403,14 +403,14 @@ width: clamp(200px, 80%, 600px);
 ```
 
 Задержка в 1 секунду перед анимацией. Сама анимация 300мс
-```
+```css
 transition: all 300ms 1s;
 ```
 
 ###### Transition timing functions
 [Справочник функций](https://developer.mozilla.org/en-US/docs/Web/CSS/transition-timing-function)
 `easy-out` вначале ускоряется и плавно заканчивает
-```
+```css
 .my_button {
 	background-color: blue;
 	transition: background-color 300ms;
@@ -423,7 +423,7 @@ transition: all 300ms 1s;
 ```
 
 Анимация по кривой Безье
-```
+```css
 transition-timing-function: cubic-bezier(0.1, 0.7, 1, 0.1);
 ```
 [Наглядное представление кривых Безье](https://cubic-bezier.com/)
@@ -431,22 +431,22 @@ transition-timing-function: cubic-bezier(0.1, 0.7, 1, 0.1);
 ###### Transform
 [Справочник](https://developer.mozilla.org/en-US/docs/Web/CSS/transform)
 Вращать на 180 градусов
-```
+```css
 transform: rotate(180deg);
 ```
 
 Вращение как будто это в 3D
-```
+```css
 transform: rotate3d(0, 1, 0, 360deg);
 ```
 
 Перемещение вправо
-```
+```css
 transform: translateX(2em);
 ```
 
 ###### Animation
-```
+```css
 .my_button {
 	background-color: blue;
 	animation: my-move 2s ease forwards;
@@ -465,7 +465,7 @@ transform: translateX(2em);
 #### Flexbox Layout
 >[!info] Этот подход следует выбрать когда нужно собрать **небольшие блоки** или когда **блоки расположены в одном направлении**.
 
-```
+```html
 <div class="container">
 	<div class="item">1</div>
 	<div class="item">2</div>
@@ -491,7 +491,7 @@ flex-direction: column
 ###### flex-wrap
 Если выставить у `item` ширину побольше, они займут всю доступную ширину
 `flex-wrap` позволяет переносить `items` на следуюшую строку, если они не влезают (изменяет вспомогательную ось)
-```
+```css
 flex-wrap: wrap;
 ```
 
@@ -499,7 +499,7 @@ flex-wrap: wrap;
 ![[2025-02-07_05-32.png]]
 
 >[!info] Есть сокращённое свойство `flex-flow`. Оно заключает в себе оба основных атрибута: `flex-direction` и `flex-wrap`. Например запись `flex-flow: row nowrap;` аналогична записи
-```
+```css
 flex-direction: row;
 flex-wrap: nowrap;
 ```
@@ -507,7 +507,7 @@ flex-wrap: nowrap;
 ###### order
 У каждого `item` есть до умолчанию свойство `order: 0;`
 Так мы можем менять порядок элементов
-```
+```css
 .item4 {
 	order: 1;
 }
@@ -548,7 +548,7 @@ flex-wrap: nowrap;
 
 ###### Align-self
 Позиционирует отдельный `item` по **по вспомогательной оси**
-```
+```css
 align-self: center;
 ```
 
@@ -575,7 +575,7 @@ align-self: center;
 
 ###### Gap
 В контейнере добавляем свойство
-```
+```css
 row-gap: 20px;         # зазаор между строками
 column-gap: 30px;      # зазаор между колонками
 gap: 10px 20px;        # короткая запись(вертикальный отступ и гориз. отступ)
@@ -593,7 +593,7 @@ margin-right: auto;
 
 ###### Пример стилей вёрстки
 Вёрстка в 4 колонки с зазорами между элементами
-```
+```css
 .container {
 	display: flex;
 	flex-wrap: wrap;
@@ -680,7 +680,7 @@ Docs->Download->CDN копируем пути css и js
 |`bootstrap.esm.js`| Версия Bootstrap, построенная как ESM (позволяет использовать Bootstrap в качестве модуля в браузере)|
 
 5. В шапке указываем тег
-```
+```html
 <meta name="viewport" content="width=device-width, initial-scale=1">
 ```
 Этот тег определяет, как нужно настроить параметры окна браузера для конкретного устройства, особенно это актуально для мобильного телефона.
@@ -699,7 +699,7 @@ JS(В конец тега body)
 
 ###### Прижатие footer вниз
 **В Bootstrap**
-```
+```html
 <div class="container-fluid">
     <div class="row">
         <footer class="footer d-flex fixed-bottom bg-black text-white">
@@ -712,7 +712,7 @@ JS(В конец тега body)
 **Обычный вариант**
 [Компоновка flex на странице](https://tproger.ru/translations/how-css-flexbox-works)
 HTML
-```
+```html
 <div class="wrapper">
     <header class="header">Header</header>
     <main class="main">Content</main>
@@ -721,7 +721,7 @@ HTML
 ```
 
 CSS
-```
+```css
 html, body {
   height: 100%;
 }
@@ -743,7 +743,7 @@ main.main {
 
 ###### Сетка
 В Bootstrap 12 колонок. Для начала добавьте в шапку 
-```
+```html
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 ```
 >[!info] Breakpoint - это ключевое значение ширины `viewport`
@@ -766,7 +766,7 @@ container-{breakpoint));
 - адаптивных колонок или блоков, имеющих один или несколько классов col.
 
 Типичный пример сетки
-```
+```html
 <div class="container">
     <div class="row>
         <div class="col">1</div>
@@ -783,14 +783,14 @@ Bootstrap поставляется с двумя базовыми контейн
 10. адаптивно фиксированный контейнер (класс container)- устанавливает максималь­ную ширину (max-width) для каждой контрольной точки;
 *Для адаптивно фиксированного контейнера можно указать контрольную точку (container-{breakpoint)), при этом будет установлена максимальная ширина (width: 100%) до указанной контрольной точки.*
 11. адаптивно подвижный («резиновый») контейнер (класс container-fluid), который устанавливает максимальную ширину (width: 100%) во всех контрольных точках.
-```
+```html
 <div class="container-fluid"> ...</div>
 ```
 12. контейнер с указанием брейкпоинта
 
 ###### Ряды(row)
 Элемент сетки страницы, который выступает в роли контейнера для адаптивных блоков (колонок).
-```
+```html
 <div class="row"> ... </div>
 ```
 
@@ -840,7 +840,7 @@ Bootstrap поставляется с двумя базовыми контейн
 и т.д.
 
 Пример элемента, который занимает 6 колонок (из 12), а если ширина viewport ≥768px (md), то 4 колонки(из 12).
-```
+```html
 <div class="col-6 col-md-4>
 
 </div>

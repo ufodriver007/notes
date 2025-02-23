@@ -8,34 +8,63 @@
         "type": "tabs",
         "children": [
           {
-            "id": "9bdace50c63aa75d",
+            "id": "6792a13cff0dbc0a",
             "type": "leaf",
             "state": {
               "type": "markdown",
               "state": {
-                "file": "CSS.md",
+                "file": "Linux.md",
                 "mode": "preview",
                 "source": true
               },
               "icon": "lucide-file",
-              "title": "CSS"
+              "title": "Linux"
             }
           },
           {
-            "id": "17094092f39be34a",
+            "id": "66951313938bac8d",
             "type": "leaf",
             "state": {
               "type": "markdown",
               "state": {
-                "file": "JavaScript.md",
-                "mode": "source",
+                "file": "Git.md",
+                "mode": "preview",
                 "source": true
               },
               "icon": "lucide-file",
-              "title": "JavaScript"
+              "title": "Git"
+            }
+          },
+          {
+            "id": "435935d93d08dd96",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "React.md",
+                "mode": "preview",
+                "source": true
+              },
+              "icon": "lucide-file",
+              "title": "React"
+            }
+          },
+          {
+            "id": "e65e2ecff83477ec",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "OpenCV.md",
+                "mode": "preview",
+                "source": true
+              },
+              "icon": "lucide-file",
+              "title": "OpenCV"
             }
           }
-        ]
+        ],
+        "currentTab": 3
       }
     ],
     "direction": "vertical"
@@ -178,15 +207,38 @@
       "command-palette:Открыть палитру команд": false
     }
   },
-  "active": "9bdace50c63aa75d",
+  "active": "e65e2ecff83477ec",
   "lastOpenFiles": [
+    "NGINX.md",
+    "Linux.md",
+    "IDE.md",
+    "HTML.md",
+    "Git.md",
+    "Flask.md",
+    "FastAPI.md",
+    "English.md",
+    "Docker.md",
+    "DNS.md",
+    "Django, DRF.md",
+    "Структуры данных.md",
+    "Парсинг.md",
+    "Математика. Комбинаторика и Теор.вер..md",
+    "Безопасность web-приложений.md",
+    "Алгоритмы.md",
+    "Подготовка к собесу.md",
+    "Нейросети.md",
+    "CSS.md",
+    "Деплой.md",
+    "Python.md",
+    "JavaScript.md",
+    "React.md",
+    "Redis.md",
+    "Python. ООП.md",
+    "Python. PEP8.md",
+    "files/redis.png",
+    "Без названия",
     "files/bem-4-1382617.png",
     "files/bem-2-4269636.png",
-    "JavaScript.md",
-    "Linux.md",
-    "Python.md",
-    "_Obsidian.md",
-    "CSS.md",
     "files/bem-3-2026663 1.png",
     "files/bem-3-2026663.png",
     "files/bem-1-4393378.png",
@@ -194,28 +246,6 @@
     "files/2025-02-07_06-45.png",
     "files/2025-02-07_06-38.png",
     "files/2025-02-07_06-30.png",
-    "files/2025-02-07_06-28.png",
-    "files/2025-02-07_05-41 1.png",
-    "Парсинг.md",
-    "React.md",
-    "Django, DRF.md",
-    "RegEx.md",
-    "Git.md",
-    "SQL и PostgreSQL.md",
-    "NGINX.md",
-    "Безопасность web-приложений.md",
-    "Алгоритмы.md",
-    "Rapberry Pi.md",
-    "SOLID, REST, паттерны.md",
-    "HTML.md",
-    "FastAPI.md",
-    "Flask.md",
-    "Структуры данных.md",
-    "Математика. Комбинаторика и Теор.вер..md",
-    "Деплой.md",
-    "English.md",
-    "Python. PEP8.md",
-    "Docker.md",
     "SQLAlchemy",
     "all",
     "Без названия.canvas",

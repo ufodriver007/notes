@@ -71,7 +71,7 @@ Live Server
 >[!info] Для описания настроек проекта нужно создать папку `.vscode` и в ней `settings.json`. Эти же настройки можно использовать как глобальные настройки
 
 Пример `settings.json` для `django` проекта
-```
+```json
 {
     "git.autoRepositoryDetection": "subFolders",
     "breadcrumbs.enabled": true,

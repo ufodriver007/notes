@@ -3,7 +3,7 @@
 >[!info] Процесс - работающее приложение, которому выделена область памяти, недоступная другим приложениям
 
 >[!info] Используйте процессы для задач, связанных с ограничениями процессора
-```
+```python
 import multiprocessing
 import time
    
@@ -36,7 +36,7 @@ print(sum(result_list))
 
 >[!info] Используйте потоки для задач, связанных с ограничениями ввода-вывода. Если время ОЖИДАНИЯ ответа(сети, диска и т.п) большое, нужно использовать асинхронку
 
-```
+```python
 import threading
 import time
 
@@ -65,7 +65,7 @@ for n in range(4):
 
 >[!info] `asyncio.run(main())` запускает событийный цикл с одной задачей -> main(и если main заверится ПРЕЖДЕ остальных адач, зарегистриованных в ней, например, то цикл завершится не дожидаясь их)
 
-```
+```python
 import asyncio
 
 async def print1():                  # определение функции как асинхронной (корутина)
@@ -91,13 +91,13 @@ asyncio.run(main())                        # событийный цикл
 
 
 1. только с версии 3.11
-```
+```python
 async with asyncio.TaskGroup() as tg:    
     tg.create_task(print1())             
     tg.create_task(print2())
 ```
 2.
-```
+```python
 task1 = asyncio.create_task(print1())
 task2 = asyncio.create_task(print2())
 
@@ -108,7 +108,7 @@ await task1
 await task2
 ```
 3.
-```
+```python
 task1 = asyncio.create_task(print1())
 task2 = asyncio.create_task(print2())
 
@@ -129,7 +129,7 @@ await asyncio.gather(task1, task2)
 |`.wait_for(aw, timeout)`|ждет, пока awaitable объект `aw`(корутина или задача) завершится с таймаутом `timeout`. Если истекает таймаут, возбуждается `asyncio.TimeoutError`
 
 Пример `.cancel()`:
-```
+```python
 import asyncio
 from asyncio import CancelledError
 
@@ -154,7 +154,7 @@ asyncio.run(main())
 ```
 
 Пример `.wait_for()`:
-```
+```python
 try:
     result = await asyncio.wait_for(long_task, timeout=3)
 except asyncio.TimeoutError:
@@ -162,7 +162,7 @@ except asyncio.TimeoutError:
 ```
 
 Пример выполнения десяти задач асинхронно:
-```
+```python
 import asyncio
 
 async def ask_chat():
@@ -181,11 +181,10 @@ asyncio.run(main())
 ```
 
 Пример 100 асинхронных запросов на сервер(нужно использовать `aiohttp` потому что `requests` синхронная библиотека)
-```
+```python
 import aiohttp  
 import asyncio  
 from bs4 import BeautifulSoup
-  
   
 async def request(url, session):  
     async with session.get(url) as response:  
@@ -217,7 +216,7 @@ asyncio.run(request_manager())
 
 ###### Будущие объекты
 >[!info] Объект `future` в Python содержит одно значение, которое мы ожидаем получить в будущем, но пока еще, возможно, не получили.
-```
+```python
 from asyncio import Future
 
 my_future = Future()
@@ -229,7 +228,7 @@ print(f'Какой результат хранится в my_future? {my_future.
 
 ###### Дебаг режим в `asincio`
 >[!info] Если какая-то корутина будет выполнятся дольше таймаута, будет выведено сообщение(по умолчанию таймаут - 100 мс)
-```
+```python
 import asyncio
 
 async def main():
@@ -242,7 +241,7 @@ asyncio.run(main(), debug=True)
 ###### Асинхронный контекстный менеджер
 >[!info] Класс реализующий два дандер метода для корутины: `__aenter__` и `__aexit__`
 >
-```
+```python
 async with aiohttp.ClientSession() as session:  
     for _ in range(100):  
         task = asyncio.create_task(request(url, session))  
@@ -255,7 +254,7 @@ async with aiohttp.ClientSession() as session:
 >[!info] По умолчанию таймаут в aiohttp равен 5 минут
 
 Пример установки таймаута для get запроса в 10мс
-```
+```python
 import asyncio
 import aiohttp
 from aiohttp import ClientSession
@@ -267,7 +266,7 @@ async def fetch_status(session: ClientSession, url: str) -> int:
 ```
 
 Пример таймаута сессии(сеанса). Полный таймаут равен 1с, а таймаут подключения 100мс
-```
+```python
 async def main():
     session_timeout = aiohttp.ClientTimeout(total=1, connect=.1)
     async with aiohttp.ClientSession(timeout=session_timeout) as session:
@@ -280,7 +279,7 @@ async def main():
 >[!info] `return_exceptions=True` означает возврат исключения как результат
 
 Получаем все результаты(с ошибками и без)
-```
+```python
 async def main():
     async with aiohttp.ClientSession() as session:
         urls = ['https://example.com', 'python://example.com']
@@ -296,7 +295,7 @@ async def main():
 
 ###### Обработка результатов по мере поступления
 Функция `wait`. Она принимает список awaitable и возвращает два множества - выполненные и выполняющиеся задачи.
-```
+```python
 async def fetch_status(session: ClientSession, url: str, delay: int = 0) -> int:
     await asyncio.sleep(delay)
     async with session.get(url) as result:

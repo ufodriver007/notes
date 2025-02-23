@@ -1,11 +1,11 @@
 
 ![[docker.png]]
 Установка
-```
-sudo apt install docker*          (из репозитория Linux Mint)
+```bash
+sudo apt install docker*          # (из репозитория Linux Mint)
 ```
 Удаление
-```
+```bash
 sudo apt autoremove docker* --purge
 ```
 
@@ -53,33 +53,46 @@ sudo apt autoremove docker* --purge
 
 #### Dockerfile
 Описание только одного образа.
-```
-FROM python:3.11               # образ
-SHELL ["/bin/bash", "-c"]      # оболочка(-с далее идёт команда, которую нужно выполнить)
-ENV PYTHONDONTWRITEBYTECODE=1  # Python не будет пытаться писать файлы .pyc
-ENV PYTHONUNBUFFERED=1         # Запрещает вывод stdout и stderr буферезировать
+```docker
+# образ
+FROM python:3.11   
+# оболочка(-с далее идёт команда, которую нужно выполнить)
+SHELL ["/bin/bash", "-c"]  
+# Python не будет пытаться писать файлы .pyc
+ENV PYTHONDONTWRITEBYTECODE=1  
+# Запрещает вывод stdout и stderr буферезировать
+ENV PYTHONUNBUFFERED=1         
 
-RUN pip install --upgrade pip  # выполнить комманду при первом запуске контейнера
-                               # получается "/bin/bash -с pip install --upgrade pip"
+# выполнить комманду при первом запуске контейнера
+# получается "/bin/bash -с pip install --upgrade pip"
+RUN pip install --upgrade pip  
+                               
 RUN apt update && apt -qy install gcc cron libjpg-dev
 RUN useradd -rms /bin/bash ufo && chmod 777 /opt /run
 
-WORKDIR /ufo   # рабочая директория(после запуска автоматически попадаем в эту директорию)
+# рабочая директория(после запуска автоматически попадаем в эту директорию)
+WORKDIR /ufo   
 
-COPY --chown=ufo:ufo . .    # какие файлы из нашего проекта копируем в образ
-ADD . /code/                # какие файлы из нашего проекта копируем в образ
+# какие файлы из нашего проекта копируем в образ
+COPY --chown=ufo:ufo . .    
+# какие файлы из нашего проекта копируем в образ
+ADD . /code/                
 
-ENV APP_NAME=DOCKER_DEMO    # задание переменной окружения
+# задание переменной окружения
+ENV APP_NAME=DOCKER_DEMO    
 
 RUN mkdir /ufo/static && mkdir /ufo/media && chown -R ufo:ufo /ufo && chmod 775 /ufo
 RUN pip install -r requirements.txt
-USER ufo                 # переключаемся на пользователя ufo
-CMD gunicorn docker_demo.wsgi:application -b 0.0.0.0:8000  # выполнять каждый раз при 
-                         # запуске контейнера
-EXPOSE 8000              # порт в образе
+# переключаемся на пользователя ufo
+USER ufo                 
+# выполнять каждый раз при запуске контейнера
+CMD gunicorn docker_demo.wsgi:application -b 0.0.0.0:8000  
+
+# порт в образе
+EXPOSE 8000              
 ```
 Затем:
-```
+```bash
 docker build .                      # сбилдить образ используя Dockerfile в текущей директории
 docker build -t docker-demo:1.01 .  # сбилдить образ используя Dockerfile в текущей директории и
                                     #   указать имя my-app
@@ -89,7 +102,7 @@ docker tag 94c5f968ae9f myimage:v01 # после билда образа так 
 docker image inspect 94c5f968ae9f   # можно посмотреть какие комманды используются в контейнере
 ```
 Пример nginx докерфайла для образа(для этого нужно предварительно создать `nginx.conf` и  `proxy_params` файлы)
-```
+```docker
 FROM nginx:latest
 
 RUN rm /etc/nginx/conf.d/default.conf
@@ -99,7 +112,7 @@ COPY proxy_params /etc/nginx
 
 #### docker-compose.yml
 Описание нескольких образов
-```
+```yaml
 version: '3.9'
 
 services:                                        # список образов
@@ -152,7 +165,7 @@ networks:
     name: webnet
 ```
 Затем:
-```
+```bash
 docker-compose build               # сбилдить образ используя файл docker-compose.yml
 docker-compose build --no-cache    # сбилдить образ, без кеширования
 docker-compose up -d               # запустить(если образов нет, они будут скачаны) в фоне
@@ -163,7 +176,7 @@ docker-compose --profile dev up    # запустить сервисы с про
 ```
 
 #### Выгрузка своего образа в DockerHub
-```
+```bash
 docker build -t ufodriver007/my-app .  # сбилдить образ используя Dockerfile в текущей директории
                                        #  и указать имя my-app
 docker push ufodriver007/my-app        # запушить образ в DockerHub
@@ -174,7 +187,7 @@ docker run ufodriver007/django_test    # запустить скачанный �
 #### Docker volumes
 Для сохранения настроек
 
-```
+```bash
 docker volume ls                                    # список томов
 docker run -v /opt/mysql_data:/var/lib/mysql mysql  # создать и запустить контейнер с хост-томом
                                                     #  (директория хоста:директория контейнера)
@@ -186,13 +199,13 @@ docker run -v mysql_data:/var/lib/mysql mysql       # создать и запу
 
 >[!info] Директории хост машины монтируются в контейнер. Докер хранит тома(анонимные и именные) по адресу `/var/lib/docker/volumes/`
 
-```
+```bash
 docker volume create test          # создать именной том test
 docker volume rm test              # удалить именной том test
 ```
 
 Пример `docker-compose.yml`:
-```
+```yaml
 version: '3'
 
 services:
@@ -201,7 +214,7 @@ services:
   container_name: django
   command: python manage.py runserver 0.0.0.0:8000
   volumes:
-    - .:/usr/src/app                           # текущая папка связывается с папкой хоста /usr/src/app
+    - .:/usr/src/app             # текущая папка связывается с папкой хоста /usr/src/app
 
  pgdb:
   image: postgres
@@ -218,7 +231,7 @@ volumes:
 ```
 
 Выполнение команд через докер:
-```
+```bash
 docker-compose run django django-admin startproject myapp .
 docker-compose run django python manage.py migrate
 ```
@@ -238,7 +251,7 @@ docker-compose run django python manage.py migrate
 
 >[!info] Драйвер по-умолчанию - bridge
 
-```
+```bash
 docker network create ---driver macvlan --subnet 192.168.100.0/24 --gateway 192.168.100.1 myMACvlan
 docker network create --driver bridge NAME
 docker run --net NAME nginx

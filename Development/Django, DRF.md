@@ -1,16 +1,16 @@
 ![[Pasted image 20231219081151.png]]
 ![[2023-12-19_08-37.png]]
 [[Django, DRF#Django REST Framework(DRF)]]
-```
+```bash
 pip install django
 ```
-```
+```bash
 django-admin startproject my_first_site                      # создать шаблон проекта
 ```
-```
+```bash
 python3 manage.py runserver                                  # запустить проект 127.0.0.1:8000
 ```
-```
+```bash
 python3 manage.py startapp <app_name>                        # создаём приложение
  # затем регистрируем в settings.py в списке INSALLED_APPS как '<app_name>.apps.app_class'
 
@@ -34,16 +34,16 @@ python3 manage.py createsuperuser                            # создаём а
 В `urls.py` в `urlpatterns` можно вписать `include` и в приложении (например `articles`) в `urls.py` будет своё пространство маршрутов.
 Т.е. запрашивая `/articles` используется маршрут из `articles/urls.py`(который `path('', views.index)`), а запрашивая `/articles/new` используется маршрут из `articles/urls.py`(который `path('new/', views.new)`)
 
-```
-   urlpatterns = [
+```python
+urlpatterns = [
     path('articles/', include('article.urls'))
-    ]
+]
 ```
 Также вместо `include('project.article.urls')` можно импортировать модуль и указывать сразу его: `path('articles/', project.article.urls)`, избавляет от потенциальных циклических импортов
 
 ###### name
 Также пути можно дополнить песвдонимом:
-```
+```python
 path('articles/', include('article.urls'), name='articles')  
 
 # потом можно вызывать например return redirect('articles')
@@ -51,22 +51,22 @@ path('articles/', include('article.urls'), name='articles')
 
 ###### namespace
    Можно указать namespace, например для основного urls.py, чтобы было понятно к какому именно приложению относятся данные адреса в шаблонах):
-```
+```python
  path('articles/', include('article.urls'), namespace='mint_app')
 ```
 И потом в шаблоне указывать `{% url "mint_app:index" %}` .Так Django понимает, что псевдоним `index` нужно искать в приложении `mint_app`
 
 #### Установка PostgeSQL в Django
 Устанавливаем PostgreSQL https://www.postgresql.org/download/
-```
+```bash
 pip install psycopg2-binary
 ```
 Или
-```
+```bash
 pip install psycopg2
 ```
 В settings.py Django проекта:
-```
+```python
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
@@ -79,7 +79,7 @@ DATABASES = {
 }
 ```
 И затем
-```
+```bash
 python manage.py makemigrations
 python manage.py migrate
 ```
@@ -102,14 +102,14 @@ python manage.py migrate
 
 В `settings.py`, в `TEMPLATES`->`OPTIONS`->`context_processors` добавляем строку `'my_app.context_processors.my_func'`
 Далее создаём в приложении файл `context_processors.py`:
-```
+```python
 def my_func(request):
     return {'categories': Category.objects.all()}
 ```
 
 >[!info] Данные в шаблон поступают из вью в виде контекста
 
-```  
+```python
 def about(request):
     tags = ['обучение', 'программирование', 'python', 'oop']
     return render(
@@ -120,14 +120,14 @@ def about(request):
 ```
 
 ###### Цикл for
-```
+```jinja2
 {% for obj in object_list %}
     {{ obj.atr }}
 {% endfor %}
 ```
 
 ###### if
-```
+```jinja2
 {% if object_list|len == 1 %}
     *Какое-то действие*
     {% else %}
@@ -138,7 +138,7 @@ def about(request):
 ###### Наследование шаблонов
 Создаём в папке `templates base.html`
 Указываем там весь код html + нужные блоки:
-```
+```jinja2
 ...html код начала страницы...
 {% block title %}{% endblock %}
 {% block content %}{% endblock %}
@@ -146,7 +146,7 @@ def about(request):
 ```
 
 В html коде шаблона, который состоит из кусков др. шаблонов(например index.html):
-```
+```jinja2
 {% extends 'base.html' %}
 {% block title %}
     Главная страница
@@ -159,13 +159,13 @@ def about(request):
 ###### Подключение части разметки
 В `templates` создаём файл с частью разметки, например `notifications.html`
 В шаблоне, подключаем его
-```
+```jinja2
 {% include "notifications.html" %}
 ```
 
 ###### Свои теги в шаблонизаторе
 Создаём в приложении директорию `templatetags`, в ней файл `__init__.py` и питоновский файл с любым именем, например `mint_app_tags.py`, в нём пишем
-```
+```python
 from django import template  
 from mint_app.models import Category           # импорт для примера
   
@@ -177,7 +177,7 @@ def tag_categories():                          # любое название
 ```
 
 В шаблоне
-```
+```jinja2
 {% load mint_app_tags %}                       # название файла
 
 {% tag_categories as categories %}             # функция tag_categories вернёт результат
@@ -188,7 +188,7 @@ def tag_categories():                          # любое название
 ```
 
 Ещё пример функции тэга с доступом к контексту
-```
+```python
 from django import template  
 from django.utils.http import urlencode
   
@@ -202,7 +202,7 @@ def change_params(context, **kwargs):
                                         #  как параметры URL-адреса
 ```
 В шаблоне
-```
+```jinja2
 {% load goods_tags %}
 
 <a href=?{% change_params page=page %}>{{ page }}</a>    # передаём в функцию тега change_params
@@ -213,7 +213,7 @@ def change_params(context, **kwargs):
 >[!tip] Можно использовать для вывода списка категорий, [[Django, DRF##### Фильтры для поиска на сайте|проброса GET параметров]] и т.д.
 
 ###### Обратное разрешение URL-адреса
-```
+```jinja2
 {% url "<namespace>:<name>" <arguments> %}
 {% url "<name>" <arguments> %}
 {% url "<name>" %}
@@ -223,13 +223,13 @@ def change_params(context, **kwargs):
 # Ищется в пространстве имён 'catalog', в нём путь с имёнем `product` и подставляется туда аргумент
 ```
 Для понимания, основной  файл `urls.py`
-```
+```python
 urlpatterns = [  
     path('catalog/', include(`goods.urls`, namespace=`catalog`)),
 ]
 ```
 И `urls.py` приложения `goods`
-```
+```python
 urlpatterns = [  
     path('product/<int:product_id>/`, views.product, name='product')
 ]
@@ -240,7 +240,7 @@ urlpatterns = [
 ```
 #### Custom user
 Стандартная модель пользователя Django `User` может быть недостаточной для некоторых проектов, особенно если требуется хранить дополнительные данные о пользователях. В таких случаях рекомендуется создать свою пользовательскую модель, наследуясь от `AbstractUser` или `AbstractBaseUser`.
-```
+```python
 # models.py
 from django.contrib.auth.models import AbstractUser
 from django.db import models
@@ -254,13 +254,13 @@ class CustomUser(AbstractUser):
 ```
 
 Чтобы Django использовал нашу кастомную модель пользователя, нужно указать её в настройках проекта.
-```
+```python
 # settings.py
 AUTH_USER_MODEL = 'your_app_name.CustomUser'
 ```
 
 #### Формы
-```
+```html
 <form>
     <form action="{% url 'home' %}" method="POST">
         {% csrf_token %}
@@ -273,7 +273,7 @@ AUTH_USER_MODEL = 'your_app_name.CustomUser'
 ```
 ###### Получение данных из формы
 Во `views.py`, в методе страницы принимаем данные:
-```
+```python
 def thanks_page(request):
     name = request.POST['name']
     phone = request.POST['phone']
@@ -286,7 +286,7 @@ def thanks_page(request):
 ```
 ###### Forms
 Создаём forms.py
-```
+```python
 from django import forms # Импортируем формы Django
 
 class CommentArticleForm(forms.Form):               # Просто форма БЕЗ связи с моделью
@@ -313,7 +313,7 @@ class CommentArticleForm(forms.Form):               # Просто форма Б
 ```
 
 Чтобы форма отображалась нужно передать её в шаблон через view:
-```
+```python
 from django.shortcuts import render
 from .forms import CommentArticleForm
 
@@ -325,7 +325,7 @@ class CommentArticleView(View):
 ```
 
 Подставляем в шаблоне:
-```
+```jinja2
 <form action="{% url 'comment_create' %}" method="post">
     {% csrf_token %}
     <table border="1">
@@ -336,7 +336,7 @@ class CommentArticleView(View):
 ```
 
 Принимаем данные формы:
-```
+```python
 class CommentArticleView(View):
     def post(self, request, *args, **kwargs):
         form = CommentArticleForm(request.POST)      # Получаем данные формы из запроса
@@ -350,7 +350,7 @@ class CommentArticleView(View):
 
 ###### Генерация форм
 Создаём `forms.py`
-```
+```python
 from django import forms
 
 class OrderForm(forms.Form):
@@ -361,7 +361,7 @@ class OrderForm(forms.Form):
 
 Во `views.py` импортируем `from .forms import OrderForm`
 Далее рендерим её:
-```
+```python
  def first_page(request):
     initial_data = {
                 'first_name': user.first_name,
@@ -373,7 +373,7 @@ class OrderForm(forms.Form):
 ```
 
 В html подставляем шаблон:
-```
+```jinja2
 <form action="{% url 'home' %}" method="POST">
     {% csrf_token %}
     {{ form }}                                         # {{ form.as_p }}
@@ -386,7 +386,7 @@ class OrderForm(forms.Form):
 >[!info] Формы, построенные на основе моделей, отличаются тем, что УЖЕ имеют встроенные валидаторы полей, которые создаются на основе оганичений описанных в моделях, типа `max_length=100`  или `blank=True` и т.д.
 
 Чтобы создать форму с полями модели(связать форму и модель):
-```
+```python
 from django.forms import ModelForm
 
 class ArticleCommentForm(ModelForm):
@@ -396,7 +396,7 @@ class ArticleCommentForm(ModelForm):
 ```
 
 Если нам нужно дополнительно заполнить или обработать поля формы, то мы можем указать Django, что данные не нужно сразу сохранять:
-```
+```python
 class ArticleCommentFormView(View):
 
     def post(self, request, *args, **kwargs):
@@ -409,7 +409,7 @@ class ArticleCommentFormView(View):
 ```
 
 Для логина есть встроенная форма
-```
+```python
 from django.contrib.auth.forms import AuthenticationForm
 # UserChangeForm форма для обновления пользовательских данных
 # UserCreationForm для формы регистрации
@@ -425,7 +425,7 @@ class UserLoginForm(AuthenticationForm):
 
 #### Валидация данных формы
 >[!tip]  При ошибках валидации:
-```
+```python
     form = YourForm(request.POST)
     for field in form:
         print("Field Error:", field.name,  field.errors)
@@ -433,7 +433,7 @@ class UserLoginForm(AuthenticationForm):
 
 >[!info] В классе формы для каждого отдельного поля можно создать метод `clean_<имя поля>`, он вызовется автоматически при создании объекта этого класса..Этот метод не получает никаких дополнительных параметров: он самостоятельно запросит значение из словаря `cleaned_data`.
 
-```
+```python
 class ArticleForm(ModelForm):
     class Meta:
         model = Article
@@ -448,7 +448,7 @@ class ArticleForm(ModelForm):
 ```
 
 После валидации все данные будут переданы в словарь form.cleaned_data, и для дальнейшей работы данные формы берут именно из этого словаря.
-```
+```python
 # views.py
 if form.is_valid():
     # Берём валидированные данные формы из словаря form.cleaned_data
@@ -466,7 +466,7 @@ if form.is_valid():
 #### Flash сообщения
 >[!info] Сообщения реализуются через класс middleware и соответствующий контекстный процессор.
 >
-```
+```python
 from django.contrib import messages
     
 # Добавляем в нужный метод
@@ -478,7 +478,7 @@ messages.error(request, 'Document deleted.')
 ```
 
 Выводим в шаблоне:
-```
+```jinja2
 {% if messages %}
     <ul class="messages">
         {% for message in messages %}
@@ -491,7 +491,7 @@ messages.error(request, 'Document deleted.')
 #### Админ-панель
 Создаём суперпользователя `python manage.py createsuperuser`
 В `admin.py` регистрируем таблицу БД:
-```
+```python
 from django.contrib import admin
 from .models import Order
 
@@ -509,7 +509,7 @@ class TicketAdmin(admin.ModelAdmin):
 Теперь эта таблица доступна в админ-панели.
 
 ###### Автогенерация slug
-```
+```python
 # admin.py
 @admin.register(News)  
 class NewsAdmin(admin.ModelAdmin):  
@@ -519,17 +519,17 @@ class NewsAdmin(admin.ModelAdmin):
 
 ###### Чтобы данные отображались в понятном формате:
 - добавляем в поля модели аргумент verbose_name, т.е.:
-```
+```python
 order_name = models.CharField(max_length=200, verbose_name = 'Имя')
 order_phone = models.CharField(max_length=200, verbose_name = 'Телефон')
 ```
 - добавляем метод строкового отображения объекта модели:
-```
+```python
 def __str__(self):
     return self.order_name
 ```
 - добавляем мета класс для отображения названия таблицы:
-```
+```python
 class Meta:
      verbose_name = 'Заказ'
      verbose_name_plural = 'Заказы'
@@ -539,14 +539,14 @@ class Meta:
 
 ###### Простые фильтры
 - Поиск в админке по названию и телу статьи
-```
+```python
 class ArticleAdmin(admin.ModelAdmin):
     search_fields = ['name', 'body']
   
 admin.site.register(ArticleAdmin)
 ```
 - Добавим отображение в списке статей даты публикации и фильтрацию по данному полю
-```
+```python
 from django.contrib import admin
 from django.contrib.admin import DateFieldListFilter
 from .models import Article
@@ -562,9 +562,8 @@ class ArticleAdmin(admin.ModelAdmin):
 ###### Инлайн отображение таблиц
 Отображение в экземпляре модели(в админке) встроенного блока со связанной таблицей.
 Делаем специальный класс
-```
+```python
 # cart.admin.py
-
 class CartTabAdmin(admin.TabularInline):
     model = Cart
     fields = "product", "quantity", "created_timestamp"
@@ -574,7 +573,7 @@ class CartTabAdmin(admin.TabularInline):
 ```
 
 И указываем в другом, уже зарегистрированном классе список `inlines`, где перечисляем инлайновые классы
-```
+```python
 # users.admin.py
 from cart.admin import CartTabAdmin
 
@@ -588,7 +587,7 @@ class UserAdmin(admin.ModelAdmin):
 
 ###### Кнопка смотреть на сайте
 На страницу экземпляра модели в админке можно добавить кнопку, ведущую прямо на этот объект на сайте. Для этого надо реализовать метод `get_absolute_url()` в модели. Этот метод также можно использовать и в шаблонах для получения URL ссылки на объект.
-```
+```python
 # models.py
 from django.urls import reverse
 
@@ -606,7 +605,7 @@ class MModel(models.Model):
 ###### Функция для отображения поля модели
 В списке объектов модели появится колонка с фото
 В admin.py:
-```
+```python
 from django.utils.safestring import mark_safe
 
 @admin.register(MModel)
@@ -626,7 +625,7 @@ class MModelAdmin(admin.ModelAdmin):
 >[!info] Django включает в себя «диспетчер сигналов», который помогает получать уведомления о действиях, происходящих в других частях фреймворка. По возможности следует выбирать прямой вызов кода обработки, а не диспетчеризацию через сигнал.
 
 Например, своя функция, срабатывающая при удалении экземпляра модели:
-```
+```python
 # models.py
 from django.db.models.signals import pre_delete
 from django.dispatch import receiver
@@ -643,7 +642,7 @@ def delete_model_files(sender, instance, **kwargs):
 К фактической базе данных Django подключается с помощью Database Engines. Обычно одна база приходится на одно веб-приложение.
 
 Описываются базы данных в словаре `settings.DATABASES`:
-```
+```python
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
@@ -654,11 +653,11 @@ DATABASES = {
 
 Есть два типа методов в ORM:
 1. Методы, которые возвращают QuerySet. Их можно компоновать
-```
+```python
 Order.objects.filter(order_name = 'Anna').exclude(status='finished').filter(order_price=100)
 ```
 2. Методы, которые НЕ возвращают QuerySet
-```
+```python
 Order.objects.get(id=32)
 ```
 
@@ -671,7 +670,7 @@ Order.objects.get(id=32)
 
 ###### Создание модели
 Создаём модель в models.py(ID прописывать не обязательно, уже идёт автоматом)
-```
+```python
 from django.db import models
 class TimestampedModel(models.Model):
     """An abstract model with a pair of timestamps."""
@@ -715,13 +714,13 @@ class Order(models.Model):
 >[!info] Также можно создавать методы для моделей. Их можно использовать, например в шаблонах, обращаясь как к обычному полю объекта(через точку).
 
 Производим и применяем миграцию:
-```
+```python
 python manage.py makemigrations
 python manage.py migrate
 ```
 
 Можно в классе модели переопределить метод сохранения, чтобы например, выполнять какую-нибудь функцию при сохранении модели:
-```
+```python
 def save(self, *args, **kwargs):
     super().save(*args, **kwargs)
     set_rating(self.book)          # кастомная функция, условно подсчитывающее среднее значение
@@ -733,12 +732,12 @@ def save(self, *args, **kwargs):
 У пользователя может быть несколько таких корзин.
 
 Дописывем в модели `Cart`
-```
+```python
 objects = CartQuerySet().as_manager()
 ```
 
 И создаём класс для `QuerySet`
-```
+```python
 # models.py
 from django.db import models
 
@@ -748,7 +747,7 @@ class CartQuerySet(models.QuerySet):
 ```
 
 Далее создаём [[Django, DRF#Свои теги в шаблонизаторе|свой шаблонный тег]]. Создаём в приложении папку `templatetags` и в ней `__init__.py` и например `cart_tag.py`
-```
+```python
 from django import template 
 from cart.models import Cart
   
@@ -760,7 +759,7 @@ def user_carts(request):
 ```
 
 В шаблоне
-```
+```jinja2
 {% load cart_tag %}                        # имя модуля со своим тегом
 
 {% user_carts request as carts %}          # имя функции для тега, аргумент, возврат
@@ -783,11 +782,11 @@ def user_carts(request):
 - Если нам нужно отменить все миграции этого приложения, нужно указать zero в качестве версии миграции: `python manage.py migrate article zero`
 
 ###### Интерактивная консоль Django и  методы ORM
-```
+```bash
 python manage.py shell
 ```
 
-```
+```python
 from crm.models import Order               # Добавление записи через ORM
 n = Order(order.name = 'Иван', order_phone = '+7123456789')
 n.save()                                   # Модель ленивая, т.е. запрос выполняется только здесь
@@ -823,7 +822,7 @@ order1.delete()
 ```
 
 >[!info] Lookup - двойное подчёркивание однозначно отделяет имя поля от оператора.
-```
+```python
 User.objects.filter(
     votes__gt=2,                # WHERE votes > 2
     votes__gte=100,             # WHERE votes >= 100("greater than or equal")
@@ -840,7 +839,7 @@ Bicycle.objects.filter(price__lt=50) | Bicycle.objects.filter(description__conta
 ###### Транзакции
 >[!info] Для того, чтобы пометить фрагмент кода, как относящийся к одной транзакции, обычно используют _менеджер контекста_ atomic()
 
-```
+```python
 from django.db import transaction
 
 with transaction.atomic():
@@ -851,7 +850,7 @@ with transaction.atomic():
 В результате при первой же ошибке транзакция отменяется.
 Разработчики на Django часто хотят выполнить в транзакции весь код какой-либо `view`. При этом `atomic()` используют как декоратор
 
-```
+```python
 from django.db import transaction
 
 @transaction.atomic
@@ -864,7 +863,7 @@ def viewfunc(request):
 >[!info] Используется для выполнения SELECT запроса с блокировкой строк базы данных. Это гарантирует, что строки, выбранные в результате запроса, будут заблокированы для других транзакций до завершения текущей транзакции.
 
 Пример
-```
+```python
 from django.db import transaction
 from account.models import Profile
 
@@ -877,7 +876,7 @@ with transaction.atomic():
 https://django.fun/docs/django/5.0/topics/db/queries/#complex-lookups-with-q-objects
 ==Q объект== - это объект, используемый для инкапсуляции набора ключевых аргументов.
 - Объекты `Q` можно объединять с помощью операторов `&`, `|` и `^`. Когда оператор используется для двух объектов `Q`, получается новый объект `Q`. Например, этот оператор выдает один объект `Q`, который представляет «OR» двух запросов `"question__startswith"`
-```
+```python
 Q(question__startswith="Who") | Q(question__startswith="What")
 
 # эквивалент
@@ -885,14 +884,14 @@ Q(question__startswith="Who") | Q(question__startswith="What")
 ```
 
 Пример  использования Q объектов
-```
+```python
 from django.db.models import Q
 
 Products.objects.filter(Q(name__contains='диван') | Q(description__contains='диван')
 ```
 
 Ещё пример
-```
+```python
 def q_search(query):
     keywords = [word for word in query.split() if len(word) > 2]  # обрезаем предлоги
 
@@ -907,7 +906,7 @@ def q_search(query):
 
 ###### Annotate
 Добавление записи к каждому объекту внутри queryset
-```
+```python
 from django.db.models import Count
 
 users = User.objects.annotate(mmodel_count=Count('mmodel')).filter(mmodel_count__gt=1)
@@ -929,7 +928,7 @@ MModel.objects.annotate(lower_name=Lower('name')).filter(lower_name__icontains=q
 
 - `select_related() `для загрузки связанных объектов вместе с основными объектами в одном запросе работает с полями, устанавливающими связи один-к-одному (OneToOneField) или многие-к-одному (ForeignKey). Django выполняет JOIN-запрос, чтобы объединить таблицы и получить связанные объекты. Это избавляет от необходимости выполнять дополнительные запросы, чтобы получить связанные объекты
 Пример:
-```
+```python
 class Author(models.Model):
     name = models.CharField(max_length=100)
 
@@ -945,7 +944,7 @@ for book in books:
     
 - `prefetch_related()` для загрузки связанных объектов в одном запросе, но для полей, устанавливающих связи многие-ко-многим (ManyToManyField). В отличие от select_related(), prefetch_related() выполняет дополнительный запрос для получения связанных объектов, но делает это за один раз, загружая все связанные объекты одним запросом
 Пример:
-```
+```python
 class Author(models.Model):
     name = models.CharField(max_length=100)
 
@@ -964,7 +963,7 @@ for book in books:
 - Min
 - Max
 - Sum
-```
+```python
 from .models import Person
 from django.db.models import Avg, Min, Max, Sum
 
@@ -983,14 +982,14 @@ sum = Person.objects.aggregate(Sum("age"))
 
 #### Связи в ORM
 ###### Один-к-одному
-```
+```python
 class Profile(models.Model):
     user = models.OneToOneField(User, default=None, on_delete=models.CASCADE)
 ```
 
 ###### Один-ко-многим
 Внешний ключ для поля класса модели Child указывается так:
-```
+```python
 class Child(models.Model):
     creator = models.ForeignKey(User, on_delete=models.CASCADE)   # это поле ссылается на др. 
                                             # таблицу(Parent), у которого много таких объектов
@@ -999,7 +998,7 @@ class Child(models.Model):
 
 ###### Многие-ко-многим
  В конструктор models.ManyToManyField передается сущность, с которой устанавливается отношение многие ко многим. В результате будет создаваться промежуточная таблица, через которую собственно и будет осуществляться связь.
-```
+```python
 class Course(models.Model):
     name = models.CharField(max_length=30)
  
@@ -1009,7 +1008,7 @@ class Student(models.Model):
 ```
 Также имеется директива `through`, т.е. `models.ManyToManyField(Course, through='CourseStudentRealtion')`. Тоесть мы напрямую указываем существующую таблицу, в которой связваются отношнения и соответственно другая промеж. таблица НЕ будет создана.
 Пример промежуточной модели `CourseStudentRealtion`:
-```
+```python
 class CourseStudentRealtion(models.Model):
     course = models.ForeignKey(Course, on_delete=models.CASCADE)
     student = models.ForeignKey(Student, on_delete=models.CASCADE)
@@ -1018,20 +1017,20 @@ class CourseStudentRealtion(models.Model):
 ```
 
 Варианты `on_delete=` (Что будет со свзязанными полями/записями при удалении)
-```
+```python
 on_delete=models.SET_NULL           Установка Null
 on_delete=models.CASCADE            Каскадное удаление
 on_delete=PROTECT                   Запрет удаления записи, пока есть текущая запись
 ```
 
 #### Django debug toolbar
-```
+```bash
 pip install django-debug-toolbar
 ```
 Инструкция по установке:
 https://django-debug-toolbar.readthedocs.io/en/latest/installation.html
 Только в `urls.py` добавляем
-```
+```python
 from .settings import DEBUG
 ...
 if DEBUG:  
@@ -1039,7 +1038,7 @@ if DEBUG:
 ```
 
 ###### Инспектирование запросов через shell
-```
+```python
 python3 manage.py debugsqlshell
 
 from mint_app.models import MModel
@@ -1055,7 +1054,7 @@ Fixtures также можно использовать или создават�
 ###### Чтобы выгрузить Fixtures из базы данных:
 1. Создадим папку `fixtures` в корне проекта и в ней папку с названием приложения, например `mint_app`
 2. Пишем в терминале
-```
+```bash
 python3 manage.py dumpdata mint_app.MModel > fixtures/mint_app/mmodel.json
 ```
 И на выходе получаем JSON с данными MModel модели
@@ -1063,7 +1062,7 @@ python3 manage.py dumpdata mint_app.MModel > fixtures/mint_app/mmodel.json
 ###### Чтобы загрузить Fixtures в базу данных:
 1. Создадим папку `fixtures` в корне проекта и в ней папку с названием приложения, например `mint_app`
 2. В settings.py добавим
-```
+```python
 FIXTURE_DIRS = [
     'fixtures',
 ]
@@ -1077,11 +1076,11 @@ python3 manage.py loaddata data.json
 
 #### Статический контент
 В `settings.py` в `STATIC_URL` указывем пути для статических файлов
-```
+```python
 STATIC_URL = '/static/'
 ```
 и выше создём список:
-```
+```python
 STATICFILES_DIRS = [
     BASE_DIR / "static"
 ]
@@ -1092,7 +1091,7 @@ STATICFILES_DIRS = [
 `<img src="{% static 'img/1.jpg' %}">`
 
 Ещё пример
-```
+```python
 if DEBUG:  
     STATICFILES_DIRS = [  
         os.path.join(BASE_DIR, 'static')  
@@ -1103,13 +1102,13 @@ else:
 
 #### Медиа файлы
 Указание пути сохранения
-```
+```python
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 ```
 
 Чтение. В `urls.py`, в `urlpatterns` добавляем:
-```
+```python
 from django.conf import settings
 from django.conf.urls.static import static
 
@@ -1123,7 +1122,7 @@ urlpatterns = [
 >[!info] Это обычные функции, которые принимают на входе запрос — объект класса HttpRequest, и возвращают ответ — объект класса HttpResponse.
 
 Также к ним можно применять декораторы.
-```
+```python
 @require_http_methods(['GET', 'POST'])
 def login(request):
     pass
@@ -1133,7 +1132,7 @@ def login(request):
 
 ###### views классы
 Все представления этого вида наследуются от класса `django.views.View`
-```
+```python
 from django.shortcuts import render, get_object_or_404
 from django.views import View
 
@@ -1146,7 +1145,7 @@ class IndexView(View):
         })
 ```
 Метод `get` здесь работает как view function. При этом на каждый запрос будет создан новый экземпляр этого класса.
-```
+```python
 # urls.py
 urlpatterns = [
     ...
@@ -1158,7 +1157,7 @@ urlpatterns = [
 >[!tip] Также одна `view` может обрабатывать несколько URL-адресов сразу
 
 Пример с `TemplateView`:
-```
+```python
 from django.views.generic.base import TemplateView
 
 class HomePageView(TemplateView):
@@ -1171,7 +1170,7 @@ class HomePageView(TemplateView):
         return context
 ```
 В `urls.py`:
-```
+```python
 urlpatterns = [
     ...
     path('', TemplateView.as_view(template_name='index.html')),
@@ -1181,7 +1180,7 @@ urlpatterns = [
 
 #### Получение POST и GET параметров
 ###### POST
-```
+```python
 @require_http_methods(['POST'])
 def articles_post(request):
     title = request.POST.get('title')
@@ -1191,7 +1190,7 @@ def articles_post(request):
 ```
 
 ###### GET
-```
+```python
 @require_http_methods(['GET'])
 def articles_get(request):
     q = request.GET.get('q', '')
@@ -1199,7 +1198,7 @@ def articles_get(request):
 ```
 
 ###### Определение метода
-```
+```python
 if request.method == "POST":
     pass
 ```
@@ -1219,7 +1218,7 @@ if request.method == "POST":
 |DELETE |  /schools/{id}   |                          | Удаление школы
 
 ###### Статическая
-```
+```python
 # urls.py
 urlpatterns = [
     path('', views.index),
@@ -1227,7 +1226,7 @@ urlpatterns = [
 ```
 
 ###### Динамическая
-```
+```python
 # urls.py
 urlpatterns = [
     path('users/<int:user_id>/pets/<int:pet_id>/med_info/', med_info_view),
@@ -1244,7 +1243,7 @@ def med_info_view(request, user_id, pet_id):
 #### COOKIE
 ###### УСТАНОВКА
 Во view:
-```
+```python
 cookie_value = '122'
 response =  render(request, 'user_profile.html')
 response.set_cookie('cookie_huyooki', cookie_value)
@@ -1252,45 +1251,44 @@ response.set_cookie('cookie_huyooki', cookie_value)
 
 ###### ПОЛУЧЕНИЕ
 В шаблоне:
-```
+```jinja2
 <p>{{ request.COOKIES.cookie_huyooki }}</p>
 ```
 Либо во view:
-```
+```python
 cookie_value = request.COOKIES.get('cookie_huyooki')
 ```
 ###### УДАЛЕНИЕ
 Во view:
-```
+```python
 response =  render(request, 'user_profile.html')
 response.delete_cookie('cookie_huyooki')
 ```
 
 С подписанными куками тоже тамое, только методы:
-```
+```python
 set_signed_cookie(key, value, salt='', max_age=None, expires=None, path='/', domain=None,       secure=False, httponly=False, samesite=None)
 get_signed_cookie(key, default=RAISE_ERROR, salt='', max_age=None)
 ```
 
 #### СЕССИИ
 ###### ПОЛУЧЕНИЕ
-```
+```python
 s_key = request.session.session_key
-
 ```
 
 ###### СОЗДАНИЕ СЕССИИ
-```
+```python
 request.session.create()
 ```
 
 ###### УСТАНОВКА
-```
+```python
 request.session['member_id'] = 12345
 ```
 
 ###### УДАЛЕНИЕ
-```
+```python
 try:
     del request.session['member_id']
 except KeyError:
@@ -1299,15 +1297,16 @@ except KeyError:
 
 #### Переменные окружения
 - Используем python-dotenv для загрузки переменных окружения из файла
-```
+```bash
 pip install python-dotenv
-
+```
+```python
 from dotenv import load_dotenv
 load_dotenv()                      # Загрузка переменных окружения из файла .env
 ```
 
 - Читаем переменные окружения
-```
+```python
 import os
 
 SECRET_KEY = os.getenv('SECRET_KEY')
@@ -1317,7 +1316,7 @@ DEBUG = os.getenv('DEBUG', False)
 
 #### Шаблон 404
 В `settings.py`:
-```
+```python
 DEBUG = False
 ALLOWED_HOSTS = ['127.0.0.1']
 ```
@@ -1325,7 +1324,7 @@ Django будет искать `404.html` в директории `templates`
 
 #### Отправка почты
 В `settings.py`:
-```
+```python
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 
 # Настройки для Mail.ru
@@ -1339,7 +1338,7 @@ EMAIL_HOST_PASSWORD = 'app_password'
 # Для mail.ru нужно настроить пароль для внешних приложений https://account.mail.ru/user/2-step-auth/passwords/
 ```
 Во `views.py`:
-```
+```python
 from django.core.mail import send_mail
 
 subject = 'Код подтверждения для MINT-COAST.RU'
@@ -1352,40 +1351,41 @@ send_mail(subject, message, from_email, [to_email])
 
 #### Login/Logout пользователя
 ###### Login
-```
+```python
 from django.contrib import auth
+
 user = auth.authenticate(username=username, password=password)
 if user:
     auth.login(request, user)
 ```
 
 ###### Logout
-```
+```python
 auth.logout(request)
 ```
 
 Проверка залогинен ли пользователь:
 - В шаблоне:
-```
+```jinja2
 {% if user.is_authenticated %}
 ```
 - Во views:
-```
+```python
 request.user.is_authenticated
 ```
 
 Проверка существует ли пользователь:
-```
+```python
 User.objects.filter(username=username).exists()
 ```
 
 Проверка подтверждён ли email:
-```
+```python
 request.user.emailaddress_set.filter(primary=True, verified=True).exists()
 ```
 
 ###### Проверка на уровне функции, что пользователь залогинен
-```
+```python
 from django.contrib.auth.decorators import login_required
 
 @login_required
@@ -1394,12 +1394,12 @@ def profile(request):
 ```
 
 Надо добавить в `settings.py`
-```
+```python
 LOGIN_URL =  "/путь/к/странице/с/логином"
 ```
 
 И во `view` с логином добавим
-```
+```python
 if request.GET.get('next', None):
     return HttpResponseRedirect(request.GET.get('next'))
 ```
@@ -1409,7 +1409,7 @@ if request.GET.get('next', None):
 ###### Миксин `LoginRequiredMixin`
 >[!info] При использовании представлений на основе классов вы можете добиться того же поведения, что и `login_required` при использовании `LoginRequiredMixin`
 
-```
+```python
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.shortcuts import render
 from django.views.generic import View
@@ -1423,7 +1423,7 @@ class ProfileView(LoginRequiredMixin, View):
 >[!info] Можно воспользоваться такой регистрацией https://pypi.org/project/django-registration/
 
 Можно наследоваться от встроенного `User`. Удаляем из БД таблицы `auth`
-```
+```python
 # models.py
 from django.db import models
 from django.contrib.auth.models import AbstractUser
@@ -1433,18 +1433,18 @@ class User(AbstractUser):
 ```
 
 В `settings.py`
-```
+```python
 AUTH_USER_MODEL = 'users.User'
 ```
 
 Производим и применяем миграцию
-```
+```bash
 python manage.py makemigrations
 python manage.py migrate
 ```
 
 #### Пагинация
-```
+```python
 from django.core.paginator import Paginator
 
 models = MModel.objects.all().order_by('id')   
@@ -1456,7 +1456,7 @@ last_page = p.num_pages                             # количество ст�
 
 #### MIDDLEWARE
 Создаём `middleware.py`
-```
+```python
 from .models import Ban
 
 class BanMiddleware:
@@ -1484,7 +1484,7 @@ class BanMiddleware:
 ```
 
 Регистрируем свою мидлварь в `settings.py`:
-```
+```python
 MIDDLEWARE = [
     ...
     'mint_app.middleware.BanMiddleware',
@@ -1493,7 +1493,7 @@ MIDDLEWARE = [
 ```
 
 #### Throttling middleware
-```
+```python
 from django.core.cache import cache
 
 class ThrottlingMiddleware:
@@ -1527,7 +1527,7 @@ class ThrottlingMiddleware:
 #### Логгирование
 ###### Django
 Устанавливаем словарь в `settings.py`(Например настравиваем логгирование для событий `views.py`):
-```
+```python
 LOGGING = {
     "version": 1,
     "disable_existing_loggers": False,
@@ -1555,7 +1555,7 @@ LOGGING = {
 }
 ```
 Во views.py:
-```
+```python
 import logging
 logger = logging.getLogger("my_views")
 
@@ -1563,30 +1563,30 @@ logger.debug(f'Failed to edit. Model: {model.name}. Owner: {model.user} Errors: 
 ```
 
 ###### nginx
-```
+```bash
 sudo less /var/log/nginx/access.log
 sudo less /var/log/nginx/error.log
 ```
 
 Получение списка уникальных адресов из `/var/log/nginx/access.log` кроме `127.0.0.1`
-```
+```bash
 grep -oE "\b([0-9]{1,3}\.){3}[0-9]{1,3}\b" /var/log/nginx/access.log | awk '$1 != "127.0.0.1" { print }' | sort | uniq > ips.txt
 ```
 
 ###### gunicorn
 Путь логов gunicorn обычно указывается в `--access-logfile` или `--error-logfile`. По умолчанию gunicorn логов не ведёт. Смотреть в конфиграции юнита
-```
+```bash
 nano /etc/systemd/system/my_service.gunicorn.service
 ```
 
 ###### System access log
-```
+```bash
 sudo less /var/log/auth.log
 ```
 
 #### Тесты в Django
 Для тестов Django использует копию базы данных, которую затем очищает. Тесты в Django наследуются от unittest. Можно в приложении создать директорию `tests` и в ней test_*(напр. `test_logic.py`)
-```
+```python
 from django.test import TestCase
 
 class LogicTestCase(TestCase):
@@ -1600,12 +1600,12 @@ class LogicTestCase(TestCase):
 
 #### OAuth
 Проще всего сделать через allauth
-```
+```python
 pip install django-allauth
 ```
 В `settings.py`:
 `TEMPLATES-OPTIONS-context_processors` добавить `'django.template.context_processors.request'`
-```
+```python
 AUTHENTICATION_BACKENDS = [
     ...
     # Бэкенд аутентификации по умолчанию
@@ -1630,7 +1630,7 @@ INSTALLED_APPS = [
     'allauth.socialaccount.providers.vk',
 ```
 В `MIDDLEWARE` добавить `"allauth.account.middleware.AccountMiddleware"`
-```
+```python
 SOCIALACCOUNT_PROVIDERS = {
     'github': {
         "VERIFIED_EMAIL": True,
@@ -1656,14 +1656,14 @@ SOCIALACCOUNT_PROVIDERS = {
 }
 ```
 В `urls.py`:
-```
+```python
 urlpatterns = [
     ...
     path('accounts/', include('allauth.urls')),
     ...
 ]
 ```
-```
+```bash
 python manage.py makemigrations
 python manage.py migrate
 ```
@@ -1677,13 +1677,13 @@ VK: https://vk.com/editapp?act=create (`Адрес сайта`: `http://127.0.0.
 Нужно выбрать `провайдер` из списка, вписать `имя`, `ID клиента `и `секретный ключ`. 
 
 Вставляем в шаблон для перехода на встроенный view allauth:
-```
+```jinja2
 {% load socialaccount %}
 <a href="{% provider_login_url 'github' %}"> Войти через GitHub </a><br>
 <a href="{% provider_login_url 'vk' %}"> Войти через VK </a><br>
 ```
 Или можно сразу форму вставлять, чтобы сразу напрямую соединяться с сервером авторизации:
-```
+```jinja2
 <form method="post" action="{% provider_login_url 'vk' %}">
     {% csrf_token %}
      <button type="submit">VK</button>
@@ -1696,14 +1696,14 @@ VK: https://vk.com/editapp?act=create (`Адрес сайта`: `http://127.0.0.
 
 #### OAuth в Django REST Framework
 1. 
-```
+```bash
 pip install social-auth-app-django
 ```
 2. Создаём приложение(Например в ВК)
 [Мои приложения VK](https://vk.com/apps?act=manage)
 Указываем `redirect_uri` как `http://127.0.0.1:8000/social-auth/complete/vk-oauth2/`
 3.  `settings.py`
-```
+```python
 # Подключаем djoser и social-auth-app-django
 INSTALLED_APPS = [
     ...,
@@ -1748,7 +1748,7 @@ TEMPLATES = [
 
 ```
 4. `urls.py`
-```
+```python
 from django.urls import path, include
 
 urlpatterns = [
@@ -1759,7 +1759,7 @@ urlpatterns = [
 ]
 ```
 5. Делаем view
-```
+```python
 # views.py
 from rest_framework_simplejwt.tokens import RefreshToken
 
@@ -1777,15 +1777,16 @@ class OAuthCompleteView(APIView):
             return Response({'error': 'User is not authenticated'}, status=401)
 ```
 6. 
-```
+```bash
 python manage.py migrate
 ```
 7. Логинимся
-```
+```bash
 GET http://127.0.0.1:8000/social-auth/login/vk-oauth2/
 ```
 8. Поскольку мы получили `id`, и пару `JWT` токенов мы можем дальше логинится с помощью djoser отправляя токен в заголовках
-``` # уже должно быть настроено в settings.py
+``` python
+# уже должно быть настроено в settings.py
 SIMPLE_JWT = {  
     'AUTH_HEADER_TYPES': ('JWT',),  
     'ACCESS_TOKEN_LIFETIME': timedelta(days=1),  
@@ -1806,11 +1807,11 @@ https://www.google.com/recaptcha/admin/create
 получаем `Site_Key` и `Secret_Key`
 
 Страница проекта: https://github.com/kbytesys/django-recaptcha3
-```
+```bash
 pip install django-recaptcha3
 ```
 В `settings.py`:
-```
+```python
 INSTALLED_APPS = (
     ...
     'snowpenguin.django.recaptcha3',
@@ -1823,7 +1824,7 @@ RECAPTCHA_DEFAULT_ACTION = 'generic'
 RECAPTCHA_SCORE_THRESHOLD = 0.5              # при 0 все проходит всё
 ```
 В `forms.py`:
-```
+```python
 from snowpenguin.django.recaptcha3.fields import ReCaptchaField
 
 class ExampleForm(forms.Form):
@@ -1832,7 +1833,7 @@ class ExampleForm(forms.Form):
     [...]
 ```
 В шаблоне:
-```
+```jinja2
 {% load recaptcha3 %}
 {% recaptcha_init %}
 {% recaptcha_ready action_name='homepage' %}              # homepage|login|social|e-commerce
@@ -1840,7 +1841,7 @@ class ExampleForm(forms.Form):
 >[!warning] Заменить строчку `from django.utils.translation import ugettext_lazy as _` на `from django.utils.translation import gettext_lazy as _`
 
 #### Скачивание файла
-```
+```python
 from django.http import HttpResponse
 from django.conf import settings
 import os
@@ -1863,7 +1864,7 @@ def download_file(request):
 https://docs.djangoproject.com/en/5.0/ref/contrib/postgres/search/
 Встроенный в Django полнотекстовый поиск
 В `settings.py`
-```
+```python
 INSTALLED_APPS = [  
     ... 
     'django.contrib.postgres',
@@ -1871,7 +1872,7 @@ INSTALLED_APPS = [
 ```
 
 Делаем свою функцию
-```
+```python
 from django.contrib.postgres.search import SearchVector, SearchQuery, SearchRank
 
 def q_search(query):
@@ -1886,7 +1887,7 @@ def q_search(query):
 
 #### Фильтры для поиска на сайте
 Пишем форму с чекбоксами/радио-кнопками.  Во view принимаем GET-параметры и определяем QuerySet
-```
+```python
 # views.py
 
 def catalog(request):
@@ -1920,7 +1921,7 @@ def catalog(request):
 **Search Engine Optimization**
 ###### Читаемые слаги(slug)
 Добавляем в модель поле `slug`
-```
+```python
 # models.py
 class Example(models.Model):
     title = models.CharField(max_length=255)
@@ -1935,7 +1936,7 @@ class Example(models.Model):
             self.slug = slugify(self.title)
         return super().save(*args, **kwargs)
 ```
-```
+```python
 # admin.py
 from django.contrib import admin
 from .models import Example
@@ -1956,7 +1957,7 @@ Disallow: /admin/
 Disallow: /accounts/
 ```
 Добавляем маршрут
-```
+```python
 # urls.py
 from django.urls import path, include, re_path  
 from django.views.generic import TemplateView
@@ -1969,7 +1970,7 @@ urlpatterns = [
 
 ###### Карта сайта
 В `settings.py` добавляем
-```
+```python
 SITE_ID = 1
 
 INSTALLED_APPS = [ 
@@ -1983,7 +1984,7 @@ python manage.py migrate
 ```
 
 Создаём в приложении `sitemaps.py`
-```
+```python
 from django.contrib.sitemaps import Sitemap
 from .models import Post
 
@@ -2001,7 +2002,7 @@ class PostSitemap(Sitemap):
 ```
 
 Добавляем в `urls.py`
-```
+```python
 from django.contrib.sitemaps.views import sitemap
 from blog.sitemap import PostSitemap
 
@@ -2019,13 +2020,13 @@ urlpatterns = [
 
 - Создаём в `templates` шаблоны и называем их `404.html` и `500.html`
 - В `urls.py`
-```
+```python
 from django.conf.urls import handler404
 
 handler404 = 'mint_app.views.page_not_found_view'
 ```
 - Создаём view
-```
+```python
 def page_not_found_view(request, exception):
     return render(request, '404.html', status=404)
 ```
@@ -2033,7 +2034,7 @@ def page_not_found_view(request, exception):
 ###### Мета данные
 >[!info] Размещаются в шапке
 
-```
+```html
 <Title>Заголовок</Title>
 <meta name="description" content="Описание страницы" />
 <meta name="keywords" content="Ключевые слова" />
@@ -2044,7 +2045,7 @@ def page_not_found_view(request, exception):
 >Для этого в `settings.py` изменяем `DEBUG = False` и `ALLOWED_HOSTS = ['*']`
 
 В `settings.py`
-```
+```python
 TEMPLATES = [  
     {  
         'BACKEND': 'django.template.backends.django.DjangoTemplates',  
@@ -2073,9 +2074,8 @@ TEMPLATES = [
 
 #### Автозагрузка
 Реализация автозагрузки(однократного выполнения кода) при запуске веб-приложения
-```
+```python
 # wsgi.py
-
 import os  
 from django.core.wsgi import get_wsgi_application  
 import requests  
@@ -2108,14 +2108,14 @@ except Exception as e:
 ![[drf.png]]
 >[!info] Позволяет посредством API выдавать данные, например в JSON. Таким образом рендеринг страницы происходит не на стороне сервера, а на стороне клиента.
 
-```
+```bash
 pip install djangorestframework
 pip install markdown                  # Markdown support for the browsable API.
 pip install django-filter             # Filtering support
 ```
 
 ###### Пример Hello, world
-```
+```python
 # нужно зарегистрировать rest_framework в settings.py и создать маршрут в urls.py
 # views.py
 from rest_framework.views import APIView           # базовый класс для представлений DRF
@@ -2128,7 +2128,7 @@ class MyAPIView(APIView):
 
 ###### Реальный пример
 В `settings.py` регистрируем:
-```
+```python
 INSTALLED_APPS = [
     ...
     'rest_framework',
@@ -2137,7 +2137,7 @@ INSTALLED_APPS = [
 
 Допустим у нас уже есть модель `Book`.
 Создаём сериализатор(Создаём файл `serializers.py `в приложении):
-```
+```python
 from rest_framework.serializers import ModelSerializer
 from store.models import Book
 
@@ -2152,7 +2152,7 @@ class BooksSerializer(ModelSerializer):
 >[!info] Класс ViewSet создаётся вместо набора представлений(CRUD)
 
 Создаём ViewSet во `views.py`:
-```
+```python
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.viewsets import ModelViewSet
 from store.models import Book
@@ -2165,7 +2165,7 @@ class BookViewSet(ModelViewSet):
 ```
 
 В `urls.py`:
-```
+```python
 from rest_framework.routers import SimpleRouter
 router = SimpleRouter()
 router.register(r'book', BookViewSet)    # book - это url
@@ -2179,7 +2179,7 @@ urlpatterns += router.urls
 Теперь можно получить инфо: `127.0.0.1:8000/book/?format=json`
 
 >[!tip] Чтобы определить дефолтный формат и не писать в url `format=json`, нужно добавить в `settings.py`:
-```
+```python
 REST_FRAMEWORK = {
     'DEFAULT_RENDERER_CLASSES': (
         'rest_framework.renderers.JSONRenderer',
@@ -2193,7 +2193,7 @@ REST_FRAMEWORK = {
 #### Views
 ###### Generic views
 [Generic views(Общие представления)](https://ilyachch.gitbook.io/django-rest-framework-russian-documentation/overview/navigaciya-po-api/generic-views)
-```
+```python
 from rest_framework import generics
 
 class MyView(generics.CreateAPIView):
@@ -2215,7 +2215,7 @@ class MyView(generics.CreateAPIView):
 |RetrieveUpdateDestroyAPIView|Чтение, изменение и удаление отдельной записи(GET, PUT, PATCH, DELETE)
 
 Пример базового представления
-```
+```python
 # views.py
 from rest_framework.views import APIView           # базовый класс для представлений DRF
 from rest_framework.response import Response
@@ -2240,7 +2240,7 @@ class MyAPIView(APIView):
 ###### Viewsets
 [Viewssets(Наборы)](https://ilyachch.gitbook.io/django-rest-framework-russian-documentation/overview/navigaciya-po-api/viewsets)
 Действия ViewSet
-```
+```python
 def list(self, request):
     pass
 
@@ -2261,7 +2261,7 @@ def destroy(self, request, pk=None):
 ```
 
 **ModelViewSet**
-```
+```python
 from rest_framework.viewsets import ModelViewSet
 
 class MyViewSet(ModelViewSet):
@@ -2275,7 +2275,7 @@ class MyViewSet(ModelViewSet):
 >[!info] Связывают методы(GET, POST и тд) с методами ViewSet(list, create, retrieve и тд).
 > Без них бы пришлось писать `path('api/article/', ArticleViewSet.as_view({'get': 'list'}))`
 
-```
+```python
 from rest_framework import routers
 from .models import Article
 
@@ -2292,7 +2292,7 @@ urlpatterns += router.urls
 Обрабатывет дефолтный путь, типа `http://127.0.0.1:8000/api/`
 
  ###### Добавление нового маршрута в роутере
-```
+```python
 # views.py
 from rest_framework.decorators import action
 from rest_framework.viewsets import ModelViewSet
@@ -2324,7 +2324,8 @@ class ArticleViewSet(ModelViewSet):
 - У объекта сериализации  появляется коллекция `validated_data`(упорядоченный словарь)
 
 Пример базового сериализатора
-```# serializers.py
+```python
+# serializers.py
 from rest_framework import serializers
 
 class ArticleSerializer(serializers.Serializer):
@@ -2333,7 +2334,7 @@ class ArticleSerializer(serializers.Serializer):
     time_create = serializers.DateTimeField()
     cat_id = serializers.IntegerField()
 ```
-```
+```python
 # views.py
 from rest_framework.views import APIView           # базовый класс для представлений DRF
 from rest_framework.response import Response    # преобразует данные в байтовую json строку
@@ -2360,7 +2361,7 @@ class MyAPIView(APIView):
 
 ###### Методы сериализаторов
 **create(self, validated_data)** создание записи
-```
+```python
 from rest_framework import serializers
 
 class ArticleSerializer(serializers.Serializer):
@@ -2375,7 +2376,7 @@ class ArticleSerializer(serializers.Serializer):
     
 ```
 **update(self, instance, validated_data)** изменение записи
-```
+```python
 # Во view должен быть метод put или patch
 def update(self, instance, validated_data):
     instance.title = validated_data.get("title", instance.title)
@@ -2385,7 +2386,7 @@ def update(self, instance, validated_data):
 
 ###### ModelSerializer
 Не нужно вручную указывать все поля
-```
+```python
 from rest_framework.serializers import ModelSerializer
 
 class UserSerializer(ModelSerializer):
@@ -2395,7 +2396,7 @@ class UserSerializer(ModelSerializer):
 ```
 
 #### Своё поле в сериализаторе
-```
+```python
 from rest_framework.serializers import ModelSerializer, SerializerMethodField
 
 class UserSerializer(ModelSerializer):
@@ -2414,7 +2415,7 @@ class UserSerializer(ModelSerializer):
 
 #### Вложенные поля в сериализаторе
 В JSON'е в результате будут вложенные словари на месте значения readers
-```
+```python
 class BookReaderSerializerModelSerializer):
     class Meta:
         model = User
@@ -2432,7 +2433,7 @@ class BookSerializer(ModelSerializer):
 
 #### Permissions
 ###### Встроенные разрешения
-```
+```python
 # settimgs.py
 REST_FRAMEWORK = {
     'DEFAULT_PERMISSION_CLASSES': [
@@ -2445,7 +2446,7 @@ REST_FRAMEWORK = {
 Создание собственных разрешений. Может понадобится, если удалять, обновлять может только юзер, ассоциированный с записью. Например владелец книги.
 
 Создадим в приложении `permissions.py`
-```
+```python
 from rest_framework.permissions import BasePermission, SAFE_METHODS
 
 class IsOwnerOrReadOnly(BasePermission):
@@ -2463,7 +2464,7 @@ class IsOwnerOrReadOnly(BasePermission):
 #### Авторизация
 ###### Session-based authentication
 В `settings.py`
-```
+```python
 REST_FRAMEWORK = {  
     'DEFAULT_AUTHENTICATION_CLASSES': [  
         'rest_framework.authentication.SessionAuthentication',  
@@ -2473,7 +2474,7 @@ REST_FRAMEWORK = {
 ```
 
 Добавляем в `urls.py`
-```
+```python
 urlpatterns = [  
     ...
     path('api/auth/', include('rest_framework.urls')),  # путь пишем любой
@@ -2483,10 +2484,10 @@ urlpatterns = [
 ```
 
 ###### Простая авторизация по токену(Djoser)
-```
+```bash
 pip install djoser
 ```
-```
+```python
 # settings.py
 INSTALLED_APPS = [  
     ...
@@ -2501,7 +2502,7 @@ REST_FRAMEWORK = {
 }
 ```
 Добавляем в `urlpatterns`
-```
+```python
 path(r'api/auth/', include('djoser.urls')),  
 re_path(r'^auth/', include('djoser.urls.authtoken')),  # http://127.0.0.1:8000/auth/token/login
 ```
@@ -2523,7 +2524,7 @@ re_path(r'^auth/', include('djoser.urls.authtoken')),  # http://127.0.0.1:8000/a
 >[!warning] Важно! Расшифровать токен может кто угодно (например, на сайте [jwt.io](http://jwt.io/)). Поэтому ни в коем случае нельзя передавать в нем компрометирующую информацию: чувствительные данные пользователей, пароли и прочее.
 
 Сигнатура создаётся так
-```
+```python
 signature = HMAC_SHA256(secret, base64urlEncoding(header) + '.' + base64urlEncoding(payload))
 ```
 
@@ -2541,12 +2542,12 @@ signature = HMAC_SHA256(secret, base64urlEncoding(header) + '.' + base64urlEncod
 ######  Использование `simplejwt`
 
 [Документация](https://django-rest-framework-simplejwt.readthedocs.io/en/latest/getting_started.html)
-```
+```bash
 pip install djangorestframework-simplejwt
 ```
 
 В `settings.py`
-```
+```python
 INSTALLED_APPS = [
     ...
     'rest_framework_simplejwt',
@@ -2592,7 +2593,7 @@ SIMPLE_JWT = {
 ```
 
 В `urls.py`
-```
+```python
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView, TokenVerifyView
 
 urlpatterns = [  
@@ -2610,12 +2611,12 @@ urlpatterns +=
 получения нового `access` токена:  POST запрос с полем `refresh` и заголовками `Content-Type: application/json` на `http://localhost:8000/api/token/refresh/`
 
 #### Фильтрация в DRF
-```
+```bash
 pip install django-filter                             # (author: Alex Gaynor)
 ```
 
 Во `views.py`:
-```
+```python
 from django_filters.rest_framework import DjangoFilterBackend
 
 class CategoryViewSet(ModelViewSet):
@@ -2632,7 +2633,7 @@ class CategoryViewSet(ModelViewSet):
 >[!info] Если поиск только по одному полю, то достаточно фильтрации.
 
 Во `views.py`:
-```
+```python
 from rest_framework.filters import SearchFilter
 
 class CategoryViewSet(ModelViewSet):
@@ -2647,7 +2648,7 @@ class CategoryViewSet(ModelViewSet):
 полях `name` или `description` есть буква `М`
 
 #### Сортировка в DRF
-```
+```python
 from rest_framework.filters import OrderingFilter
 
 class CategoryViewSet(ModelViewSet):
@@ -2662,7 +2663,7 @@ class CategoryViewSet(ModelViewSet):
 
 #### Пагинация
 Добавляем в `settings.py`
-```
+```python
 REST_FRAMEWORK = {
     'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.LimitOffsetPagination',
     'DEFAULT_RENDERER_CLASSES': `rest_framework.pagination.PageNumberPagination`,
@@ -2670,7 +2671,7 @@ REST_FRAMEWORK = {
 }
 ```
 В ответ будем получать
-```
+```python
 HTTP 200 OK
 {
     "count": 1023,
@@ -2686,7 +2687,7 @@ HTTP 200 OK
 ###### Создание
 Создавать записи через Django REST Framework можно передавая методом POST данные в JSON
 Т.е. запрос POST на `http://127.0.0.1:8000/categories/` с прикреплённым JSON:
-```
+```json
 {
     "name": "new category",
     "path": "path"
@@ -2694,14 +2695,14 @@ HTTP 200 OK
 ```
 Если нужно, например, при создании связать запись с текущим(аутентифицированным) пользователем:
 Пример модели:
-```
+```python
 class Book(models.Model):
     name = models.CharField(max_length=255)
     author_name = models.CharField(max_length=255)
     owner = models.ForeignKey(User, on+delete=models.SET_NULL, null=True)
 ```
 Во ViewSet добавляем метод(который будет перегруженным) `perform_create`(Найти его можно пройдя в класс `ModelViewSet`, а оттуда в `CreateModelMixin`):
-```
+```python
 class BookViewSet(ModelViewSet):
     queryset = Book.objects.all()
     serializer_class = BookSerializer
@@ -2722,7 +2723,7 @@ class BookViewSet(ModelViewSet):
 ###### Обновление
 Обновлять записи можно с помощью метода PUT. Только поля надо передавать ВСЕ.
 Т.е. запрос PUT на `http://127.0.0.1:8000/categories/16/` с прикреплённым JSON:
-```
+```json
 {
     "id": "16",
     "name": "new category",
@@ -2739,7 +2740,7 @@ class BookViewSet(ModelViewSet):
 -  для анонимных пользователей — не более десяти в минуту;
 - для аутентифицированных пользователей — не более ста в минуту.
 Добавить в `settings.py` ключи `DEFAULT_THROTTLE_CLASSES` и `DEFAULT_THROTTLE_RATES` с необходимыми параметрами в словарь `REST_FRAMEWORK`:
-```
+```python
 REST_FRAMEWORK = {
     'DEFAULT_RENDERER_CLASSES': (
         'rest_framework.renderers.JSONRenderer',
@@ -2764,11 +2765,11 @@ REST_FRAMEWORK = {
 В целях безопасности браузеры ограничивают cross-origin запросы, инициируемые скриптами. Например, XMLHttpRequest и Fetch API следуют _политике одного источника_. Это значит, что web-приложения, использующие такие API, могут запрашивать HTTP-ресурсы только с того домена, с которого были загружены, пока не будут использованы CORS-заголовки.
 
 Включение заголовков
-```
+```bash
 pip install django-cors-headers
 ```
 
-```
+```python
 INSTALLED_APPS = (
     ...
     'corsheaders',
@@ -2776,7 +2777,7 @@ INSTALLED_APPS = (
 )
 ```
 
-```
+```python
 MIDDLEWARE = [
     ...,
     'corsheaders.middleware.CorsMiddleware',
@@ -2785,19 +2786,19 @@ MIDDLEWARE = [
 ]
 ```
 
-```
+```python
 CORS_ALLOWED_ORIGINS = [
     'http://localhost:3030',
 ]
 ```
 
 Для всех источников
-```
+```python
 CORS_ALLOW_ALL_ORIGINS = True
 ```
 
 #### Документирование API(Django REST Swagger)
-```
+```bash
 pip install PyYAML
 pip install uritemplate
 pip install django-rest-swagger
@@ -2806,7 +2807,7 @@ pip install django-rest-swagger
 [Документация Django REST Swagger](https://django-rest-swagger.readthedocs.io/en/latest/)
 
 В `settings.py`
-```
+```python
 INSTALLED_APPS = [
 ... 
 'rest_framework_swagger',
@@ -2815,7 +2816,7 @@ INSTALLED_APPS = [
 ```
 
 Добавляем в `urls.py`
-```
+```python
 from rest_framework.schemas import get_schema_view
 
 urlpatterns = [
@@ -2834,7 +2835,7 @@ urlpatterns = [
 ](http://127.0.0.1:8000/api_schema)
 
 Создаём файл `docs.html`
-```
+```html
 <!DOCTYPE html>
 <html>
   <head>
@@ -2890,7 +2891,7 @@ Push уведомления.
 1. Иконка
 [Сайт-генератор иконок](https://www.favicon-generator.org/)
 Скачиваем иконку сайта и подключаем её в html шаблоне.
-```
+```html
 # шапка сайта
 <link  
   rel="shortcut icon"  
@@ -2903,7 +2904,7 @@ Push уведомления.
 Файл, содержащий данные о сайте: имя, цветовая тема, информация об иконках
 [Сайт-генератор манифестов](https://tomitm.github.io/appmanifest/)
 Пример `manifest.json`
-```
+```json
 {  
   "name": "MyMusic",  
   "description": "Music is free for all",  
@@ -2922,7 +2923,7 @@ Push уведомления.
 3. Service worker
 Файл, который мы добавляем в наш проект, он позволит сайту работать в автономном режиме. Наличие service worker — это также требование PWA, поэтому он необходим.
 - Добавляем скрипт в наш шаблон в конец `body`
-```
+```html
 <script>  
     if ("serviceWorker" in navigator) {  
          window.addEventListener("load", function() {
@@ -2942,7 +2943,7 @@ Push уведомления.
 
 - Добавляем `sw-toolbox` в свой проект [Сам файл](https://github.com/GoogleChromeLabs/sw-toolbox/blob/master/sw-toolbox.js)
 - Создаём новый файл `sw.js`
-```
+```js
 "use strict";  
 importScripts("sw-toolbox.js");  
 toolbox.precache(["/","static/css/styles.css", "static/js/main.js"]);  
@@ -2957,18 +2958,18 @@ toolbox.router.get("/*", toolbox.networkFirst, { networkTimeoutSeconds: 5});
 
 Для Celery нужен брокер сообщений (отдельная служба для отправки и получения сообщений). Это может быть Redis (key-value хранилище) или RabbitMQ (полноценный менеджер задач). Здесь будет показана связка с Redis.
 
-```
+```bash
 pip install celery[redis]
 ```
 
 Также установим `flower`(сервер, который наглядно с интерфейсом показывает таски), он будет удобен для дебага.
 
-```
+```bash
 pip install flower
 ```
 
 Обычный `Dockerfile` для `Django` приложения
-```
+```docker
 FROM python:3.11  
   
 COPY . /code  
@@ -2984,7 +2985,7 @@ CMD python manage.py migrate \
 ```
 
 В `docker-compose.yml` будут описаны все сервисы, включая `redis`, `celery` и `flower`
-```
+```yaml
 version: "3.9"  
 services:  
   music_site:  
@@ -3049,7 +3050,7 @@ volumes:
 ```
 
 Далее создаём файл `celery_app.py` на одном уровне с `settings.py`
-```
+```python
 import os  
 import time  
   
@@ -3073,7 +3074,7 @@ def debug_task():
 ```
 
  Создаём `__init__.py` на одном уровне с `settings.py`
-```
+```python
 from .celery_app import app as celery_app  
   
 __all__ = ('celery_app',)
@@ -3085,46 +3086,46 @@ CELERY_BROKER_URL = 'redis://redis:6379/0'  # protocol://hostname
 ```
 
 Всё. Делаем из директории с `docker-compose.yml`
-```
+```bash
 docker-compose build
 ```
 
 И запускаем
-```
+```bash
 docker-compose up
 ```
 
 ###### Запуск без Докера
-```
+```bash
 pip install celery[redis]
 pip install flower
 ```
 
 Запуск воркера Celery
-```
+```bash
 # Из уровня с manage.py
 celery -A my_project worker  # my_project - папка с settings.py
 ```
 
 Запуск Flower
-```
+```bash
 # Из уровня с manage.py
 celery -A my_project flower
 ```
 ---
 Чтобы увидеть тестовую задачу `debug_task()` можно зайти в джанговый шелл
 Заходим в контейнер
-```
+```bash
 docker exec -it music_site /bin/bash
 ```
 
 И затем в шелл
-```
+```bash
 python manage.py shell
 ```
 
 И уже в шелле пишем
-```
+```python
 from celery_app import debug_task
 debug_task.delay()
 ```
@@ -3133,18 +3134,18 @@ debug_task.delay()
 
 ###### Получение результатов
 В `settings.py` добавляем
-```
+```python
 CELERY_RESULT_BACKEND = 'redis://127.0.0.1:6379/0'
 ```
 
 При запуске таски, получаем `ID` и сохраняем его куда-нибудь
-```
+```python
 task = process_file.delay()  
 task_id = task.id
 ```
 
 Теперь с помощью этого `ID` можно получать статус таски и её результат
-```
+```python
 from celery.result import AsyncResult
 
 task_result = AsyncResult(task_id)  
@@ -3156,7 +3157,7 @@ else:
 
 ###### Таски в других приложениях в Django
 В других приложениях мы описываем таски так
-```
+```python
 from celery import shared_task
 
 @shared_task()
@@ -3166,11 +3167,11 @@ def test_task():
 
 ###### Celery Singleton
 >[!info] Предотвращает дублирование тасок. Т.е. когда приходит таск с такими же аргументами, он её не принимает.
-```
+```bash
 pip install celery-singleton
 ```
 
-```
+```python
 from celery import shared_task
 from celery_singleton import Singleton
 
@@ -3182,12 +3183,12 @@ def test_task():
 #### Celery Beat
 >[!info] Celery Beat - это планировщик и он запускает задачи с установленными интервалами.
 
-```
+```bash
 pip install django_celery_beat
 ```
 
 В `settings.py`
-```
+```python
 INSTALLED_APPS = [
     ...
     "django_celery_beat",
@@ -3196,18 +3197,18 @@ INSTALLED_APPS = [
 CELERY_BEAT_SCHEDULER = "django_celery_beat.schedulers:DatabaseScheduler"
 ```
 
-```
+```bash
 python manage.py migrate
 ```
 Стартуем сервис Celery Beat
-```
+```bash
 # Из уровня с manage.py
 celery -A AvitoStats beat -l info -S django_celery_beat.schedulers:DatabaseScheduler
 # AvitoStats - папка с settings.py
 ```
 
 Мы можем определять расписание так
-```
+```python
 # celery_app.py
 from datetime import timedelta
 
@@ -3240,7 +3241,7 @@ app.conf.beat_schedule = {
 ###### Анализатор
 
 #### Установка и запуск через Docker
-```
+```bash
 docker run -p 9200:9200 -e "discovery.type=single.node" elasticsearch:7.17.22
 ```
 Теперь можно перейти в браузер `localhost:9200`
@@ -3248,7 +3249,7 @@ docker run -p 9200:9200 -e "discovery.type=single.node" elasticsearch:7.17.22
 #### API Elasticsearch
 ###### Создание индекса
 PUT-запрос `localhost:9200/first_index`
-```
+```json
 {
     "mappings": {
         "properties": {
@@ -3269,7 +3270,7 @@ PUT-запрос `localhost:9200/first_index`
 
 ###### Добавление и обновление документов
 PUT-запрос `localhost:9200/first_index/_doc/1`
-```
+```json
 {
     "title": "Беспроводные наушники",
     "price": 49.99,
@@ -3281,7 +3282,7 @@ PUT-запрос `localhost:9200/first_index/_doc/1`
 >[!warning] Если документ уже существует, вернётся ошибка
 
 PUT-запрос `localhost:9200/first_index/_doc/2/_create`
-```
+```json
 {
     "title": "Кабель USB",
     "price": 3.99,
@@ -3291,7 +3292,7 @@ PUT-запрос `localhost:9200/first_index/_doc/2/_create`
 
 ###### Добавление нескольких документов ОДНИМ запросом
 POST-запрос `localhost:9200/first_index/_bulk`
-```
+```json
 {"index": {"_index": "first_index", "_id": 100}}
 {"title": "Зарядная станция", "price": 273.99, "available": true}
 {"index": {"_index": "first_index", "_id": 101}}
@@ -3313,7 +3314,7 @@ GET-запрос `localhost:9200/first_index/_search`
 
 **Поиск без конкретного запроса, но со сдвигом 20 и размером 3**
 GET-запрос `localhost:9200/first_index/_search`
-```
+```json
 {
     "from": 20,
     "size": 3
@@ -3322,7 +3323,7 @@ GET-запрос `localhost:9200/first_index/_search`
 
 **Поисковой запрос по слову 'беспроводной' в полях 'title'**
 GET-запрос `localhost:9200/first_index/_search`
-```
+```json
 {
     "query": {
         "match": {
@@ -3334,7 +3335,7 @@ GET-запрос `localhost:9200/first_index/_search`
 
 **Поисковой запрос в диапазоне цен**
 GET-запрос `localhost:9200/first_index/_search`
-```
+```json
 {
     "query": {
         "bool": {
@@ -3365,15 +3366,15 @@ GET-запрос `localhost:9200/first_index/_search`
 >Создаём небольшое веб приложение, которое на вызов API(который будет делать `GitHub` автоматически при пуше изменений в репозиторий) будет после тестов обновлять код на продакшене и перезагружать `gunicorn`.
 
 1. Создаём приложение. Для примера на Flask [[Flask#Пример приложения для CI/CD]]
-```
+```bash
 pip install flask
 ```
 
-```
+```bash
 pip install python-dotenv
 ```
 
-```
+```python
 import hashlib  
 import hmac  
 from flask import Flask, request, abort  

@@ -4,12 +4,12 @@
 
 1. Идём на [pi-hosted.com/](https://pi-hosted.com/)
 2. Устанавливаем Docker
-```
+```bash
 wget -qO- https://raw.githubusercontent.com/pi-hosted/pi-hosted/master/install_docker.sh | bash
 ```
 3. Перезагружаем raspberry pi
 4. Устанавливаем Portainer
-```
+```bash
 wget -qO- https://raw.githubusercontent.com/pi-hosted/pi-hosted/master/install_portainer.sh | bash
 ```
 5. Заходим в интерфейс Portainer `127.0.0.1:9000` и создаём учётку
@@ -24,11 +24,11 @@ https://raw.githubusercontent.com/pi-hosted/pi-hosted/master/template/portainer-
 Чтобы получить доступ извне, нужно в конфиг добавить доверенные домены
 1. пишем `docker ps` в малине, чтобы получить список всех запущенных контейнеров
 2. Заходим в bash в nextcloud контейнере
-```
+```bash
 docker exec -it <container ID> /bin/bash
 ```
 3. Редактируем файл конфига в контейнере
-```
+```bash
 nano /config/www/nextcloud/config.php
 ```
 

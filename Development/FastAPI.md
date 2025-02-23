@@ -3,13 +3,13 @@
 [Документация](https://fastapi.tiangolo.com/ru/)
 [Metanit](https://metanit.com/python/fastapi/)
 
-```
+```bash
 pip install fastapi[all]
 ```
 
 
 Минимальное приложение
-```
+```python
 from fastapi import FastAPI  
   
 app = FastAPI()  
@@ -21,7 +21,7 @@ def getsome():
 
 ###### Запуск
 >[!info]  `--reload`: перезапуск сервера после изменения кода. Делайте это только во время разработки.
-```
+```bash
 uvicorn main:app --reload
 ```
 
@@ -31,21 +31,21 @@ uvicorn main:app --reload
 ###### Динамический путь
 
 Пример получения динамической части url (например `/some/33`)
-```
+```python
 @app.get('/some/{new_id}')  
 def getsome(new_id: int):  
     return f'Your new ID: {new_id}'
 ```
 
 ###### Получение GET параметров
-```
+```python
 @app.get('/some}')  
 def getsome(getparam):  
     return f'Your get param: {getparam}'
 ```
 
   Опциональные параметры
-```
+```python
 from fastapi import FastAPI  
 from typing import Optional  
   
@@ -57,7 +57,7 @@ def getsome(has_param: Optional[bool] = None):
 ```
 
 Валидация возвращаемых типов в GET запросах
-```
+```python
 from fastapi import FastAPI, Query, Depends
   
 app = FastAPI()  
@@ -75,7 +75,7 @@ def getsome(search_args: GetSomeSearchArgs = Depends()):
 ```
 
 ###### POST запросы
-```
+```python
 from fastapi import FastAPI
 from pydantic import BaseModel  
   
@@ -94,7 +94,7 @@ def add_booking(booking: SBooking) -> SBooking:
 
 ###### Routers
 Файл с роутером
-```
+```python
 from fastapi import APIRouter  
   
 router = APIRouter(prefix='/test', tags=['Тест',])  
@@ -105,7 +105,7 @@ def get_test():
 ```
 
 Подключаем его в основной файл
-```
+```python
 from test_router import router as t_router
 
 app = FastAPI()  
@@ -114,13 +114,13 @@ app.include_router(t_router)
 
 #### Typing
 - Дата
-```
+```python
 from datetime import date
 ```
 
 - Ограничения
 Пример GET-параметр `new_id`, который должен быть больше 1, но меньше 5
-```
+```python
 from fastapi import Query
 
 @app.get('/some')  
@@ -130,7 +130,7 @@ def getsome(new_id: int = Query(ge=1, le=5)):
 
 #### Работа с БД
 Создаём `db.py`
-```
+```python
 from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine  
 from sqlalchemy.orm import DeclarativeBase, sessionmaker  
   
@@ -153,7 +153,7 @@ class Base(DeclarativeBase):
 
 ###### Модели
 Создаём файл с моделями
-```
+```python
 from sqlalchemy import JSON, Column, Integer, String  
 from db import Base  
   
@@ -168,38 +168,38 @@ class MyUser(Base):
 #### SQLAlchemy + Alembic
 SQLAlchemy - это популярная ORM. Alembic для миграций
 
-```
+```bash
 pip install sqlalchemy alembic asyncpg
 ```
 
 Миграции
-```
+```bash
 alembic init migrations
 ```
 
 В появившейся папке `migrations` в файле `env.py` добавляем импорты
-```
+```python
 from db import Base, DATABASE_URL        
 from models import MyUser
 ```
 
 И также изменяем
-```
+```python
 target_metadata = Base.metadata
 ...
 config.set_main_option('sqlalchemy.url', f'{DATABASE_URL}?async_fallback=True')
 ```
 
 Проводим миграцию
-```
+```bash
 alembic revision --autogenerate -m "Initial migrations"
 ```
-```
+```bash
 alembic upgrade head
 ```
 
 Откатить миграцию
-```
+```bash
 alembic downgrade -1
 ```
 

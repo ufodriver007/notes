@@ -122,6 +122,91 @@ SELECT * FROM teacher UNION SELECT * FROM lesson
 |`NOW()`|дата и время сейчас
 |`NOW()::DATE`|дата сейчас
 
+#### AIOSQLite
+>[!info] Асинхронная обёртка для SQLite
+
+[Документация](https://aiosqlite.omnilib.dev/en/stable/)
+```
+pip install aiosqlite
+```
+
+Пример использования в AIOgram
+```
+import aiosqlite
+
+# Создаем соединение с базой данных  
+_db_connection = None  
+  
+async def init_db():  
+    global _db_connection  
+    _db_connection = await aiosqlite.connect('bot_db.sqlite')  
+    await _db_connection.execute('''  
+           CREATE TABLE IF NOT EXISTS users (           id INTEGER PRIMARY KEY,            telegram_id TEXT NOT NULL,            current_uid TEXT NOT NULL UNIQUE)''')  
+    await _db_connection.commit()  
+  
+async def get_db_connection():  
+    global _db_connection  
+    if _db_connection is None:  
+        await init_db()  
+    return _db_connection  
+  
+async def select_all() -> list[tuple[str, str]]:  
+    db = await get_db_connection()  
+    try:  
+        async with db.execute("SELECT telegram_id, current_uid FROM users") as cursor:  
+            result = await cursor.fetchall()  
+            return [(str(res[0]), str(res[1])) for res in result]  
+    except Exception as e:  
+        logger.error(f"Ошибка при получении всех пользователей в БД {e}")  
+        return []  
+  
+async def create_user(tg_id: str, current_uid: str):  
+    db = await get_db_connection()  
+    try:  
+        async with db.execute(f"INSERT INTO users (telegram_id, current_uid) VALUES (?, ?)", (tg_id, current_uid)) as cursor:  
+            await db.commit()  
+    except Exception as e:  
+        logger.error(f"Ошибка при создании пользователя в БД {e}")  
+  
+async def update_current_uid(tg_id: str, current_uid: str):  
+    db = await get_db_connection()  
+    try:  
+        async with db.execute("UPDATE users SET current_uid=? WHERE telegram_id=?", (current_uid, tg_id)) as cursor:  
+            await db.commit()  
+    except Exception as e:  
+        logger.error(f"Ошибка при обновлении пользователя в БД {e}")  
+  
+async def delete_user(tg_id: str):  
+    db = await get_db_connection()  
+    try:  
+        async with db.execute("DELETE FROM users WHERE telegram_id=?", (tg_id,)) as cursor:  
+            await db.commit()  
+    except Exception as e:  
+        logger.error(f"Ошибка при удалении пользователя в БД {e}")  
+  
+async def get_current_uid(tg_id: str) -> Optional[str]:  
+    db = await get_db_connection()  
+    try:  
+        async with db.execute("SELECT current_uid FROM users WHERE telegram_id=?", (tg_id,)) as cursor:  
+            result = await cursor.fetchone()  
+            if result:  
+                return str(result[0])  
+            else:  
+                return None  
+    except Exception as e:  
+        logger.error(f"Ошибка при получении current_uid из БД {e}")  
+        await cursor.close()  
+        return None
+```
+
+Вызываем `init_db()` в функции `main()`
+```
+...
+async def main() -> None:
+    await init_db()
+...
+```
+
 #### PostgreSQL
 Установка
 ```

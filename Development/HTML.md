@@ -1,6 +1,6 @@
 ![[Pasted image 20240115022944.png|300]]
 
-```
+```html
 <!DOCTYPE html>
 ```
 ```
@@ -36,7 +36,7 @@
 |`<footer>`|подвал
 
 Пример формы
-```
+```html
 <form action="/send-feddback/" method="POST">
     <p>Отправьте сообщение</p>
     <input type="text" name="name" placeholder="Ваше имя" />
@@ -46,7 +46,7 @@
 ```
 
 Пример таблицы
-```
+```html
 <table>  
   <tr>  
     <th>Month</th>  

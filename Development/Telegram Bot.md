@@ -6,12 +6,12 @@
 
 >[!warning] Храните токен в переменной окружения
 
-```
+```bash
 pip install python-dotenv
 ```
 Создаём файл `.env` и записываем туда все переменные окружения, которые будут добавляться каждый раз(не забываем закинуть его в `.gitignore`). В Python:
 
-```
+```python
 import os
 from dotenv import load_dotenv
 
@@ -20,7 +20,7 @@ PASSWORD = os.getenv('PASSWORD')
 ```
 
 #### Установка Aiogram 3
-``` 
+```bash
 pip install -U --pre aiogram                 # версия 3
 ```
 
@@ -52,7 +52,7 @@ https://api.telegram.org/bot1234567890:ASDF12345678qwerty/getMe
 ![[basics_middleware.webp]]
 >[!info] Чтобы не писать декораторы к каждой функции, типа `@dp.message_handler(commands='moderator')`, можно объеденить это одной функцией
 
-```
+```python
 def register_handlers_admin(dp: Dispatcher):
     dp.message.register(process_start_command, Command(commands=['start']))
     dp.message.register(process_help_command, Command(commands=['help']))
@@ -219,7 +219,7 @@ async def send_photo_echo(message: Message):
 |(d)filters|Пакет с кастомными фильтрами, если не хватает встроенных фильтров самого aiogram
 |(d)handlers|Пакет, в котором хранятся обработчики апдейтов.
 |(d)keyboards|Пакет с модулями, в которых хранятся и/или динамически формируются клавиатуры, отправляемые пользователям
-|(d)exicon|Пакет для хранения текстов - ответов бота(возможно на нескольких языках)
+|(d)lexicon|Пакет для хранения текстов - ответов бота(возможно на нескольких языках)
 |(d)midlewares|Пакет, в котором хранятся мидлвари, то есть программы, которые работают с апдейтами до того момента, как они попадут в хэндлер.
 |(d)models|Пакет с модулями для взаимодействия с базой данных
 |(d)services|Пакет с модулями для реализации какой-то бизнес-логики бота.
@@ -228,7 +228,7 @@ async def send_photo_echo(message: Message):
 |(d)utils|Пакет для хранения вспомогательных модулей
 
 #### Пример файла с конфигом
-```
+```python
 from dataclasses import dataclass
 from environs import Env
 
@@ -267,20 +267,20 @@ def load_config(path: str | None) -> Config:
 ```
 
 Теперь осталось только дописать в `bot.py`:
-```
+```python
 from config_data.config import load_config
 
 config = load_config('<путь к файлу .env>')
 ```
 
 И далее можно использовать `config` там, где нужно:
-```
+```python
 bot_token = config.tg_bot.token           # Сохраняем токен в переменную bot_token
 superadmin = config.tg_bot.admin_ids[0]   # Сохраняем ID админа в переменную superadmin
 ```
 
 #### Точка входа
-```
+```python
 import asyncio
 
 from aiogram import Bot, Dispatcher
@@ -316,13 +316,13 @@ if __name__ == '__main__':
 На роутеры можно вешать фильтры(например только администраторы или польз. из списка) и мидлвари.
 
 Вот пример фильтра на роутер:
-```
+```python
 router: Router = Router()
 router.message.filter(IsAdmin(config.tg_bot.admin_ids))
 ```
 
 В файле с хэндлером:
-```
+```python
 from aiogram import Router
  
 # Инициализируем роутер уровня модуля
@@ -335,7 +335,7 @@ async def process_start_command(message: Message):
 ```
 
 В точке входа:
-```
+```python
 # Регистриуем роутеры в диспетчере. ПОРЯДОК ВАЖЕН!
 dp.include_router(user_handlers.router)
 dp.include_router(other_handlers.router)
@@ -343,7 +343,7 @@ dp.include_router(other_handlers.router)
 
 #### Кнопки
 ###### Обычные кнопки
-```
+```python
 from aiogram.types import (KeyboardButton, ReplyKeyboardMarkup,
                               ReplyKeyboardRemove)
 
@@ -373,7 +373,7 @@ async def process_dog_answer(message: Message):
 ```
 
 ###### Расположение кнопок
-```
+```python
 from aiogram.utils.keyboard import ReplyKeyboardBuilder
 
 # инициализируем билдер
@@ -394,7 +394,7 @@ await message.answer(text='Вот такая получается клавиат
 ```
 
 ###### Специальные кнопки
-```
+```python
 contact_btn: KeyboardButton = KeyboardButton(
                                    text='Отправить телефон',
                                    request_contact=True)
@@ -408,9 +408,8 @@ poll_btn: KeyboardButton = KeyboardButton(
 ```
 
 ###### Кнопка для веб-приложения
-```
+```python
 from aiogram.types.web_app_info import WebAppInfo
-
 
 # Создаем кнопку
 web_app_btn: KeyboardButton = KeyboardButton(
@@ -432,7 +431,7 @@ async def process_web_app_command(message: Message):
 
 #### Инлайн кнопки
 ###### URL-кнопки(переводит в браузер по ссылке)
-```
+```python
 from aiogram.types import InlineKeyboardButton, InlineKeyboardMarkup
 
 # Создаем объекты инлайн-кнопок
@@ -457,7 +456,7 @@ async def process_start_command(message: Message):
 ```
 
 ###### Callback-кнопки
-```
+```python
 from aiogram.types import InlineKeyboardButton, InlineKeyboardMarkup
 from aiogram.filters import Text
 from aiogram.types import CallbackQuery
@@ -502,7 +501,7 @@ async def process_buttons_press(callback: CallbackQuery):
 - В хэндлере либо модифицируем сообщение (текст и/или кнопки), либо отправляем пустой ответ callback.answer(), чтобы у пользователя не было ощущения, что бот завис в задумчивости
 
 Также есть билдер и для инлайн кнопок:
-```
+```python
 from aiogram.utils.keyboard import InlineKeyboardBuilder
 
 # инициализируем билдер
@@ -519,10 +518,46 @@ kb_builder.add(*buttons)              # метод добавляет в стр�
 await message.answer(text='Вот такая получается клавиатура', reply_markup=kb_builder.as_markup())
 ```
 
+Пример. Прикрепляем к обычному сообщению инлайн клавиатуру и принимаем ответ
+```python
+# handlers
+@router.message(StateFilter(AuthorizationForm.input_uid_state))  
+async def phone_check(message: Message, state: FSMContext) -> None:
+    await message.answer("Для подтверждения нужно отправить код на номер телефона, указанный в договоре.", reply_markup=code_cancel_ikb())
+```
+
+```python
+# keyboards
+def code_cancel_ikb():  
+    keyboard = InlineKeyboardMarkup(inline_keyboard=[  
+        [InlineKeyboardButton(text=buttons["send_code"], callback_data="code")],  
+        [InlineKeyboardButton(text=buttons["cancel"], callback_data="cancel")]  
+    ])  
+    return keyboard
+```
+
+```python
+# handlers. Принимаем ответ
+@router.callback_query(F.data.startswith("cancel"))  
+async def cancel_callback(callback_query: CallbackQuery, state: FSMContext):
+    print(callback_query.data)        # Данные колбэка
+    await callback_query.answer('Отменено')  
+    await callback_query.message.delete()
+    await state.clear()  
+  
+    authorize_result: dict | bool = await is_authorized(str(callback_query.from_user.id))  
+    if authorize_result:  
+        await callback_query.message.answer(lexicon.START_MESSAGE, reply_markup=main_logged_in_kb())  
+    else:  
+        await callback_query.message.answer(lexicon.START_MESSAGE, reply_markup=main_kb())
+```
+
+
+
 #### Callback Factory
 Фабрику коллбэков удобно использовать тогда, когда требуется создавать динамические клавиатуры, меняющиеся в ходе жизни проекта. Например, если кнопки зависят от того, что в данный момент лежит в динамически меняющейся базе данных.
 
-```
+```python
 from aiogram.filters.callback_data import CallbackData
 
 class MyCallbackFactory(CallbackData, prefix='any'):
@@ -562,14 +597,14 @@ async def process_category_press(callback: CallbackQuery,
 ```
 
 И если сформировать объект фабрики таким образом:
-```
+```python
 my_callback_data_1 = GoodsCallbackFactory(category_id=2,
                                           subcategory_id=0,
                                           item_id=0)
 ```
 
 то callback будет таким:
-```
+```python
 print(my_callback_data_1.pack())       # goods|1|0|0
 ```
 
@@ -581,7 +616,7 @@ print(my_callback_data_1.pack())       # goods|1|0|0
 5. Использование незащищенной фабрики коллбэков - это потенциальная угроза безопасности для вашего сервиса, потому что недобросовестные пользователи могут подменять `callback_data`, отправляя вашему боту запросы через сервера телеграм с данными кнопок, которые вы пользователю не отправляли.
 
 #### Кнопка "Меню"
-```
+```python
 from aiogram.types import BotCommand
 
 # Создаем асинхронную функцию
@@ -606,7 +641,7 @@ if __name__ == '__main__':
     dp.startup.register(set_main_menu)
 ```
 ###### Удаление кнопки "Меню"
-```
+```python
 await bot.delete_my_commands()
 ```
 
@@ -619,11 +654,11 @@ Telegram поддерживает три способа разметки тек�
 ###### HTML
 >[!info] Параметр parse_mode указываем 1 раз при создании экземпляра Bot и/или в отдельном сообщении.
 
-```
+```python
 bot: Bot = Bot(BOT_TOKEN, parse_mode='HTML')
 ```
 
-```
+```python
 # Этот хэндлер будет срабатывать на команду "/html"
 @dp.message(Command(commands='html'))
 async def process_html_command(message: Message):
@@ -654,6 +689,10 @@ async def process_markdownv2_command(message: Message):
 ```
 
 ###### MarkdownV2
+```python
+update.message.reply_text('*_bold and italic_*', parse_mode='MarkdownV2')
+```
+
 ```
 *Жирный текст*
 _Наклонный текст_
@@ -689,7 +728,7 @@ https://www.unicode.org/emoji/charts/full-emoji-list.html
 #### Машина состояний(Конечный автомат)
 >[!info] Подробнее https://stepik.org/lesson/759409/step/5?unit=761425
 
-```
+```python
 from aiogram.filters import StateFilter
 from aiogram.filters.state import State, StatesGroup
 from aiogram.fsm.context import FSMContext
@@ -758,12 +797,12 @@ async def process_cancel_command(message: Message):
 - GLOBAL_USER — во всех чатах у одного и того же юзера будет один и тот же стейт и данные.
 
 Применение стратегии:
-```
+```python
 dp = Dispatcher(storage=MemoryStorage(), fsm_strategy=FSMStrategy.CHAT)
 ```
 
 #### Функция при запуске бота
-```
+```python
 async def on_startup():
     print('Bot started...')
 
@@ -771,9 +810,10 @@ dp.startup.register(on_startup)
 ```
 
 #### Действия по расписанию
-```
+```bash
 pip install aioschedule
-
+```
+```python
 import aioschedule
 
 dp.startup.register(on_startup) 
@@ -805,7 +845,7 @@ REQUEST->Outer middleware->Filters->Middleware->RESPONSE
                           (хэндлер)
 ```
 
-```
+```python
 from typing import Callable, Dict, Any, Awaitable
 from aiogram import BaseMiddleware
 from aiogram.types import TelegramObject
@@ -832,7 +872,7 @@ class SomeMiddleware(BaseMiddleware):
     
 Пример outer middleware, реагирующей на колбеки.
 
-```
+```python
 # Это будет outer-мидлварь на любые колбэки
 class WeekendCallbackMiddleware(BaseMiddleware):
     async def __call__(
@@ -854,22 +894,87 @@ class WeekendCallbackMiddleware(BaseMiddleware):
 
 Пример подключения middleware:
 1) inner-мидлварь на сообщения:
-```
+```python
 router = Router()
 router.message.filter(F.chat.type == "private")
 router.message.middleware(WeekendMessageMiddleware())  
 ``` 
 
 2) outer-мидлварь на любые колбэки
-```
+```python
 dp.callback_query.outer_middleware(WeekendCallbackMiddleware())
+```
+
+###### Throttling middleware
+Пример
+```python
+from typing import Any, Awaitable, Callable, Dict  
+from aiogram import BaseMiddleware  
+from aiogram.fsm.storage.redis import RedisStorage  
+from aiogram.types import Message, TelegramObject  
+from aiogram.dispatcher.flags import get_flag  
+from create_bot import config
+
+THROTTLING_RATES = {  
+    "default": config.throttling_rates.default,  
+    "heavy": config.throttling_rates.heavy,  
+    "sms": config.throttling_rates.sms,  
+    "billing_message": config.throttling_rates.billing_messages,  
+}  
+  
+# Сообщения для предупреждений  
+WARNING_MESSAGES = {  
+    "default": "Вы превысили лимит сообщений. Пожалуйста, подождите немного перед отправкой следующего сообщения.",  
+    "heavy": "Вы слишком часто запрашивате информацию. Пожалуйста, подождите немного.",  
+    "sms": "Вы отправляете слишком много SMS. Пожалуйста, подождите немного.",  
+    "billing_message": "Вы отправляете слишком много сообщений. Пожалуйста, подождите немного.",  
+}  
+  
+class ThrottlingMiddleware(BaseMiddleware):  
+    def __init__(self, storage: RedisStorage):  
+        self.storage = storage  
+  
+    async def __call__(  
+        self,  
+        handler: Callable[[Message, Dict[str, Any]], Awaitable[Any]],  
+        event: Message,  
+        data: Dict[str, Any]  
+    ) -> Any:  
+        # Получаем значение throttling_key из флагов  
+        throttling_key = get_flag(data, name="throttling_key", default="default")  
+        rate_limit, interval = THROTTLING_RATES.get(throttling_key, THROTTLING_RATES["default"])  
+  
+        user_id = event.from_user.id  
+        key = f"throttling:{user_id}:{throttling_key}"  
+        warning_key = f"{key}:warning_sent"  
+  
+        # Получаем текущее количество сообщений  
+        current_count = await self.storage.redis.get(key)  
+        current_count = int(current_count) if current_count else 0  
+  
+        if current_count >= rate_limit:  
+            # Проверяем, было ли уже отправлено предупреждающее сообщение  
+            warning_sent = await self.storage.redis.get(warning_key)  
+            if not warning_sent:  
+                # Если предупреждающее сообщение не было отправлено, отправляем его  
+                warning_message = WARNING_MESSAGES.get(throttling_key, WARNING_MESSAGES["default"])  
+                await event.answer(warning_message)  
+                # Устанавливаем флаг, что предупреждающее сообщение было отправлено  
+                await self.storage.redis.set(warning_key, "1", ex=interval)  
+            return  
+  
+        # Увеличиваем счетчик сообщений  
+        await self.storage.redis.incr(key)  
+        await self.storage.redis.expire(key, interval)  
+  
+        return await handler(event, data)
 ```
 
 #### Флаги
 >[!info] С помощью флагов можно пометить хэндлеры, не влезая в их внутреннюю структуру, чтобы затем что-то сделать в мидлварях, например, троттлинг.
 
 Пример мидлвари с флагом:
-```
+```python
 from aiogram.dispatcher.flags import get_flag
 from aiogram.utils.chat_action import ChatActionSender
 
@@ -895,6 +1000,6 @@ class ChatActionMiddleware(BaseMiddleware):
 ```
 
 И обозначение хэндлеров флагами:
-```
+```python
 @dp.message(<тут ваши фильтры>, flags={"long_operation": "upload_video_note"})
 ```

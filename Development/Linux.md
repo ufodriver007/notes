@@ -55,35 +55,35 @@
 - `--help`  ключ справки
 
 ###### grep
-```
+```bash
 $ grep [options] pattern [files]
 ```
 Поиск среди нескольких файлов:
-```
+```bash
 $ sudo grep -i err /var/log/messages
 ```
 Регистронезависимый поиск:
-```
+```bash
 $ grep -i [pattern] [file]
 ```
 Поиск слова:
-```
+```bash
 $ grep -w [pattern] [file]
 ```
 Вывод количества совпадений:
-```
+```bash
 $ grep -c [pattern] [file]
 ```
 Рекурсивный поиск:
-```
+```bash
 $ grep -r [pattern] *
 ```
 Вывод нумерации строк:
-```
+```bash
 $ grep -n [pattern] [file]
 ```
 Вывод списка файлов:
-```
+```bash
 $ grep -l [pattern] [file]
 ```
 
@@ -201,15 +201,15 @@ WantedBy=multi-user.target
 >[!info] В первой строчке секции Unit можно написать краткое описание исполняемого файла, вторая отвечает за возможность запуска данного скрипта в многопользовательском режиме. В секции Service, Type отвечает за однократный запуск (при значении idle), а ExecStart - это путь к исполняемому файлу.
 
 3. Даем права на чтение всем пользователям:
-```
+```bash
 sudo chmod 644 /lib/systemd/system/hello.service
 ```
 4. Обновляем список доступных сервисов systemd:
-```
+```bash
 sudo systemctl daemon-reload
 ```
 5. Включаем автозагрузку сервиса hello:
-```
+```bash
 sudo systemctl enable hello.service
 ```
 
@@ -227,7 +227,7 @@ sudo systemctl enable hello.service
 
 ###### Автозагрузка через CRON
 Откроем файл для редактирования
-```
+```bash
 crontab -e
 ```
 
@@ -491,7 +491,7 @@ auto enp0s3              (загружать интерфейс enp0s3 при з
 iface enp0s3 inet dhcp   (интерфейс enp0s3 с типом dhcp)
 ```
 И перезапускаем сетевой сервис:
-```
+```bash
 sudo service networking restart
 ```
 
@@ -507,10 +507,10 @@ network 192.168.1.0
 broadcast 192.168.1.255
 ```
 И перезапускаем сетевой сервис:
-```
+```bash
 sudo service networking restart
 ```
-```
+```bash
 ifconfig eth0 192.168.1.1 netmask 255.255.255.0      выставить адрес и маску для интерфейса eth0
 dhclient eth0                                        активировать в режиме dhcp
 ```
@@ -548,15 +548,15 @@ print("Hello world")
 
 #### Планировщик CRON
 Добавление пользователя в группу crontab(чтобы cron отслеживал)
-```
+```bash
 sudo usermod -a -G crontab ufodriver
 ```
 Запускаем cron
-```
+```bash
 sudo cron
 ```
 Заходим в cron
-```
+```bash
 crontab -e
 ```
 Команда
@@ -624,7 +624,7 @@ crontab -e
 
 #### RASPBERRY
 Подключение по ssh:
-```
+```bash
 ssh pi@[IP Address]
 ```
 логин: `raspberry`
@@ -633,7 +633,7 @@ ssh pi@[IP Address]
 температура процессора: `vcgencmd measure_temp`
 
 ###### Установка raspi-config в Ubuntu
-```
+```bash
 wget https://archive.raspberrypi.org/debian/pool/main/r/raspi-config/raspi-config_20200601_all.deb -P /tmp
 sudo apt-get install libnewt0.52 whiptail parted triggerhappy lua5.1 alsa-utils -y
 # Auto install dependancies on eg. ubuntu server on RPI
@@ -704,11 +704,11 @@ sudo dpkg -i /tmp/raspi-config_20200601_all.deb
 |`Ctrl-стрелка`|Изменить размер окна
 
 #### WIREGUARD
-```
+```bash
 sudo apt-get install wireguard
 ```
 закинуть файл конфига в `/etc/wireguard` и переименовать, например в `wg0.conf`
-```
+```bash
 sudo wg-quick up wg0                     поднять туннель
 sudo wg-quick down wg0                   закрыть туннель
 ```
@@ -728,7 +728,7 @@ sudo wg-quick down wg0                   закрыть туннель
 |`cat /etc/wireguard/wg.conf`|конфиг сервера
 
 #### Смена порта SSH
-```
+```bash
 sudo nano /etc/ssh/sshd_config
 ```
 Меняем настройку `Port`
@@ -736,12 +736,12 @@ sudo nano /etc/ssh/sshd_config
 Port 10022
 ```
 Затем
-```
-systemctl daemon-reload
+```bash
+sudo systemctl daemon-reload
 ```
 И перезапускаем службу
-```
-systemcl restart ssh
+```bash
+sudo systemcl restart ssh
 ```
 
 #### SSH ключи
@@ -755,17 +755,17 @@ systemcl restart ssh
 >[!info] `/home/username/.ssh/authorized_keys` место хранения авторизированных публичных SSH-ключей
 
 Авторизация по ключу. Чтобы каждый раз не указывать путь, достаточно скопировать закрытый ключ в папку `/home/имя пользователя/.ssh`
-```
+```bash
 ssh -i <путь до приватного ключа> username@server IP
 ```
 
 Файл конфигурации ssh. Для отключения аутентификации по паролю `PasswordAuthentication no` и далее `sudo service ssh restart`
-```
+```bash
 sudo nano /etc/ssh/sshd_config
 ```
 
 Закрытый ключ. Скорее всего, вам никогда не придется просматривать свой закрытый ключ
-```
+```bash
 cat ~/.ssh/id_rsa
 ```
 
@@ -779,12 +779,12 @@ cat ~/.ssh/id_rsa
 
 #### Передача файлов по SSH
 ###### Копирование файла с сервера
-```
+```bash
 scp root@123.123.123.123:/home/test.txt /directory
 ```
 
 ###### Загрузка файла на сервер
-```
+```bash
 scp /home/test.txt root@123.123.123.123:/directory
 ```
 
@@ -796,21 +796,21 @@ ufw enable && ufw allow 22/tcp
 
 #### Запрет пинга
 Сначала открываем нужные порты на сервере(если стоит VPN например)
-```
+```bash
 ufw allow 51820
 ```
 Далее открываем конфиг файерволла
-```
+```bash
 nano /etc/ufw/before.rules
 ```
 В блок `# ok icmp codes for INPUT` добавляем сточку
-```
+```bash
 -A ufw-before-input -p icmp --icmp-type source-quench -j DROP
 ```
 Во всех строчках этого кода `ACCEPT` меняем на `DROP` и также меняем в блоке `# ok icmp code for FORWARD`
 
 Перезапускаем файервол
-```
+```bash
 ufw disable && ufw enable
 ```
 
@@ -818,32 +818,32 @@ ufw disable && ufw enable
 #### Fail2ban
 >[!info] Инструмент, который блокирует злоумышленнику доступ к SSH-серверу. Анализируя журналы, `fail2ban` обнаруживает повторяющиеся неудачные попытки аутентификации и автоматически устанавливает правила брандмауэра для отбрасывания трафика, исходящего с IP-адреса злоумышленника.
 
-```
+```bash
 sudo apt install fail2ban
 ```
 
 Проверка запущена ли служба
-```
+```bash
 sudo systemctl status fail2ban
 ```
 
 Какие jails активны
-```
+```bash
 sudo fail2ban-client status
 ```
 
 Статистика по sshd
-```
+```bash
 sudo fail2ban-client status sshd
 ```
 
 Файл конфигурации(может перезатереться при обновлении)
-```
+```bash
 nano /etc/fail2ban/jail.conf
 ```
 
 Но **рекомендуется** создать `jail.local`. В него вставляем только те настройки, которые нужно изменить. Правила этого файла перезаписывают правила файла `jail.conf`
-```
+```bash
 sudo nano /etc/fail2ban/jail.local
 ```
 
@@ -861,33 +861,33 @@ ignoreip = 127.0.0.1/8 192.168.1.100
 ```
 
 Список белого листа
-```
+```bash
 sudo fail2ban-client get sshd ignoreip
 ```
 
 Разблокировка IP вручную
-```
+```bash
 sudo fail2ban-client set sshd unbanip 192.168.1.200
 ```
 
 Перезапуск службы
-```
+```bash
 sudo systemctl restart fail2ban
 ```
 
 #### Speedtest CLI
 Установка с помощью Python
-```
+```bash
 python3 -m venv venv
 ```
-```
+```bash
 source venv/bin/activate
 ```
-```
+```bash
 pip install speedtest-cli
 ```
 Запуск
-```
+```bash
 speedtest-cli --secure
 ```
 
@@ -915,7 +915,7 @@ speedtest-cli --secure
 - Все просто, вы вносите в эти файлы имя программы и хосты с которых доступ к программе будет разрешен или запрещен.
 - Сначала срабатывают разрешительные правила в /etc/hosts.allow и, если совпадений не было найдено, то система перейдет в /etc/hosts.deny для поиска правил, блокирующих соединение. Если нигде не было найдено совпадений, доступ разрешается.
 - Проверить, собрана ли ваша программа с поддержкой libwrap можно командой
-```
+```bash
 ldd /usr/sbin/sshd | grep libwrap
 ```
 
@@ -984,17 +984,17 @@ sshd: ALL
 6. -j – выбрать действие при подтверждении правила.
 
 Просмотр всех правил
-```
+```bash
 iptables -L -n --line-numbers
 ```
 
 Очистка правил
-```
+```bash
 sudo iptables -F
 ```
 
 Сохранение правила
-```
+```bash
 sudo /sbin/iptables-save
 ```
 

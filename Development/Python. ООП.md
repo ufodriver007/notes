@@ -9,13 +9,13 @@
 >[!info] Композиция - это встраивание одного класса в другой
 
 Создание класса
-```
+```python
 class User:
     pass
 ```
 
 Атрибуты класса
-```
+```python
 class User:
     color = 'red'
 
@@ -24,17 +24,17 @@ User.color     # вызов атрибута
 ```
 
 Создание экземпляра класса
-```
+```python
 a_cat = Cat()
 ```
 
 Удаление экземпляра класса
-```
+```python
 del a_cat
 ```
 
 Установка атрибутов объекта
-```
+```python
 a_cat.age = 2
 a_cat.name = Nik
 ```
@@ -43,7 +43,7 @@ a_cat.name = Nik
 Ещё один вариант задания структуры — dataclass
 >[!info] Уменьшает объём шаблонного кода. Вместо того чтобы вручную определять методы `__init__`, `__repr__`, `__eq__ `и другие, достаточно просто объявить поля данных, а dataclass автоматически сгенерирует необходимый код.
 
-```
+```python
 from dataclasses import dataclass
 
 @dataclass
@@ -52,7 +52,7 @@ class Coordinates:
     latitude: float
 ```
 Можно сделать класс неизменяемым
-```
+```python
 @dataclass(slots=True, frozen=True)
 class CoordinatesDT2:
     longitude: float
@@ -70,7 +70,7 @@ class CoordinatesDT2:
 `return super().__new__(cls)` для вызова вручную из собственного метода `__new__`
 
 Можно использовать для паттерна "Singleton"(когда существует ровно 1 экземпляр класса):
-```
+```python
 class Singleton:
     __instance = None                            # хранит ссылку на экхемпляр класса
 
@@ -85,24 +85,24 @@ class Singleton:
 
 #### `__init__()`
 Инициализация(не конструктор)
-```
+```python
 def __init__(self):              # self означает что передаётся экземпляр этого класса
     pass
 ```
 
 Например:
-```
-   class Cat():
-      def __init__(self, name):
-         self.name = name
+```python
+class Cat():
+    def __init__(self, name):
+        self.name = name
 
-   a_cat = Cat("Nik")
+a_cat = Cat("Nik")
 ```
 
 Если переопределяется метод `__init__` для потомка, то родительский метод больше САМ
  не вызывается. Надо его вызывать вручную.
-```
- class Volvo(Car):
+```python
+class Volvo(Car):
     def __init__(self):
         super().__init__(self)       # метод super() вызывает родительскую версию любого метода
         print("new code...")
@@ -111,13 +111,13 @@ def __init__(self):              # self означает что передаёт
 
 #### `__del__()`
 Код, который выполнится при удалении объекта. "финализатор"
-```
+```python
 def __del__(self):
     pass
 ```
 
 #### Переменные класса и переменные экземпляра
-```
+```python
 class Dog:  
     num_legs = 4  # Переменная класса  
   
@@ -142,7 +142,7 @@ print(Dog.num_legs)                                          # 6
 - <экземпляр класса>.\__class__.<переменная класса>
 
 #### Наследование
-```
+```python
 class Volvo(Car):
    pass
 ```
@@ -166,7 +166,7 @@ class Volvo(Car):
 например  `print(super.mro())`
 
 #### Свойства для вычисляемых значений
-```
+```python
 class Circle():
     def __init__(self, radius):
         self.radius = radius
@@ -192,7 +192,7 @@ class Circle():
 >[!info] Python предлагает именовать атрибуты, которые не должны быть видимы за пределами определения их классов как __
 
 Можно гибко и удобно работать с приватными свойствами с помощью декоратора `@property`
-```
+```python
 class Duck():
     def __init__(self, input_name):
         self.__name = input_name
@@ -227,7 +227,7 @@ Inside the setter
 методы объекта, и первым их аргументом должен быть self
 ###### Методы @classmethod
 это методы класса, и первым их аргументом должен быть cls. Позволяет получать не экземпляр класса в качестве параметра, а сам класс. Влияет на весь класс целиком.
-```
+```python
 class A():
     count = 0
     def __init__(self):
@@ -242,7 +242,7 @@ class A():
 ###### Статические методы @staticmethod
 Статические методы определяются директивой @staticmethod
 Позволяет не получать экземпляр класса в кач. параметра(обычная функция, но в классе)
-```
+```python
 @staticmethod
 def func():
     pass
@@ -262,7 +262,7 @@ def func():
 >  Мы не можем напрямую создать объект абстрактного класса
 >  Классы-наследники должны реализовать все абстрактные методы абстрактного класса.
 
-```
+```python
 from abc import ABC, abstractmethod
 
 class Base(ABC):
@@ -278,7 +278,7 @@ class Base(ABC):
 
 #### Моносостояние
 Используя паттерн "Моносостояние", можно заставить все экземпляры класса иметь общие атрибуты
-```
+```python
 class ThreadData:
     __shared_attrs = {
       'name': 'thread_1',

@@ -3,10 +3,11 @@
 [Установка на Linux](https://redis.io/docs/latest/operate/oss_and_stack/install/install-redis/install-redis-on-linux/)
 [Документация общая](https://redis.io/docs/latest/develop/clients/redis-py/)
 [Документация Redis-py](https://redis-py.readthedocs.io/en/stable/)
+[Учебник по Redis](https://python-scripts.com/redis)
 
 >[!info] [Redis](http://redis.io/) (Remote Dictionary Service) — это опенсорсный сервер баз данных типа ключ-значение. Точнее всего описать Redis можно, сказав, что это — сервер структур данных. 
 
-![[2ccbd1d1db0adfe14542fa9c85ed1aa7.jpeg]]
+![[2ccbd1d1db0adfe14542fa9c85ed1aa7.jpeg|500]]
 
 Типы данных поддерживаемые Redis:
 
@@ -32,6 +33,7 @@ pip install redis
 
 Пример для подключения в `AIOGram`
 ```python
+from aiogram import Dispatcher
 from aiogram.fsm.storage.redis import RedisStorage
 
 storage = RedisStorage.from_url('redis://HOST:6379/0')
@@ -40,6 +42,9 @@ storage = RedisStorage.from_url('redis://HOST:6379/0')
 storage = RedisStorage.from_url('redis://username:password@193.3.168.217:6379/0')
 # 0 - это номер базы данных. По умолчанию в Redis баз данных 16 штук (от 0 до 15).
 # Число можно увеличить через config.
+
+dp: Dispatcher = Dispatcher(storage=storage)
+dp.message.middleware.register(ThrottlingMiddleware(storage=storage))
 ```
 
 >[!tip] **Если вы не добавляли пользователя отдельно, то его username = "default"**
@@ -95,7 +100,7 @@ print(r.lrange('cars', 0, -1))     # [b'BWM', b'Toyota', b'Toyota', b'KIA']
 print(r.lpop('cars'))              # Возврат слева и удаление     b'BWM'  
 print(r.llen('cars'))              # длина списка  
   
-r.lmove('cars', 'sold', 'LEFT', 'LEFT')   # перегести значение из одного списка в другой
+r.lmove('cars', 'sold', 'LEFT', 'LEFT')  # перенести значение из одного списка в другой
 
 r.delete('sold')                   # удаление
 ```

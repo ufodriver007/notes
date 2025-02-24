@@ -1,36 +1,36 @@
 ![[js.jpg|300]]
 
 Однострочный комментарий
-```
+```js
 // однострочный комментарий
 ```
 
 Многострочный комментарий
-```
+```js
 /* многострочный
       комментарий */
 ```
 
 Подключение JavaScript к странице
-```
+```html
 <script>...Скрипт перед закрывающим тегом body...</script> 
-       либо
+       <!--либо -->
 <script src="js/main.js"></script>
 ```
 
 Асинхронная подгрузка внешнего скрипта
-```
+```html
 <script async src="js/main.js"></script>
-// Т.е. будет загружаться HTML, одновременно с ним JavaScript.
-// Как только файл js будет загружен, загрузка HTML прекратиться до полного выполнения js скрипта.
+<!-- Т.е. будет загружаться HTML, одновременно с ним JavaScript. 
+<!-- Как только файл js будет загружен, загрузка HTML прекратиться до полного выполнения js скрипта.
 ```
 
 
 Отложенный запуск асинхронной подгрузки
-```
+```html
 <script defer src="js/main.js"></script>
-// Т.е. будет загружаться HTML, одновременно с ним JavaScript.
-// Код скрипта будет выполнен только после полной загрузки HTML
+<!-- Т.е. будет загружаться HTML, одновременно с ним JavaScript.
+<!-- Код скрипта будет выполнен только после полной загрузки HTML
 ```
 
 ```javascript
@@ -47,7 +47,7 @@ const sum = 5 + 8;                                // Объявление кон
 
 #### Типы данных
 - **String**. представляет строку. Каычки любые. Встраивание выражения в строку(только косые кавычки): 
-```
+```js
 text = `Name: ${username}`
 ```
 - **Number**. представляет числовое значение
@@ -57,7 +57,7 @@ text = `Name: ${username}`
 - **Null**. представляет одно специальное значение - `null` и указывает на отсутствие значения
 - **Symbol**. представляет уникальное значение, которое часто применяется для обращения к свойствам сложных объектов
 - **Object**. представляет комплексный объект. Например: 	
-```
+```js
 const user = {};
 const user = {name: "Tom", age:24};
 ```
@@ -212,7 +212,7 @@ for (свойство in объект) {
 ```
 
 ###### FOR-OF(для перебора наборов данных(строк, массивов))
-```
+```js
 const text = "Hello";
 for(char of text){
      console.log(char);
@@ -496,11 +496,11 @@ alert( document.head.nextSibling ); // HTMLBodyElement
 ###### Получение произвольных элементов
 ```javascript
 document.getElementById(id)
-document.querySelector()                 # возвращает первый элемент, соответствующий данному
-                                         #   CSS-селектору
-document.querySelectorAll(css)           # возвращает все элементы внутри elem, 
-                                         #   удовлетворяющие данному CSS-селектору.
-                                         #   например document.querySelectorAll('.chapter')
+document.querySelector()                 // возвращает первый элемент, соответствующий данному
+                                         //   CSS-селектору
+document.querySelectorAll(css)           // возвращает все элементы внутри elem, 
+                                         //   удовлетворяющие данному CSS-селектору.
+                                         //   например document.querySelectorAll('.chapter')
 elem.getElementsByClassName(className)
 document.getElementsByTagName('input')
 ```
@@ -515,7 +515,7 @@ document.getElementsByTagName('input')
 
 ```javascript
 let punkt = document.querySelector('input');
-punkt.setAttribute('id', 'fiva');           # теперь у инпута будет id="fiva"
+punkt.setAttribute('id', 'fiva');           // теперь у инпута будет id="fiva"
 ```
 
 ###### Создание элемента

@@ -1,36 +1,36 @@
 [[Парсинг]]
-```
+```bash
 pip install Scrapy
 ```
 
 ###### Решение проблемы ==ModuleNotFoundError: No module named '_lzma'==
 1. Установите пакет в систему
-```
+```bash
 sudo apt-get install liblzma-dev
 ```
 
 2. Установите пакет в ваш проект Python
-```
+```bash
 pip install backports.lzma
 ```
 
 3. Имените файл 'lzma.py'
-```
+```bash
 sudo nano /usr/local/lib/python3.12/lzma.py
 ```
 В нём надо заменить строки
-```
+```python
 from _lzma import *
 from _lzma import _encode_filter_properties, _decode_filter_properties
 ```
 На эти
-```
+```python
 from backports.lzma import *
 from backports.lzma import _encode_filter_properties, _decode_filter_properties
 ```
 
 ###### Простейший пример
-```
+```python
 import scrapy  
   
 class QuotesSpider(scrapy.Spider):  
@@ -52,13 +52,13 @@ class QuotesSpider(scrapy.Spider):
 ```
 
 Запустить можно так
-```
+```python
 scrapy runspider main.py -o quotes.json
 ```
 В `quotes.json` паук соберёт все результаты
 
 ###### Создание проекта
-```
+```python
 scrapy startproject <project_name>
 ```
 После этого фреймворк сгенерирует шаблон проекта
@@ -87,7 +87,7 @@ scrapy startproject <project_name>
 Все, что вы могли бы сделать с помощью **Python Requests/BeautifulSoup scraper,** можно сделать и с помощью **Scrapy Spider** .
 
 Пример паука
-```
+```python
 import scrapy
 
 class BooksSpider(scrapy.Spider):
@@ -112,7 +112,7 @@ class BooksSpider(scrapy.Spider):
 ```
 
 Чтобы запустить его
-```
+```python
 scrapy crawl books
 ```
 
@@ -124,7 +124,7 @@ scrapy crawl books
 
 ###### Scrapy Items
 Предназначены для хранения и обработки данных. Похоже на модели в `Django`.
-```
+```python
 # items.py
 
 from scrapy.item import Item, Field
@@ -138,7 +138,7 @@ class BookItem(Item):
 
 Не забываем импортировать в файле паука наш `Item`
 Внутри вашего паука, вместо того, чтобы выдавать словарь, вы создаете новый элемент с извлеченными данными, прежде чем выдавать их.
-```
+```python
 import scrapy
 from bookscraper.items import BookItem   
 
@@ -174,7 +174,7 @@ class BooksSpider(scrapy.Spider):
 - Хранить наши данные в базах данных, очередях, файлах или хранилищах объектов.
 
 Например, вот конвейер элементов, который сохраняет наши данные в базе данных Postgres
-```
+```python
 # pipelines.py
 
 import psycopg2
@@ -228,7 +228,7 @@ class PostgresDemoPipeline:
 -  преобразовать 2 поля в нижний регистр; убрать символ функта и привести цену к типу `float`;
 - извлечь число доступных книг на складе из фразы;
 - преобразовать количество отзывов в целое число
-```
+```python
 from itemadapter import ItemAdapter
 
 class BookscraperPipeline:
@@ -273,7 +273,7 @@ class BookscraperPipeline:
 ```
 
 Чтобы активировать конвейер элементов, нам просто нужно добавить следующий код в наш `settings.py`файл:
-```
+```python
 ## settings.py
 
 ITEM_PIPELINES = {
@@ -288,7 +288,7 @@ ITEM_PIPELINES = {
 Это специальные хуки, которые располагаются между `Scrapy Engine` и `Downloader` и обрабатывают запросы по мере их передачи от Engine к Downloader, а также ответы по мере их передачи от `Downloader` к `Engine`.
 
 По умолчанию в Scrapy включены следующие `Downloader Middlewares`
-```
+```python
 # settings.py
 
 DOWNLOADER_MIDDLEWARES_BASE = {
@@ -320,7 +320,7 @@ DOWNLOADER_MIDDLEWARES_BASE = {
 - Управление файлами cookie, кэшами и сжатием ответов
 
 Вы можете отключить любой из этих промежуточных программ по умолчанию, установив его `none`в своем `settings.py`файле. Вот пример отключения **RobotsTxtMiddleware** .
-```
+```python
 # settings.py
 
 DOWNLOADER_MIDDLEWARES = {
@@ -336,7 +336,7 @@ DOWNLOADER_MIDDLEWARES = {
 - молча отбрасывать некоторые запросы
 
 Вот пример вставки нашего собственного промежуточного ПО для использования прокси со всеми вашими запросами. Мы создадим это в нашем `middlewares.py`файле
-```
+```python
 ## middlewares.py
 
 import base64
@@ -362,7 +362,7 @@ class MyProxyMiddleware(object):
 ```
 
 Мы включим его в вашем `settings.py`файле и укажем данные вашего прокси-подключения
-```
+```python
 ## settings.py
 
 PROXY_USER = 'username'
@@ -378,7 +378,7 @@ DOWNLOADER_MIDDLEWARES = {
 - ==Spider Middlewares==
 Представляет собой специальные хуки, которые располагаются между `Scrapy Engine` и `Spiders` и обрабатывают входные данные (ответы) и выходные данные (элементы и запросы) `Spider.`
 По умолчанию в Scrapy включены следующие `Middlewares`
-```
+```python
 # settings.py
 
 SPIDER_MIDDLEWARES_BASE = {
@@ -399,7 +399,7 @@ Spider Middlewares используется для:
 - вызов `errback` вместо `callback` для некоторых запросов на основе содержимого ответа
 
 Пример отключения **RobotsTxtMiddleware** .
-```
+```python
 # settings.py
 
 SPIDER_MIDDLEWARES = {
@@ -413,7 +413,7 @@ SPIDER_MIDDLEWARES = {
 Вы можете изменить настройки для всего проекта, обновив `settings.py`файл, или для каждого паука отдельно, добавив `custom_settings`к каждому файлу `spider`.
 
 Вот пример добавления настройки в паука, чтобы он сохранял извлеченные данные в `data.csv`
-```
+```python
 class BooksSpider(scrapy.Spider):  
 	name = 'books'  
 	custom_settings = {  
@@ -429,13 +429,13 @@ Scrapy предоставляет несколько различных типо
 - **SitemapSpider —** разработан для извлечения URL-адресов из карты сайта.
 
 Чтобы создать нового универсального паука, просто выполните команду **genspider** :
-```
+```bash
 # syntax is --> scrapy genspider <name_of_spider> <website> 
 $ scrapy genspider bookspider books.toscrape.com
 ```
 
 Пример **genspider**
-```
+```python
 import scrapy
 
 class BookspiderSpider(scrapy.Spider):
@@ -455,18 +455,18 @@ class BookspiderSpider(scrapy.Spider):
 >[!info] Чтобы начать использовать этот Spider, нам просто нужно начать вставлять наш код синтаксического анализа в `parse`функцию.
 
 Когда будет готов паук, можно будет запустить его
-```
+```bash
 scrapy crawl bookspider
 ```
 
 Если мы хотим сохранить данные в файл JSON, мы можем использовать `-O`опцию, за которой следует именем файла.
 
-```
+```bash
 scrapy crawl bookspider -O myscrapeddata.json
 ```
  
 Пример паука собирающего информацию на нескольких страницах
-```
+```python
 import scrapy
 
 class BookspiderSpider(scrapy.Spider):
@@ -493,15 +493,15 @@ class BookspiderSpider(scrapy.Spider):
 ```
 
 ###### Scrapy shell
-```
+```bash
 scrapy shell
 ```
 
-```
+```bash
 fetch('https://books.toscrape.com/')
 ```
 
-```
+```bash
 response.css('article.product_pod')
 ```
 
@@ -511,28 +511,28 @@ response.css('article.product_pod')
 
 ==Различие JSON и JSON lines==
 JSON
-```
+```json
 [  
 	{"name": "Color TV", "price": "1200"},  
 	{"name": "DVD player", "price": "200"}  
 ]
 ```
 JSON lines
-```
+```json
 {"name": "Color TV", "price": "1200"}  
 {"name": "DVD player", "price": "200"}
 ```
 
 1. Если мы хотим сохранить данные в файл JSON, мы можем использовать `-O`опцию, за которой следует именем файла.
 
-```
+```bash
 scrapy crawl bookspider -o bookspider_data.json
- ИЛИ
+ # ИЛИ
 scrapy crawl bookspider -o bookspider_data.jsonl  # json lines
 ```
 
 Или сохранить в csv файл
-```
+```bash
 scrapy crawl bookspider -O myscrapeddata.csv
 ```
 
@@ -541,7 +541,7 @@ scrapy crawl bookspider -O myscrapeddata.csv
 -> Большая `O` Заменяет любой существующий файл с тем же именем текущими данными.
 
 2. Настройки `settings.py`
-```
+```python
 # settings.py 
 
 FEEDS = {
@@ -551,7 +551,7 @@ FEEDS = {
 [Полный список настроек](https://docs.scrapy.org/en/stable/topics/feed-exports.html#feeds)
 
 Также это можно настроить в  каждом отдельном пауке, установив `custom_setting`в файле spider
-```
+```python
 # bookspider.py 
 
 import scrapy
@@ -578,12 +578,12 @@ class BookSpider(scrapy.Spider):
 
 ###### Сохранение данных в БД
 1. Устанавливаем драйвер БД
-```
+```bash
 pip install psycopg2
 ```
 
 2. Настраиваем конвейер
-```
+```python
 # pipelines.py
 
 import psycopg2
@@ -682,7 +682,7 @@ class SaveToPostgresPipeline:
 ```
 
 3. Активируем конвейер. Для этого включаем его в `settings.py`
-```
+```python
 # settings.py
 
 ITEM_PIPELINES = {
@@ -700,14 +700,14 @@ ITEM_PIPELINES = {
 
 ###### Установка поддельного User-Agent
 1. Можно установить `User-Agent` в `settings.py`
-```
+```python
 ## settings.py
 
 USER_AGENT = 'Mozilla/5.0 (iPad; CPU OS 12_2 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148'
 ```
 
 2.  Задать user-agent для каждого запроса, который делает ваш паук, определив user-agent в заголовках вашего запроса.
-```
+```python
 ## myspider.py
 
 def start_requests(self):
@@ -717,7 +717,7 @@ def start_requests(self):
 ```
 
 Пример ротации данных `User-Agent`
-```
+```python
 ## myspider.py
 
 import random
@@ -743,7 +743,7 @@ def start_requests(self):
 http://headers.scrapeops.io/v1/user-agents?api_key=YOUR_API_KEY
 ```
 Пример ответа
-```
+```json
 {
   "result": [
     "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/13.0.5 Safari/605.1.15",
@@ -761,7 +761,7 @@ http://headers.scrapeops.io/v1/user-agents?api_key=YOUR_API_KEY
 ```
 
 Лучший способ интегрции - создать Middleware
-```
+```python
 ## middlewares.py
 
 from urllib.parse import urlencode
@@ -806,7 +806,7 @@ class ScrapeOpsFakeUserAgentMiddleware:
         request.headers['User-Agent'] = random_user_agent
 ```
 А затем включим его в `settings.py`файле нашего проекта
-```
+```python
 ## settings.py
 
 SCRAPEOPS_API_KEY = 'YOUR_API_KEY'
@@ -825,7 +825,7 @@ http://headers.scrapeops.io/v1/browser-headers?api_key=YOUR_API_KEY
 ```
 
 Лучший способ интегрции - опять таки создать Middleware
-```
+```python
 ## middlewares.py
 
 from urllib.parse import urlencode
@@ -870,7 +870,7 @@ class ScrapeOpsFakeBrowserHeaderAgentMiddleware:
         request.headers = random_browser_header
 ```
 А затем включим его в `settings.py`файле нашего проекта
-```
+```python
 ## settings.py
 
 SCRAPEOPS_API_KEY = 'YOUR_API_KEY'
@@ -897,7 +897,7 @@ pip install scrapy-rotating-proxies
 ```
 
 Подключаем в настройках
-```
+```python
 ## settings.py
 
 ## Insert Your List of Proxies Here
@@ -916,7 +916,7 @@ DOWNLOADER_MIDDLEWARES = {
 }
 ```
 Всё. В качестве альтернативы можно указать не список с прокями, а файл
-```
+```python
 ROTATING_PROXY_LIST_PATH = '/my/path/proxies.txt'
 ```
 
@@ -929,7 +929,7 @@ ROTATING_PROXY_LIST_PATH = '/my/path/proxies.txt'
 ```
 При работе с такими прокси НЕ следует использовать `Middleware` для rotation  proxy
 Просто подключаем такие прокси в пауке
-```
+```python
 ## your_spider.py
 
 def start_requests(self):

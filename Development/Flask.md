@@ -14,7 +14,7 @@
 
 Минимальное WSGI-приложение, то есть приложение, которое поддерживает стандарт WSGI, выглядит примерно так:
 
-```
+```python
 def app(environ, start_response):
     data = b"Hello, World!\n"
     start_response("200 OK", [
@@ -27,16 +27,16 @@ def app(environ, start_response):
 Все современные веб-фреймворки в Python поддерживают стандарт WSGI, то есть предоставляют на верхнем уровне этот `callable` объект — `app` в Flask, wsgi модуль в Django. А все WSGI-серверы умеют с этим объектом работать. Некоторые веб-серверы, как `nginx`, не поддерживают стандарт, но все равно умеют общаться с WSGI совместимыми (gunicorn, uWSGI)
 
 #### Установка
-```
+```bash
 pip install Flask
 ```
 
-```
+```python
 from flask import Flask
 ```
 
 #### Это callable WSGI-приложение
-```
+```python
 app = Flask(__name__)          # указываем имя своего приложения, чтобы Flask знал, где искать шаблоны и статические файлы
 
 @app.route('/')
@@ -46,25 +46,25 @@ def hello_world():
 
 
 Запуск `dev` сервера:
-```
+```bash
 flask --app example --debug run --port 8000
 ```
 
 
 ##### Методы HTTP
 1) Можно передавать как аргумент декоратора route:
-```
+```python
 @app.route('/', methods=['GET', 'POST'])
 ```
 2) Можно использовать отдельные декораторы:
-```
+```python
 @app.get('/')
-    или
+    # или
 @app.post('/')
 ```
 
 Посмотреть карту маршрутов:
-```
+```bash
 export FLASK_APP=example:app   # функция app в example.py
 python -m flask routes
 ```
@@ -74,7 +74,7 @@ python -m flask routes
 И запрос и ответ в Flask представлены двумя объектами, обратиться к которым можно внутри каждого
  обработчика маршрута. Глобальный объект `request` используется, чтобы извлекать данные запроса.
    
-```
+```python
 from flask import request
 
 @app.route('/')
@@ -85,7 +85,7 @@ def hello_world():
 
 `response`, чтобы формировать ответ и в процессе работы наполнять данными — заголовками и телом. 
 По умолчанию Flask самостоятельно формирует объект `response`, определяет формат возвращаемого контента из обработчика и подставляет нужный формат данных в заголовке:
-```
+```python
 from flask import render_template
 
 @app.route('/json/')
@@ -103,7 +103,7 @@ def html():
 
 
 #### Динамические маршруты
-```
+```python
 @app.route('/courses/<id>')
 def courses(id):
     return f'Course id: {id}'
@@ -111,7 +111,7 @@ def courses(id):
 
 
 #### ШАБЛОНИЗАТОР(Jinja2)
-```
+```python
 from flask import render_template
 
 @app.route('/users/<id>')
@@ -128,18 +128,18 @@ def users(id):
  - Контекст — набор именованных аргументов, который будет доступен внутри шаблона. Сюда можно передавать все что угодно
 
 Далее добавляем файл `templates/index.html` со следующим содержимым:
- ```
+ ```jinja2
 <h1>Hello, {{ name }}</h1>
 ```
 
-```
+```jinja2
 {{ ... }} — для вывода переменных
 {% ... %} — для управления логикой шаблона
 {# ... #} — для комментариев
 ```
 
 #### Поисковая форма
-```
+```html
 <form action="/search" method="get">
 </form>
 
@@ -148,7 +148,7 @@ def users(id):
 ```
 
 #### Редирект
-```
+```python
 @app.post('/users')
 def users_post():
     return redirect('/users', code=302)
@@ -157,7 +157,7 @@ def users_post():
 
 #### Именованные маршруты
 Этот подход лучше чем хардкодить маршуруты, т.к. если структура изменится, то придётся вручную икать и исправлять в шаблонах все пути.
-```
+```python
 from flask import url_for
 
 @app.route('/users/<id>')
@@ -171,7 +171,7 @@ def index():
 
 
 #### Flash
-```
+```python
 from flask import flash
 
 @app.post('/foo')
@@ -195,7 +195,7 @@ def bar():
 ```
 
 В шаблоне выводим flash:
-```
+```jinja2
 <!-- templates/bar.html -->
 {% if messages %}
   <ul class=flashes>
@@ -228,25 +228,25 @@ def bar():
 
 #### Куки
 Получение:
-```
+```python
 foo = request.cookies.get('foo')
 ```
 
 Установка:
-```
+```python
 response = make_response(render_template(...))
 response.set_cookie('foo', 'the bar')
 ```
 
 Удаляем cookie 'cart'
-```
+```python
 resp.set_cookie('cart', 'asdf', max_age=0)
 ```
 
 
 #### Сессии
 Старт сессии на техническом уровне означает установку специальной куки в браузер. Обычно она содержит идентификатор сессии, который уникален для каждого пользователя. Данные сессии могут храниться где угодно, это зависит от конкретной реализации. В этом одно из ключевых отличий работы с пользователями напрямую через куки или через сессию.
-```
+```python
 from flask import Flask, session
 
 app = Flask(__name__)
@@ -263,7 +263,7 @@ print(session['count'])
 ```
 
 Удаление сессии:
-```
+```python
 @app.post('/logout')
 def logout():
     session.clear()  # или session.pop('user', None)
@@ -272,12 +272,12 @@ def logout():
 
 
 #### Подключение к PostreSQL
-```
+```bash
 pip install flask psycopg2-binary
 ```
 
 Создаём init_db.py
-```
+```python
 import os
 import psycopg2
 
@@ -325,15 +325,15 @@ conn.close()
 #### Пример приложения для CI/CD
 
 [[Django, DRF#CI/CD]]
-```
+```bash
 pip install flask
 ```
 
-```
+```bash
 pip install python-dotenv
 ```
 
-```
+```python
 import hashlib  
 import hmac  
 from flask import Flask, request, abort  

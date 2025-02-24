@@ -25,7 +25,7 @@ SQL используется для общения с реляционными �
 - Многие ко многим
 
 Пример c sqlite
-```
+```python
 import sqlite3
 
 db = sqlite3.connect('test_db.sqlite')
@@ -99,12 +99,12 @@ db.close()
 Вертикальное объединение.
 
 Пример. Выбирает пересечение множеств(учителя и уроки) по связующим колонкам `teacher.id = lesson.teacher.id`
-```
+```sql
 SELECT teacher.surname, lesson.name FROM teacher INNER JOIN lesson ON teacher.id = lesson.teacher.id
 ```
 
 Пример. Выборка всех полей и объединение 2х таблиц вертикально
-```
+```sql
 SELECT * FROM teacher UNION SELECT * FROM lesson
 ```
 
@@ -126,12 +126,12 @@ SELECT * FROM teacher UNION SELECT * FROM lesson
 >[!info] Асинхронная обёртка для SQLite
 
 [Документация](https://aiosqlite.omnilib.dev/en/stable/)
-```
+```bash
 pip install aiosqlite
 ```
 
 Пример использования в AIOgram
-```
+```python
 import aiosqlite
 
 # Создаем соединение с базой данных  
@@ -200,35 +200,33 @@ async def get_current_uid(tg_id: str) -> Optional[str]:
 ```
 
 Вызываем `init_db()` в функции `main()`
-```
-...
+```python
 async def main() -> None:
     await init_db()
-...
 ```
 
 #### PostgreSQL
 Установка
-```
+```bash
 sudo apt install postgresql postgresql-contrib
 ```
 
 Отключить сервис postgres
-```
+```bash
 /etc/init.d/postgresql stop
 ```
 
 Включить сервис postgres
-```
+```bash
 /etc/init.d/postgresql start
 ```
 
 Версия
-```
+```bash
 pg_config --version
 ```
 
-```
+```bash
 sudo systemctl status postgresql                # проверка, что служба включена
 sudo pg_isready                                 # проверка, принимает ли входящие соединения
 sudo -i -u postgres                             # переключитесь на пользователя postgres
@@ -272,7 +270,7 @@ GRANT ALL PRIVILEGES ON DATABASE myproject TO myprojectuser;    # Предост
 |integer|числовые данные
 
 #### Ограничения PostgreSQL
-```
+```sql
 NOT NULL
 CHECK (range > 0)
 PRIMARY KEY (aircraft_code)                 # Первичный ключ. Нужен для уникальной идентификации
@@ -292,7 +290,7 @@ FOREIGN KEY (aircraft_code)                 # Внешний ключ. Нуже�
 #### Реализация отношений
 ###### ОДИН-К-ОДНОМУ
 С помощью внешнего ключа и уникального ограничения.
-```
+```sql
 CREATE TABLE table1 (
   id SERIAL PRIMARY KEY,
   name VARCHAR(255),
@@ -309,7 +307,7 @@ ALTER TABLE table2 ADD CONSTRAINT table2_table1_id_unique UNIQUE (table1_id);
 
 ###### ОДИН-КО-МНОГИМ
 С помощью внешнего ключа.
-```
+```sql
 CREATE TABLE one (
   id SERIAL PRIMARY KEY,
   name VARCHAR(255)
@@ -323,13 +321,13 @@ CREATE TABLE many (
 ```
 
 Пример выборки:
-```
+```sql
 SELECT one.name, many.description FROM one JOIN many ON one.id = many.one_id WHERE one.id = 1;
 ```
 
 ###### МНОГИЕ-КО-МНОГИМ
 С использованием дополнительной промежуточной таблицы, которая связывает две таблицы.
-```
+```sql
 CREATE TABLE table1 (
   id SERIAL PRIMARY KEY,
   name VARCHAR(255)
@@ -348,7 +346,7 @@ CREATE TABLE table1_table2 (
 ```
 
 Добавляем записи
-```
+```sql
 -- Добавляем записи в таблицу "table1"
 INSERT INTO table1 (name) VALUES ('Object 1');
 INSERT INTO table1 (name) VALUES ('Object 2');
@@ -362,7 +360,7 @@ INSERT INTO table1_table2 (table1_id, table2_id) VALUES (2, 2);
 ```
 
 Пример выборки(Этот запрос вернет все записи из таблицы "table2", связанные с объектом "Object 1" из таблицы "table1")
-```
+```sql
 SELECT t2.name 
 FROM table1 t1 
 JOIN table1_table2 t12 ON t1.id = t12.table1_id 
@@ -371,14 +369,14 @@ WHERE t1.id = 1;
 ```
 
 #### Установка PostgeSQL в Django
-```
+```bash
 pip install psycopg2-binary
-   ИЛИ
+   # ИЛИ
 pip install psycopg2
 ```
 
 В `settings.py` Django проекта
-```
+```python
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
@@ -391,7 +389,7 @@ DATABASES = {
 }
 ```
 
-```
+```bash
 python manage.py makemigrations
 python manage.py **migrate**
 ```
@@ -407,12 +405,12 @@ python manage.py **migrate**
 `local all mintmachine md5`
 
 И делаем рестарт:
-```
+```bash
 sudo systemctl restart postgresql
 ```
 
 2) Экспорт базы
-```
+```bash
 pg_dump -U mintmachine -d mint_coast -W > mint_coast_dump.sql
 ```
 `-U` указывет имя пользователя, которому принадлежит БД mint_coast (mintmachine)
@@ -422,17 +420,17 @@ pg_dump -U mintmachine -d mint_coast -W > mint_coast_dump.sql
 Экспортированный файл будет в текущей директории
 
 3) Копируем файл на сервер:
-```
+```bash
 scp mint_coast_dump.sql ufodriver@89.23.110.30:/home/ufodriver/dump
 ```
 
 4) Создаём БД на др. сервере:
-```
+```bash
 sudo -u postgres createdb mint_coast
 ```
 
 5) Заливаем бэкап в БД:
-```
+```bash
 sudo -u postgres psql mint_coast < mint_coast_dump.sql
 ```
 
@@ -446,22 +444,22 @@ sudo -u postgres psql mint_coast < mint_coast_dump.sql
 
 И делаем рестарт:
 
-```
+```bash
 sudo systemctl restart postgresql
 ```
 
 Чтобы PostgreSQL при дампе не спрашивал пароль создаём файл `.pgpass`
-```
+```bash
 hostname:port:database:username:password
 ```
 
 Задаём ему нужные права
-```
+```bash
 chmod 600 ~/.pgpass
 ```
 
 Python скрипт для создания дампов
-```
+```python
 import os  
 import time  
 import glob  
@@ -499,7 +497,7 @@ dump_database()
 ```
 
 Добавляем в cron  [[Linux#Планировщик CRON]]
-```
+```bash
 crontab -e
 ```
 
@@ -510,6 +508,6 @@ crontab -e
 ```
 
 Логи CRON
-```
+```bash
 sudo grep CRON /var/log/syslog
 ```

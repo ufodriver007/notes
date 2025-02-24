@@ -6,9 +6,9 @@
 *курсив*
 ~~зачёркнутый~~
 ==выделенный текст==
-```
+```python
 def hello():
-    `print('Hello, world!')
+	print('Hello, world!')
 ```
 - first
 - second

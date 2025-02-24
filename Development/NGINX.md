@@ -1,49 +1,49 @@
 ![[nginx.png]]
 установить nginx
-```
+```bash
 sudo apt-get install nginx
 ```
 
 остановить nginx
-```
+```bash
 sudo service nginx stop
 ```
 
 запустить nginx
-```
+```bash
 sudo service nginx start
 ```
 
 >[!info] Место хранения сайта по умолчанию `/var/www/html`
 
 разрешить с других устройств подключаться к серверу по порту 80
-```
+```bash
 sudo ufw allow 'Nginx HTTP'
 ```
 
 разрешить с других устройств подключаться к серверу по порту 443
-```
+```bash
 sudo ufw allow 'Nginx HTTPS'
 ```
 
 сервер, исполняющий Python код
-```
+```bash
 sudo apt install uvicorn
 ```
 
 менеджер процессов для uvicorn
-```
+```bash
 sudo apt instal gunicorn
 ```
 
 запустить uvicorn и слушать все IP
-```
+```bash
 uvicorn server:app --host 0.0.0.0
 
 ```
 
 создаём конфиг
-```
+```bash
 sudo nano /etc/nginx/sites-enabled/demo.conf
 ```
 
@@ -60,7 +60,7 @@ server {
 ```
 
 #### Пишем сервис для systemd
-```
+```bash
 sudo nano /etc/systemd/system/authdemo.service
 ```
 
@@ -83,7 +83,7 @@ WantedBy=multy-user.target
 
 т.е. запускаем gunicorn и 5 процессов(workers) и процесс, который непосредственно будет работать(UvicornWorker) и само приложение server:app(FastAPI)
 
-```
+```bash
 sudo nginx -s reload                          перезагружаем конфиг nginx
 sudo systemctl enable authdemo                включаем
 sudo systemctl start authdemo                 стартуем сервис
@@ -95,13 +95,13 @@ sudo systemctl status authdemo                смотрим статус
 #### SSL
 SSL покупаем wildcard, он действует на все поддомены
 копируем файл(а потом и остальные) сертификата на свой удалённый сервер
-```
+```bash
 scp root_pem_thawte_ssl123_1.crt www@authdemo.ru
 ```
 
 Создаём директорию `/etc/nginx/ssl` и перемещаем туда все файлы сертификатов
 Создаём бандл
-```
+```bash
 sudo cat authdemo_ru_2022_04_04.crt intermediate_pem_thawte_ssl123_1.crt root_pem_thawte_ssl123_1.crt > /tmp/bundle.crt
 
 sudo mv /tmp/bundle.crt .
@@ -109,7 +109,7 @@ sudo mv /tmp/bundle.crt .
 в файле смотрим, чтобы между end certificate и begin certificate был символ переноса строки
 
 Добавляем в конфиг nginx
-```
+```bash
 sudo nano /etc/nginx/sites-enabled/demo.conf
 ```
 ```
@@ -127,14 +127,14 @@ server {
 ```
 
 перезагружаем конфиг nginx
-```
+```bash
 sudo nginx -s reload
 ```
 
 можно проверить на сайте [sslshopper.com](https://www.sslshopper.com/)
 
 И наконец настраиваем автоматическую переадресацию на ssl. В конфиге nginx
-```
+```bash
 sudo nano /etc/nginx/sites-enabled/demo.conf
 ```
 
@@ -166,7 +166,7 @@ server {
 ###### CertBot
 Сертификат от certbot на 3 месяца
 
-```
+```bash
 sudo apt install certbot python3-certbot-nginx
 sudo certbot --nginx
 ```
@@ -179,7 +179,7 @@ Certbot сам исправит конфиг nginx и поставит реди�
 
 #### Блокировка по ip
 Создаём blacklist
-```
+```bash
 sudo nano /etc/nginx/blacklist.conf
 ```
 
@@ -196,12 +196,12 @@ include /etc/nginx/blacklist.conf;
 ```
 
 Меняем владельца
-```
+```bash
 sudo chown www-data.www-data /etc/nginx/blacklist.conf
 ```
 
 Перезагружаем Nginx
-```
+```bash
 sudo service nginx restart
 ```
 

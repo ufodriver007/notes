@@ -113,7 +113,7 @@ Representational state transfer(Передача состояния предст
 
 Применимость:  Паттерн можно часто встретить в любом коде, где требуется гибкость при создании продуктов. Когда заранее неизвестны типы и зависимости объектов, с которыми должен работать ваш код.
 
-```
+```python
 from __future__ import annotations
 from abc import ABC, abstractmethod
 
@@ -212,7 +212,7 @@ if __name__ == "__main__":
 ```
 
 Простой пример
-```
+```python
 class Engine:  
     def __init__(self, x, y):  
         self.x = x  

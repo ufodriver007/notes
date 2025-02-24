@@ -47,7 +47,7 @@ internal.mega-bank.com has address 25.44.105.144
 
 #### Поиск API
 Метод OPTIONS позволяет узнать какие запросы поддерживаются сервером
-```
+```bash
 curl -i -X OPTIONS https://sdk.iad-05.braze.com/api/v3/content_cards/sync
 # -i                получить заголовки без тела запроса
 # -X OPTIONS        указывает нужный метод
@@ -68,7 +68,7 @@ curl -i -X OPTIONS https://sdk.iad-05.braze.com/api/v3/content_cards/sync
 #### CSRF(Cross-Site Request Forgery, Подделка межсайтовых запросов)
  CSRF — это распространение вредоносной ссылки, щелчок на которой вызывает выполнение HTTP-запроса GET от имени аутентифицированного пользователя.
 Это может быть ссылка или даже изображение. Пример
-```
+```html
 <img src="https://www.mega-bank.com/transfer?
 to_user=<учетная запись хакера>&amount=10000" width="0" height="0" border="0">
 ```
@@ -128,7 +128,7 @@ Selenium
 
 ## Чек-лист для Django
 - Настройки для `settings.py`
-```
+```python
 DEBUG = False
 
 ALLOWED_HOSTS = ['your_domain', 'www.your_domain']
@@ -142,7 +142,7 @@ SECURE_HSTS_INCLUDE_SUBDOMAINS = True
 SECURE_HSTS_PRELOAD = True
 ```
 - Смена дефолтного пути админки на рандомный
-```
+```python
 urlpatterns = [
     path('whjbfgwilbefvbwoeuibfuiwb/', admin.site.urls),
 ]
@@ -156,7 +156,7 @@ urlpatterns = [
 - [django-csp](https://django-csp.readthedocs.io/en/latest/configuration.html): Устанавливает Content Security Policy (CSP) для защиты от XSS. [ТУТ](https://csp-evaluator.withgoogle.com/) вы можете достать сэмпл безопасной конфигурации CSP, а [ТУТ](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Content-Security-Policy) посмотреть все возможные атрибуты для CSP
 
 - [django-admin-honeypot](https://github.com/dmpayton/django-admin-honeypot): фейковая админка
-```
+```python
 urlpatterns = [
     ...
     path('admin/', include('admin_honeypot.urls', namespace='admin_honeypot')),
@@ -165,7 +165,7 @@ urlpatterns = [
 ```
 
 - [django-ratelimit](https://django-ratelimit.readthedocs.io/en/stable): простое ограничение на кол-во запросов с одного IP
-```
+```python
 @ratelimit(key='ip', rate='10/s')
 def secondview(request):
     # ...
@@ -209,7 +209,7 @@ def secondview(request):
 - Ни за что не используйте MD5 либо SHA1 для целей безопасности.
 - Функции контрольного суммирования ни за что не должны быть использованы для целей обеспечения безопасности. 
 
-```
+```python
 import hashlib
 
 x = hashlib.sha256(b'message').hexdigest()  
@@ -220,7 +220,7 @@ print(x)  # ab530a13e45914982b79f9b7e3fba994cfd1f3fb22f71cea1afbf02b460c6d1d
 
 #### Случайные числа
 >[!info] Ни при каких обстоятельствах не используйте модуль random для оборонных и криптографических задач.
-```
+```python
 import secrets
 
 token_hex = secrets.token_hex(16)          # 840f616fcb1a96df1c16f7127518cf4a
@@ -230,7 +230,7 @@ token_urlsafe = secrets.token_urlsafe(16)  # qtT3GDpzYQ0LKLEWlaqB0Q
 >[!info] Если человеку нужно держать ключ в памяти, используйте кодовую фразу.
 
 Генерация кодовой фразы из четырех слов
-```
+```python
 import secrets  
 from pathlib import Path
 
@@ -246,7 +246,7 @@ HMAC-функции (hash-based message authentication code; код провер
 
 ![[hmac.png]]
 
-```
+```python
 import hashlib
 import hmac
 
@@ -267,7 +267,7 @@ print(hmac_sha256.hexdigest())
 >[!info] Безопасные системы сравнивают хеши за постоянное время. Модуль hmac содержит функцию `compare_digest`, которая сравнивает хеши за одинаковое время. Всегда сравнивайте хеши через `compare_digest`.
 
 #### Неразглашение данных. Пакет cryptography
-```
+```bash
 pip install cryptography
 ```
 Авторы пакета разделили доступные в нем возможности на две
@@ -284,7 +284,7 @@ pip install cryptography
 ###### Пример использования `fernet` для шифрования текста и проверки подлинности
 ![[fernet.png]]
 
-```
+```python
 from cryptography.fernet import Fernet  
   
 key = Fernet.generate_key()  
@@ -299,7 +299,7 @@ print(f.decrypt(token))  # b'A really secret message. Not for prying eyes.'
 ![[fernet_decrypt.png]]
 
 Для алгоритма со сменой ключа используйте `MultiFernet`
-```
+```python
 from cryptography.fernet import Fernet, MultiFernet
 ```
 
@@ -314,23 +314,23 @@ from cryptography.fernet import Fernet, MultiFernet
 RSA – классический пример криптосистемы с открытым ключом, которая выдержала проверку временем.
 
 Вызов openssll, который генерирует закрытый ключ RSA длиной 3072 бита
-```
+```bash
 openssl genpkey -algorithm RSA -out private_key.pem -pkeyopt rsa_keygen_bits:3072
 ```
 
 Можно извлечь открытый ключ из файла с закрытым
-```
+```bash
 openssl rsa -pubout -in private_key.pem -out public_key.pem
 ```
 
 Установка разрешений на ключи
-```
+```bash
 chmod 600 private_key.pem
 chmod 644 public_key.pem
 ```
 
 Создание пары ключей RSA через Python
-```
+```python
 from cryptography.hazmat.backends import default_backend
 from cryptography.hazmat.primitives import serialization
 from cryptography.hazmat.primitives.asymmetric import rsa
@@ -385,7 +385,7 @@ public_key = private_key.public_key()
 
 #### Загрузка сертификата
 Загрузка сертификата открытого ключа Википедии
-```
+```python
 import ssl  
   
 address = ('wikipedia.org', 443)  
@@ -401,11 +401,11 @@ with open('certificate.crt', 'w') as f:
 
 Следующие команды создают пару ключей на основе эллиптических кривых и самоподписанный сертификат сроком на 10 лет
 
-```
+```bash
 openssl ecparam -name prime256v1 -genkey -noout -out private_key.pem
 ```
 
-```
+```bash
  openssl req -x509 \         # Новый сертификат X.509
 -nodes -days 3650 \          # Сроком действия на 10 лет
 -key private_key.pem \       # Сертификат удостоверяет открытый ключ который будет выведен                              #  из закрытого. Этим же закрытым ключом сертификат и
@@ -419,7 +419,7 @@ openssl req -x509 -nodes -days 3650 -key private_key.pem -out certificate.pem
 >[!info]  HTTPS – забота не Django, а Gunicorn
 
 Запуск Gunicorn с сертификатом открытого ключа
-```
+```bash
 gunicorn alice.wsgi \          Модуль alice.wsgi находится в alice/alice/wsgi.py
 --keyfile private_key.pem \    Путь к закрытому ключу
 --certfile certificate.pem     Путь к сертификату
@@ -437,7 +437,7 @@ Strict-Transport-Security: max-age=3600
 ```
 
 Настройка Django в settings.py
-```
+```python
 SECURE_HSTS_SECONDS = 3600
 ```
 
@@ -446,13 +446,13 @@ SECURE_HSTS_SECONDS = 3600
 Если нужно распространить это и на поддомены
 
 Настройка Django в settings.py
-```
+```python
 SECURE_HSTS_INCLUDE_SUBDOMAINS = True
 ```
 
 #### Переадресация на HTTPS
 Настройка Django в settings.py
-```
+```python
 SECURE_SSL_REDIRECT = True
 ```
 
@@ -464,7 +464,7 @@ SECURE_SSL_REDIRECT = True
 Если домен для HTTPS отличается от домена для HTTP, используется настройка SECURE_SSL_HOST. Если задать значение, допустим, bob.com, Django перенаправит пользователя с http://alice.com на https://bob.com вместо https://alice.com. Значение по умолчанию – None.
 
 #### Соединение с БД через TLS
-```
+```python
 DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.postgresql",
@@ -492,16 +492,16 @@ DATABASES = {
 ###### Проверка неразглашения
 Настройки Django в `settings.py`(Только одну из них можно включить в `True`)
 1. включает режим «только TLS»
-```
+```python
 EMAIL_USE_SSL = True
 ```
 2. нерекомендованный способ с предварительным небезопасным соединением
-```
+```python
 EMAIL_USE_TLS = True
 ```
 
 ###### Проверка личности
-```
+```python
 EMAIL_SSL_KEYFILE = '/path/to/private/key'
 EMAIL_SSL_CERTFILE = '/path/to/certificate'
 ```
@@ -543,7 +543,7 @@ Set-Cookie: sessionid=<session-id-value>; Domain=alice.com
 ```
 
 В Django в `settings.py`
-```
+```python
 SESSION_COOKIE_DOMAIN = "alice.com"
 ```
 
@@ -555,7 +555,7 @@ Set-Cookie: sessionid=<session-id-value>; Max-Age=1209600
 ```
 
 В Django в `settings.py`
-```
+```python
 SESSION_COOKIE_AGE = 1 209 600  # это дефолтное значение(2 недели)
 ```
 

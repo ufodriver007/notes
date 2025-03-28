@@ -139,6 +139,8 @@ def about(request):
 Создаём в папке `templates base.html`
 Указываем там весь код html + нужные блоки:
 ```jinja2
+# Здесь определяются блоки, которые будут добавлены
+
 ...html код начала страницы...
 {% block title %}{% endblock %}
 {% block content %}{% endblock %}
@@ -147,6 +149,8 @@ def about(request):
 
 В html коде шаблона, который состоит из кусков др. шаблонов(например index.html):
 ```jinja2
+# Здесь добавляется контент в блоки
+
 {% extends 'base.html' %}
 {% block title %}
     Главная страница
@@ -485,7 +489,7 @@ messages.error(request, 'Document deleted.')
             <li>{{ message }}</li>
         {% endfor %}
     </ul>
-    {% endif %}
+{% endif %}
 ```
 
 #### Админ-панель
@@ -837,7 +841,7 @@ User.objects.filter(
     last_name__icontains='ibn'  # содержит подстроку
 )
 # Велосипеды дешевле 50 или содержат в поле "description" слово "горный"
-Bicycle.objects.filter(price__lt=50) | Bicycle.objects.filter(description__contains='горный'
+Bicycle.objects.filter(price__lt=50) | Bicycle.objects.filter(description__contains='горный')
 ```
 
 ###### Транзакции
@@ -1299,6 +1303,35 @@ except KeyError:
     pass
 ```
 
+#### Кэширование
+###### Кэширование сессий в Redis
+```bash
+pip install redis django-redis
+```
+```python
+# settings.py
+# Настройка кэширования через Redis
+CACHES = {
+    "default": {
+        "BACKEND": "django_redis.cache.RedisCache",
+        "LOCATION": "redis://127.0.0.1:6379/1",  # Адрес Redis (хост:порт/номер БД)
+        "OPTIONS": {
+            "CLIENT_CLASS": "django_redis.client.DefaultClient",
+        }
+    }
+}
+
+# указывает, что сессии будут храниться в кэше
+SESSION_ENGINE = "django.contrib.sessions.backends.cache"
+# определяет, какой кэш использовать (в данном случае default)
+SESSION_CACHE_ALIAS = "default"
+```
+Если надо установите время жизни сессии
+```python
+# settings.py
+SESSION_COOKIE_AGE = 1209600  # 2 недели(в секундах)
+```
+
 #### Переменные окружения
 - Используем python-dotenv для загрузки переменных окружения из файла
 ```bash
@@ -1497,8 +1530,10 @@ MIDDLEWARE = [
 ```
 
 #### Throttling middleware
+Пример на кэше LocMemCache (В оперативной памяти, но кэш доступен только в пределах одного процесса. Не рекомендуется для продакшена, т.к. не масшабируется)
 ```python
 from django.core.cache import cache
+from django.http import HttpResponseForbidden
 
 class ThrottlingMiddleware:
     def __init__(self, get_response):
@@ -1506,8 +1541,12 @@ class ThrottlingMiddleware:
 
     def __call__(self, request):
         # Получаем IP-адрес пользователя или другую уникальную строку для идентификации
-        # Для простоты примера здесь используется IP-адрес, но это не самое надежное решение
-        client_ip = request.META['REMOTE_ADDR']
+        # здесь используется IP-адрес, но это не самое надежное решение
+        client_ip = request.META.get('REMOTE_ADDR') or request.META.get('HTTP_X_FORWARDED_FOR') or request.META.get('HTTP_X_REAL_IP')
+
+        if client_ip in settings.BLACKLIST:
+            logger.warning(f'Попытка доступа с blacklist ip({client_ip})')
+            return HttpResponseForbidden('Ваш IP заблокирован!')
 
         # Устанавливаем ключ для кэша, используя IP-адрес и префикс
         cache_key = f'throttle_{client_ip}'
@@ -1516,15 +1555,62 @@ class ThrottlingMiddleware:
         request_count = cache.get(cache_key, 0)
 
         # Проверка на превышение лимита запросов
-        if request_count >= 100:                               # Примерно 100 запросов в час
+        if request_count >= 1000:  # Примерно 1000 запросов в час
             return HttpResponseForbidden('Превышен лимит запросов')
 
         # Увеличиваем счетчик запросов и сохраняем его в кэше
-        cache.set(cache_key, request_count + 1, 3600)          # Сохраняем на час
+        cache.set(cache_key, request_count + 1, 3600)  # Сохраняем на час
 
         # Пропускаем запрос дальше по стеку middleware
         response = self.get_response(request)
 
+        return response
+```
+
+Пример кэше Redis(в оперативной памяти)
+```python
+import redis  
+from django.http import HttpResponseForbidden  
+from django.conf import settings  
+    
+class ThrottlingMiddleware:  
+    def __init__(self, get_response):  
+        self.get_response = get_response  
+        self.redis_client = redis.StrictRedis(  
+            host=settings.REDIS_HOST,  
+            port=settings.REDIS_PORT,  
+            db=settings.REDIS_DB,  
+            decode_responses=True  
+        )  
+  
+    def __call__(self, request):  
+        client_ip = request.META.get('REMOTE_ADDR') or request.META.get('HTTP_X_FORWARDED_FOR') or request.META.get(  
+            'HTTP_X_REAL_IP')  
+  
+        # Устанавливаем ключ для кэша, используя IP-адрес и префикс  
+        cache_key = f'throttle_{client_ip}'  
+  
+        # Получаем текущее количество запросов из кэша  
+        request_count = self.redis_client.get(cache_key)  
+  
+        if request_count is None:  
+            request_count = 0  
+        else:  
+            request_count = int(request_count)  
+  
+        # Проверка на превышение лимита запросов  
+        if request_count >= int(settings.THROTTLING_LIMIT):  
+            return HttpResponseForbidden('Превышен лимит запросов')  
+  
+        # Увеличиваем счетчик запросов в Redis  
+        # Используем команду INCR для атомарного увеличения счетчика        self.redis_client.incr(cache_key)  
+  
+        # Устанавливаем время жизни ключа (TTL) в Redis, если он только что создан  
+        if request_count == 0:  
+            self.redis_client.expire(cache_key, 3600)  # Сохраняем на час  
+  
+        # Пропускаем запрос дальше по стеку middleware        response = self.get_response(request)  
+  
         return response
 ```
 

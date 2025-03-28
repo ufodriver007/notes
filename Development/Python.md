@@ -17,7 +17,7 @@
 |`pip install requests`|загрузка библиотеки requests
 |`pip uninstall requests`|удаление библиотеки
 |<code>pip freeze \| xargs pip uninstall -y</code>|удалить все пакеты виртуального окружения
-|`pip freeze > requirements.txt`|создать файл с названиями используемых пакетов
+|`pip freeze > requirements.txt`|создать файл с зависимостями
 |`pip install -r requirements.txt`|установить все пакеты из списка
 |`python3 -m http.server`|встроенный http сервер
 

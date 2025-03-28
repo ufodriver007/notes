@@ -42,7 +42,7 @@
 
 >[!info] На сегодня чаще используется *отзывчивый дизайн (RWD)*, так как создание и поддержка единственного универсального макета занимает меньше времени и стоит дешевле. Адаптивный дизайн оправдан в сложных проектах, заточенных под определенные устройства: например, во время разработки сайта онлайн-банкинга, основная масса пользователей которого посещают сайт с последних моделей iPhone.
 
-**Современное размещение и выравнивание элементов происходит с помощью двух подходов [[CSS#Flexbox Layout]] или `Grid`**
+**Современное размещение и выравнивание элементов происходит с помощью двух подходов [[CSS#Flexbox Layout]] или [[CSS#Grid Layout]]**
 *Существуют также устаревшие подходы с помощью `float` и `table`.*
 
 #### Подключение css стилей
@@ -227,6 +227,88 @@ a::before {
 /* comment */ 
 ```
 
+#### Dialog
+>[!info] Современный браузерный API. Можно использовать как замену `alert`, `confirm` и т.д.
+
+[Dialog polyfill(Заменяет обычными div для старых браузеров)](https://github.com/GoogleChrome/dialog-polyfill)
+
+html
+```html
+<dialog id="confirmDialog">  
+    <h4 id="confirm-caption" style="margin: 0 0 1rem">Confirm</h4>  
+    <div class="dialog-actions">  
+        <button class="dialog-btn confirm" onclick="confirm_dialog.close('yes')">Да</button>  
+        <button class="dialog-btn" onclick="confirm_dialog.close('no')">Нет</button>  
+    </div>
+</dialog>  
+  
+<dialog id="alertDialog">  
+    <h4 id="alert-caption" style="margin: 0 0 1rem">Alert</h4>  
+    <div class="dialog-actions">  
+        <button class="dialog-btn confirm" onclick="alert_dialog.close('yes')">Да</button>  
+    </div>
+</dialog>
+```
+
+js
+```js
+const confirm_dialog = document.getElementById('confirmDialog');  
+const alert_dialog = document.getElementById('alertDialog');  
+const confirm_caption = document.getElementById('confirm-caption');  
+const alert_caption = document.getElementById('alert-caption');
+
+confirm_caption.textContent = `Вы уверены, что хотите удалить всё расписание?`;  
+confirm_dialog.addEventListener('close', async () => {  
+    if (confirm_dialog.returnValue === 'yes') {  
+        console.log('Логика по кнопке ДА');
+    }  
+})
+
+alert_caption.textContent = `Очень важный Алерт!`;  
+alert_dialog.showModal();
+
+confirm_dialog.showModal();
+```
+
+css
+```css
+dialog {  
+  border: none !important;  
+  border-radius: 12px;  
+  padding: 2rem;  
+  box-shadow: 0 0 20px rgba(0,0,0,0.3);  
+  width: 90%;  
+  max-width: 400px;  
+  animation: slideIn 0.3s ease;  
+}  
+  
+/* Стили для подложки (фона) */  
+dialog::backdrop {  
+  background: rgba(0, 0, 0, 0.5);  
+  backdrop-filter: blur(3px);  
+}  
+  
+/* Кастомные кнопки */  
+.dialog-actions {  
+  margin-top: 1.5rem;  
+  display: flex;  
+  gap: 10px;  
+  justify-content: flex-end;  
+}  
+  
+.dialog-btn {  
+  padding: 8px 20px;  
+  border: none;  
+  border-radius: 6px;  
+  cursor: pointer;  
+}  
+  
+.dialog-btn.confirm {  
+  background: #4CAF50;  
+  color: white;  
+}
+```
+
 #### Медиа запрос
 [Справочник](https://developer.mozilla.org/ru/docs/Web/CSS/@media)
 >[!tip] Удобно писать эти запросы в конце файла стилей
@@ -281,6 +363,8 @@ a::before {
 |`position: absolute;`|абсолютное позиционирование. элемент выпадает из потока
 |`position: fixed;`|зафиксировать элемент в окне. при скролле он будет на одном месте
 |`position: sticky;`|липнет к краям экрана. двигается только в пределах своего контейнера
+|`overflow: hidden;`|скрывает часть блочного элемента, если оно не влезает в размеры  
+|`overflow: scroll;`|скрывает со скроллом часть блочного элемента, если оно не влезает в размеры
 
 #### Еденицы измерения
 Шрифт по умолчанию = 16px, соответственно, величина 1em и 1rem = 16px
@@ -333,6 +417,21 @@ font-size: 4vw;
 #### Иконки
 С помощью сайта [cdnjs.com](https://cdnjs.com/) Можно подключить практически любую библиотеку через CDN. Ищем там `fontawesome`, получаем ссылку, подключаем у себя(в шапке до css).
 Далее идём на [fontawesome.com](https://fontawesome.com/search) и ищем нужную бесплатную иконку. Получаем её код и подключаем её себе.
+
+###### Вставка иконок внутрь input
+Поместите её в контейнер с position: relative, а самой иконке укажите position: absolute.
+```html
+<div style="position: relative;">
+  <i class="fa fa-search" style="position: absolute; top: 50%; left: 8px; transform: translateY(-50%);"></i>
+  <input type="text" style="padding-left: 30px;">
+</div>
+```
+
+#### Перенос строк
+- Вариант 1:  
+    Символ `&nbsp;` это символ _неразрывного пробела_. Это нужно чтобы разделить два слова и одновременно запрещая его переносить на др. строку.
+- Вариант 2:  
+    `white-space: nowrap;`
 
 #### Переменные
 Инициализация
@@ -463,6 +562,8 @@ transform: translateX(2em);
 `forwards` заставляет анимацию остаться в конечном состоянии
 
 #### Flexbox Layout
+[Гайд по флексбокс](https://doka.guide/css/flexbox-guide/)
+
 >[!info] Этот подход следует выбрать когда нужно собрать **небольшие блоки** или когда **блоки расположены в одном направлении**.
 
 ```html
@@ -514,6 +615,14 @@ flex-wrap: nowrap;
 ```
 ![[2025-02-07_05-41.png]]
 
+###### Выравнивание
+`justify` выравнивает по основной оси
+`align` по вспомогательной
+
+`content` выравнивает всё в общем
+`items` выравнивает относительно каждой строчки
+`self` выравнивает конкретный элемент
+
 ###### Justify-content
 Выравнивание контента во флекс боксе **по основной оси**
 
@@ -543,8 +652,6 @@ flex-wrap: nowrap;
 |`align-content: flex-end`|выровнять flex элементы по концу контейнера|
 |`align-content: center`|выровнять flex элементы по центру контейнера|
 |`align-content: baseline;`|выравнивает текст по базовой линии|
-
->[!tip] Свойства легко запомнить так: `justify` выравнивает по основной оси, `align` по вспомогательной. `content` выравнивает всё в общем, `items` выравнивает относительно каждой строчки
 
 ###### Align-self
 Позиционирует отдельный `item` по **по вспомогательной оси**
@@ -576,8 +683,8 @@ align-self: center;
 ###### Gap
 В контейнере добавляем свойство
 ```css
-row-gap: 20px;         # зазаор между строками
-column-gap: 30px;      # зазаор между колонками
+row-gap: 20px;         # зазор между строками
+column-gap: 30px;      # зазор между колонками
 gap: 10px 20px;        # короткая запись(вертикальный отступ и гориз. отступ)
 ```
 
@@ -604,9 +711,208 @@ margin-right: auto;
 	flex 0 1 calc(100% / 4 - 20px * 3 / 4)
 }
 ```
-Пояснение для вычисляемого значения `flex-basis`(3-e значение атрибута `flex):
+Пояснение для вычисляемого значения `flex-basis`(3-e значение атрибута `flex`):
 - ширина вьюпорта 100% делим на количество колонок(4)
 - и отнимаем ширину зазора(20) умноженную на кол-во промежутков(3) и делённую на кол-во колонок(4)
+
+#### Grid Layout
+[Гайд по гридам](https://doka.guide/css/grid-guide/)
+
+```html
+<div class="container">
+	<div class="item">1</div>
+	<div class="item">2</div>
+	<div class="item">3</div>
+	<div class="special-item">4</div>
+	<div class="item">5</div>
+</div>
+```
+
+Как только мы ставим свойство у `container` `display: grid;`, этот контейнер становится grid-контейнером, а его непосредственные потомки получают специальные свойства
+
+######  grid-template-columns
+Во сколько колонок выстраивать вложенные элементы. И какого размера должны быть колонки.
+
+```css
+.container {
+  display: grid;
+  grid-template-columns: 200px 100px;
+  /* grid-template-columns: auto 200px 100px; */
+  gap: 10px 20px;
+}
+```
+
+Или например в пропорциях (**fr** это «дробная часть»)
+```css
+.container {
+  display: grid;
+  grid-template-columns: 1fr 2fr;
+  gap: 10px 20px;
+}
+```
+
+###### grid-template-rows
+Во сколько рядов выстраивать вложенные элементы. И какого размера должны быть эти ряды.
+
+```css
+.container {
+  display: grid;
+  grid-template-rows: 200px 100px;
+  grid-auto-rows: 300px;
+}
+```
+
+###### grid-auto-rows и grid-auto-columns
+Если элементов внутри грид-контейнера больше, чем может поместиться в объявленные явно ряды и колонки, то для них создаются автоматические, неявные ряды и колонки. При помощи свойств `grid-auto-columns` и `grid-auto-rows` можно управлять размерами этих автоматических рядов и колонок.
+
+###### grid-auto-flow
+Если грид-элементов больше, чем явно объявленных колонок или рядов, то они автоматически размещаются внутри родителя. А вот каким образом — в ряд или в колонку — можно указать при помощи свойства `grid-auto-flow`. По умолчанию значение у этого свойства `row`, _лишние_ элементы будут выстраиваться в ряды в рамках явно заданных колонок.
+`column` — автоматически размещаемые элементы выстраиваются в колонки.
+`dense` — браузер старается заполнить _дырки_ (пустые ячейки) в разметке, если размеры элементов позволяют. Можно сочетать с остальными значениями.
+
+Пример работы `grid-auto-flow: dense;`
+_До применения:_
+![[2025-03-05_09-11.png|300]]
+_После применения:_
+![[2025-03-05_09-10.png|300]]
+
+###### grid-column и grid-row
+Расширение элементов
+```css
+.special-item{
+  grid-column: span 2;  /* элемент занимает 2 колонки */
+  grid-row: span 2;     /* элемент занимает 2 строки */
+}
+```
+
+Или же можно так
+```css
+.special-item{
+  grid-column: 1 / 4;   /* элемент занимает колонки с 1 до 4 */
+  grid-row: 1 / 3;     /* элемент занимает строки с 1 до 3 */
+}
+```
+
+###### auto-fit и auto-fill
+- `auto-fill` стремится заполнить колонками всё доступное пространство, а когда элементы заканчиваются, создаёт пустые колонки, равномерно распределяя доступную область между существующими и «виртуальными» колонками.
+```css
+.container {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, 300px);
+}
+```
+
+- `auto-fit` действует похожим образом, но, схлопывает пустые колонки и отдаёт больше места под заполненные.
+```css
+.container {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, 300px);
+}
+```
+
+###### Адаптив
+Пример посторения сетки. Повторяем ячейки `auto-fit`(не достраивая пустые колонки), размером минимум `150px`, максимум 1 часть(т.е. всё доступное пространство)
+```css
+.container {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+}
+```
+
+###### Выравнивание
+`justify` выравнивает по основной оси
+`align` по вспомогательной
+
+`content` выравнивает всё в общем
+`items` выравнивает относительно каждого элемента
+`self` выравнивает конкретный элемент
+
+==Justify==
+```css
+.container {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  justify-items: end; /* stretch по умолчанию; start; center;  */
+}
+```
+![[2025-03-05_08-36.png]]
+
+==Align==
+```css
+.container {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  align-items: end; /* stretch по умолчанию; start; center;  */
+}
+```
+![[2025-03-05_08-41.png]]
+
+###### grid-template-areas
+Пример адаптива с разметкой зон
+```html
+<body>
+  <div class="container">
+    <div class="item header">Header</div>
+    <div class="item sidebar">Sidebar</div>
+    <div class="item content">Content</div>
+    <div class="item footer">Footer</div>
+  </div>
+</body>
+```
+
+```css
+.container {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  grid-template-rows: repeat(3, 1fr);
+  grid-template-areas:
+    "header header header header"
+    "sidebar content content content"
+    "footer footer footer footer";
+}
+
+.item {
+  font-size: 1.5vw;
+  border: 2px solid violet;
+  text-align: center;
+}
+
+.header {
+  grid-area: header;
+}
+
+.sidebar {
+  grid-area: sidebar;
+}
+
+.content {
+  grid-area: content;
+}
+
+.footer {
+  grid-area: footer;
+}
+
+@media (max-width: 900px) {
+  .container {
+    grid-template-areas:
+      "header header header header"
+      "sidebar sidebar content content"
+      "footer footer footer footer";
+    }
+  }
+
+@media (max-width: 500px) {
+  .container {
+    grid-template-columns: 1fr;
+    grid-template-areas:
+      "header"
+      "sidebar"
+      "content"
+      "footer";
+  }
+}
+```
 
 #### БЭМ (методология наименования и структурирования кода)
 >[!info] БЭМ (Блок, Элемент, Модификатор) — компонентный подход к веб-разработке. В его основе лежит принцип разделения интерфейса на независимые блоки. Он позволяет легко и быстро разрабатывать интерфейсы любой сложности и повторно использовать существующий код, избегая «Copy-Paste».

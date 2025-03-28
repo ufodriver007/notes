@@ -777,6 +777,22 @@ cat ~/.ssh/id_rsa
 |Public key|`~/.ssh/id_rsa.pub`|`644`|`-rw-r--r--`|
 |Private key|``/.ssh/id_rsa`|`600`|`-rw------`|
 
+###### создание ssh ключа без пароля
+```
+ssh-keygen -t ed25519 -f ~/.ssh/deploy_key -N ""
+chmod 600 ~/.ssh/deploy_key
+```
+
+###### автозагрузка добавления ключа в ssh агент
+```
+nano ~/.bashrc
+```
+Впишем туда
+```
+eval "$(ssh-agent -s)"
+ssh-add ~/.ssh/deploy_key
+```
+
 #### Передача файлов по SSH
 ###### Копирование файла с сервера
 ```bash

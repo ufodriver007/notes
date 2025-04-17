@@ -5,16 +5,21 @@
 pip install django
 ```
 ```bash
-django-admin startproject my_first_site                      # создать шаблон проекта
+# создать шаблон проекта
+django-admin startproject my_first_site
 ```
 ```bash
-python3 manage.py runserver                                  # запустить проект 127.0.0.1:8000
+# запустить проект 127.0.0.1:8000
+python3 manage.py runserver
 ```
 ```bash
-python3 manage.py startapp <app_name>                        # создаём приложение
- # затем регистрируем в settings.py в списке INSALLED_APPS как '<app_name>.apps.app_class'
+# создаём приложение
+python3 manage.py startapp <app_name>                        
+# затем регистрируем в settings.py в списке INSALLED_APPS
+#   как '<app_name>.apps.app_class'
 
-python3 manage.py createsuperuser                            # создаём админа
+# создаём админа
+python3 manage.py createsuperuser
 ```
 >[!tip] Чтобы обновить  страницу в браузере с перезагрузкой кэша(например если Вы правите css) существует сочетание `CTRL-F5`
 

@@ -3,10 +3,17 @@
 [Документация](https://fastapi.tiangolo.com/ru/)
 [Metanit](https://metanit.com/python/fastapi/)
 
+FastAPI
 ```bash
+pip install "fastapi[standard]"
+    # или
 pip install fastapi[all]
 ```
 
+Uvicorn(ASGI-сервер)
+```bash
+pip install uvicorn
+```
 
 Минимальное приложение
 ```python
@@ -20,15 +27,39 @@ def getsome():
 ```
 
 ###### Запуск
+Внешний
 >[!info]  `--reload`: перезапуск сервера после изменения кода. Делайте это только во время разработки.
+
+Здесь `uvicorn` запускает модуль(файл) `main`, а в нём экземпляр приложения `app`
 ```bash
 uvicorn main:app --reload
 ```
 
+Приямо из кода
+```python
+from fastapi import FastAPI  
+import uvicorn
+  
+app = FastAPI()  
+  
+@app.get('/some')  
+def getsome():  
+    return 'Some text'
+
+if __name__ == "main":
+    uvicorn.run("main:app")  # файл main, приложение app
+```
+
 Автоматическая документация `/docs`
 
-#### Urls
-###### Динамический путь
+#### Части запроса
+FastAPI легко может извлечь все части запроса:
+1. Header
+2. Path
+3. Query
+4. Body
+
+###### Path. Динамический путь
 
 Пример получения динамической части url (например `/some/33`)
 ```python
@@ -37,7 +68,7 @@ def getsome(new_id: int):
     return f'Your new ID: {new_id}'
 ```
 
-###### Получение GET параметров
+###### Query. Получение GET параметров
 ```python
 @app.get('/some}')  
 def getsome(getparam):  
@@ -51,9 +82,90 @@ from typing import Optional
   
 app = FastAPI()  
   
-@app.get('/some')  
-def getsome(has_param: Optional[bool] = None):  
-    return f'Your get param: {has_param}'
+@app.get('/hi')  
+def great(who: Optional[str] = 'Default'):  
+    return f"Hello, {who}!"
+```
+
+###### Body. Извлечение информации из тела запроса
+`Body(embed=True)` означает, что мы получаем значение `who` из тела запроса в формате JSON. Если этого не будет, FastAPI будет ожидать просто данные, не JSON.
+
+Получение конкретного значения
+```python
+from fastapi import FastAPI, Body
+
+app = FastAPI()
+
+@app.post('/hi')  
+def great(who: str = Body(embed=True)):  
+    return f"Hello, {who}!"
+```
+
+Получение всех значений
+```python
+from fastapi import FastAPI, Body  
+from typing import Optional, Any, Dict
+
+app = FastAPI()
+
+@app.post('/hi')  
+def great(body: Dict[str, Any] = Body()):  
+    return body
+```
+
+###### Header. Получение конкретного заголовка
+Возврат заголовка с именем `User-Agent`
+```python
+from fastapi import FastAPI, Header
+
+app = FastAPI()
+
+@app.post('/hi')  
+def great(user_agent: str = Header()):  
+    return user_agent
+```
+
+>[!info] FastAPI переводит ключи HTTP заголовков в нижний регистр и преобразует дефис(-) в подчёркивание(_)
+
+##### HTTP-ответы
+По-умолчанию FastAPI преобразует всё, что вы возвращаете из функции в формат JSON. Поэтому HTTP-ответ содержит строку заголовка `Content-type: application/json`.
+
+###### Валидация ответа
+```python
+class ShemeHotel(BaseModel):
+    address: str
+    name: str
+    stars: str
+    has_spa: bool
+
+@app.get("/hotels", response_model=list[ShemeHotel])
+def get_hotels(
+    location:str,
+    date_from: date,
+    date_to: str,
+    has_spa: Optional[bool] = None,
+    stars: Optional[int] = Query(None, ge=1, le=5),
+):
+    hotels = [
+        {
+            "address": "ул.Гагарина 1",
+            "name": "Super Hotel",
+            "stars": 5,
+        },
+    ]
+    return hotels
+```
+
+Или же как обычно
+```python
+@app.get("/hotels")
+def get_hotels(
+    location:str,
+    date_from: date,
+    date_to: str,
+    has_spa: Optional[bool] = None,
+    stars: Optional[int] = Query(None, ge=1, le=5),
+) -> list[ShemeHotel]:
 ```
 
 Валидация возвращаемых типов в GET запросах
@@ -74,7 +186,118 @@ def getsome(search_args: GetSomeSearchArgs = Depends()):
             f'Your new_id: {search_args.new_id}')
 ```
 
-###### POST запросы
+###### Статус коды
+Код в случае успеха
+```python
+from fastapi import FastAPI, status
+
+app = FastAPI() 
+
+@app.get('/happy', status_code=201)  
+def happy():  
+    return ":)"
+```
+
+Код для исключения
+```python
+from fastapi import FastAPI, HTTPException, status
+
+app = FastAPI()
+
+@app.get("/items/{item_id}") 
+async def read_item(item_id: int):
+    if item_id == 1:
+        return {"item": "Item 1"} 
+    else:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Item not found")
+```
+
+###### Установка заголовков или куки
+```python
+from fastapi import FastAPI, Response
+
+app = FastAPI()
+
+@app.get('/setheader')  
+def header(response: Response):  
+    response.headers['MyKey'] = 'example'
+    
+    # или например установка куки
+    response.set_cookie('MyCookie', '12345')
+    return "normal body"
+```
+
+###### Типы ответов
+Типы ответов (импортируйте эти классы из `fastapi.responses`):
+1. JSONResponse(по умолчанию)
+2. HTMLResponse
+3. PlainTextResponse
+4. RedirectResponse
+5. FileResponse
+6. StreamingResponse
+
+#### Внедрение зависимостей
+>[!info] *Внедрение зависимостей* - это передача функции любой требующейся ей специфичной информации. Традиционный способ сделать это - передать вспомогательную функцию, которую вы затем вызываете для получения конкретных данных.
+
+Пример зависимости с возвращаемым значением
+```python
+from fastapi import FastAPI, Depends, Params
+
+app = FastAPI()
+
+# функция зависимости
+def user_dep(name: str = Params, password: str = Params):
+    return {"name": name, "valid": True}
+
+# эндпоинт
+@app.get("/user")
+def get_user(user: dict = Depends(user_dep)) -> dict:
+    return user
+```
+
+Если зависимость не возвращает значение, можно определить зависимость в декораторе эндпоинта
+```python
+from fastapi import FastAPI, Depends, Params
+
+app = FastAPI()
+
+# функция зависимости
+def check_dep(name: str = Params, password: str = Params):
+    if not name:
+        raise
+
+# эндпоинт
+@app.get("/check_user", dependencies=[Depends(check_dep)])
+def check_user()) -> bool:
+    return True
+```
+
+Зависимости субмаршрута
+```python
+from fastapi import FastAPI, Depends, APIRouter
+
+# это приведёт к вызрву dep_func() для всех функций эндпоинтов ниже объекта router
+router = APIRouter(... , dependencies=[Depends(dep_func)])
+```
+
+Глобальное внедрение зависимостей(все эндпоинты)
+```python
+from fastapi import FastAPI, Depends
+
+def depfunc1():
+    pass
+
+def depfunc2():
+    pass
+
+app = FastAPI(dependencies=[Depends(depfunc1), Depends(depfunc2)])
+
+@app.get("/main")
+def get_main():
+    pass
+```
+
+##### POST запросы
 ```python
 from fastapi import FastAPI
 from pydantic import BaseModel  
@@ -92,7 +315,7 @@ def add_booking(booking: SBooking) -> SBooking:
     return booking
 ```
 
-###### Routers
+##### Routers
 Файл с роутером
 ```python
 from fastapi import APIRouter  
@@ -133,22 +356,67 @@ def getsome(new_id: int = Query(ge=1, le=5)):
 ```python
 from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine  
 from sqlalchemy.orm import DeclarativeBase, sessionmaker  
+from config import settings
   
-DB_HOST = 'localhost'  
-DB_PORT = 5432  
-DB_USER = 'exampleuser'  
-DB_PASS = 'examplepass'  
-DB_NAME = 'exampledb'
-  
-DATABASE_URL = f'postgresql+asyncpg://{DB_USER}:{DB_PASS}@{DB_HOST}:{DB_PORT}/{DB_NAME}'  
-  
-engine = create_async_engine(DATABASE_URL)  
-  
+engine = create_async_engine(settings.DATABASE_URL)
+
+# создание сессии
 async_session_maker = sessionmaker(engine, class_=AsyncSession, expire_on_commit=False)  
   
-  
+# класс для миграций
 class Base(DeclarativeBase):  
     pass
+```
+
+Создаём `config.py` и читаём .env с помощью Pydantic
+```python
+from pydantic_settings import BaseSettings  
+  
+class Settings(BaseSettings):  
+    DB_HOST: str  
+    DB_PORT: int  
+    DB_USER: str  
+    DB_PASS: str  
+    DB_NAME: str  
+  
+    class Config:  
+        env_file = ".env"  
+  
+    @property  
+    def DATABASE_URL(self) -> str:  
+        return f"postgresql+asyncpg://{self.DB_USER}:{self.DB_PASS}@{self.DB_HOST}:{self.DB_PORT}/{self.DB_NAME}"  
+
+settings = Settings()
+```
+
+Для каждой модели создаём свой Data Access Object (т.е. например будет директория `horoscopes`, в ней будет файл `models.py`, файл `dao.py` , файл `router.py` и файл `schemas.py`)
+```python
+# dao.py
+from database import async_session_maker  
+from sqlalchemy import select  
+from horoscopes.models import Horoscope  
+  
+# DAO = Data Access Object  
+class HoroscopeDAO:  
+  
+    @classmethod  
+    async def find_all(cls):  
+        async with async_session_maker() as session:  
+            query = select(Horoscope)  
+            horoscopes = await session.execute(query)  
+            return horoscopes.scalars().all()
+```
+
+```python
+# router.py
+from fastapi import APIRouter  
+from horoscopes.dao import HoroscopeDAO  
+  
+router = APIRouter(prefix='/horoscopes', tags=['Гороскопы', ])  
+  
+@router.get('')  
+async def get_horoscopes():  
+    return await HoroscopeDAO.find_all()
 ```
 
 ###### Модели
@@ -166,12 +434,19 @@ class MyUser(Base):
 ```
 
 #### SQLAlchemy + Alembic
-SQLAlchemy - это популярная ORM. Alembic для миграций
+SQLAlchemy - это популярная ORM.
+Alembic для миграций, работает в связке с SQLAlchemy.
+
+>[!info] Существует библиотека от создателя FastAPI, которая представляет собой связку из SQLAlchemy и Pydantic - [SQLModel](https://sqlmodel.tiangolo.com/)
 
 ```bash
 pip install sqlalchemy alembic asyncpg
 ```
+```bash
+pip install pydantic-settings
+```
 
+##### Alembic
 Миграции
 ```bash
 alembic init migrations
@@ -192,7 +467,7 @@ config.set_main_option('sqlalchemy.url', f'{DATABASE_URL}?async_fallback=True')
 
 Проводим миграцию
 ```bash
-alembic revision --autogenerate -m "Initial migrations"
+alembic revision --autogenerate -m "Initial migration"
 ```
 ```bash
 alembic upgrade head
@@ -201,5 +476,65 @@ alembic upgrade head
 Откатить миграцию
 ```bash
 alembic downgrade -1
+```
+
+##### SQLAlchemy
+###### Выборка
+Выборка всех записей
+```python
+async with async_session_maker() as session:  
+    query = select(Horoscope)  
+    horoscopes = await session.execute(query)  
+    return horoscopes.scalars().all()
+```
+
+Выборка одной записи
+```python
+async with async_session_maker() as session:  
+    query = select(Horoscope).filter_by(id=1)  
+    horoscopes = await session.execute(query)  
+    return horoscopes.scalar_one_or_none()
+```
+
+Фильтры
+```python
+async with async_session_maker() as session:  
+    query = select(Horoscope).filter_by(user_id=1, price=24500)  
+    horoscopes = await session.execute(query)  
+    return horoscopes.scalars().all()
+```
+
+##### Валидация
+Чтобы Pydantic мог корректно читать данные SQLAlchemy и валидировать их мы создаём схему с режимом ORM
+```python
+# schemas.py
+from datetime import date  
+from pydantic import BaseModel  
+  
+class SHoroscope(BaseModel):  
+    id = int  
+    sign = str  
+    text = str  
+    date = date  
+  
+    # Чтобы Pydantic смог получить список данных Алхимии  
+    class Config:  
+        orm_mode = True
+```
+
+И теперь проставляем в роутере тип возвращаемого значения
+```python
+@router.get('')  
+async def get_horoscopes() -> list[SHoroscope]:  
+    return await HoroscopeDAO.find_all()
+```
+
+Теперь благодаря схеме в автодокументации будет пример возвращаемого значения
+
+#### Аутентификация и авторизация
+
+Установим библиотеку для хэширования паролей
+```bash
+pip install passlib
 ```
 

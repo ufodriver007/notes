@@ -126,7 +126,7 @@ console.log(num2); // 123
 `parseFloat()`    Для преобразования строк в дробные числа
 
 #### Условные конструкции
-###### IF
+###### IF()
 ```javascript
 if(условие){    
     некоторые действия
@@ -136,7 +136,7 @@ if (myVar !== undefined && myVar !== null) {
     console.log(`Переменная myVar имеет значение: ${myVar}`);
 }
 ```
-###### IF-ELSE
+###### IF()-ELSE()
 ```javascript
 if(условие){
     действия, если условие истинно
@@ -145,7 +145,7 @@ else{
     действия, если условие ложно
 }
 ```
-###### IF-ELSE IF-ELSE
+###### IF()-ELSE IF()-ELSE()
 ```javascript
 const income = 50;
 if(income > 50) {
@@ -158,7 +158,7 @@ else{
     console.log("Доход меньше 50");
 }
 ```
-###### SWITCH-CASE
+###### SWITCH()-CASE
 ```javascript
 const income = 200;
 switch(income){
@@ -408,6 +408,8 @@ console.log(array);                           // [1, 4, 9, 16]
 |`reverse()`|располагает элементы массива в обратном порядке
 |`slice(start, end)`|вырезает отдельные элементы из массива
 |`sort()`|сортирует массив
+
+![[js_arrays.jpg]]
 
 ###### Spread оператор
 `...массив`

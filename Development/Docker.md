@@ -68,6 +68,8 @@ newgrp docker
 
 >[!info] `run` - создание контейнера и запуск. `start` - запуск контейнера
 
+![[docker_commands.jpg]]
+
 #### Dockerfile
 Описание только одного образа.
 ```docker

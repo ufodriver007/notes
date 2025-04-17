@@ -112,6 +112,7 @@ SELECT * FROM teacher UNION SELECT * FROM lesson
 
 |Пример функции|Описание|
 |----------|-------------|
+|`SELECT VERSION()`|возвращает версию БД|
 |`SELECT AVG(age) FROM teacher`|среднее значение колонки
 |`SELECT MAX(age), MIN(age) FROM teacher`|максимальное и минимальные значения колонки
 |`SELECT SUM(age) FROM teacher`|сумма всех значений колонки

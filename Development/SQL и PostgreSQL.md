@@ -80,6 +80,18 @@ db.close()
 |`ALTER TABLE employee ADD UNIQUE(bicycle_id)`|добавить ограничение на колонку bicycle_id(только уникальные значения)
 |`UPDATE employee SET bicycle_id = 2 WHERE id = 4`|изменить значение в таблице employee в колонке bicycle_id на 2 у записи, где id = 4
 
+`GROUP BY` - это конструкция, определяющая колонки, по которым будет проводится группировка результатов агрегатных функций. Например
+```sql
+-- Выборка сумирования цены с группировкой по user_id
+
+SELECT SUM(price) FROM spendings GROUP BY user_id
+```
+
+Поскольку `WHERE` нельзя использовать для агрегатных функций, надо использовать `HAVING`(только после `GROUP BY`)
+```sql
+SELECT SUM(price) FROM spendings GROUP BY user_id HAVING SUM(price) > 10000
+```
+
 #### JOIN
 ==JOIN на примере 2х таблиц(учителя и уроки). Это горизонтальное объединение.==
 
@@ -107,6 +119,57 @@ SELECT teacher.surname, lesson.name FROM teacher INNER JOIN lesson ON teacher.id
 ```sql
 SELECT * FROM teacher UNION SELECT * FROM lesson
 ```
+
+##### Подробное объяснение
+Для начала будет 2 таблицы:  `teachers` и `subjects`.
+Поле `subject` в таблице `teachers` - это внешний ключ на поле `id` в таблице `subjects`.
+Учителя
+![[teachers.png]]
+
+Уроки
+![[2025-04-18_02-52.png]]
+
+Пример самого простого объединения `INNER JOIN(или просто JOIN)`
+```sql
+SELECT * FROM teachers JOIN subjects ON teachers.subject = subjects.id;
+/*
+Выбираем ВСЕ поля из выборки (объединение teachers и subjects)
+После ON указываем СПОСОБ соединения
+*/ 
+```
+
+Результат
+![[2025-04-18_03-04.png]]
+То есть к каждой записи одной таблицы мы присоединяем запись другой таблицы
+
+Ещё пример запроса `INNER JOIN(или просто JOIN)`
+```sql
+SELECT teachers.first_name,                 -- имя поля для выборки
+       teachers.last_name,                  -- имя поля для выборки
+       subjects.name,                       -- имя поля для выборки
+       subjects.cabinet                     -- имя поля для выборки
+  FROM teachers                             -- из какой таблицы (считается левой)
+       JOIN subjects                        -- с какой таблицей соединяем (считается правой)
+        ON teachers.subject = subjects.id;  -- после ON описывается способ соединения
+```
+
+Результат
+![[2025-04-18_02-55.png]]
+
+![[2025-04-18_03-49.png]]
+
+OUTER JOIN - это пересечение множеств + одна из не пересекающихся частей
+Пример запроса (У двух записей teachers обнулены внешние ключи)
+```sql
+SELECT * FROM teachers RIGHT OUTER JOIN subjects ON teachers.subject = subjects.id
+/*
+Выбираем ВСЕ поля из выборки (объединение всех subjects и связанных с ними teachers)
+После ON указываем СПОСОБ соединения
+*/
+```
+
+Результат
+![[2025-04-18_03-54.png]]
 
 #### Функции
 

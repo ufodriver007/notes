@@ -70,8 +70,8 @@ def getsome(new_id: int):
 
 ###### Query. Получение GET параметров
 ```python
-@app.get('/some}')  
-def getsome(getparam):  
+@app.get('/some}')            # поскольку в пути нет {} FastAPI понимает,
+def getsome(getparam):        #   что это query параметры
     return f'Your get param: {getparam}'
 ```
 
@@ -538,3 +538,75 @@ async def get_horoscopes() -> list[SHoroscope]:
 pip install passlib
 ```
 
+#### Шаблоны
+>[!info] Используется шаблонизатор `Jinja2`
+
+Создаём директорию `templates` и в ней `test.html`
+```python
+from fastapi import APIRouter, Request  
+from fastapi.templating import Jinja2Templates 
+  
+
+page_router = APIRouter(prefix='/pages', tags=['Шаблоны', ])  
+
+templates = Jinja2Templates(directory='templates') 
+  
+@page_router.get('')  
+async def get_page(request: Request):  
+    return templates.TemplateResponse(name='test.html', context={'request': request})
+```
+
+Не забываем, что роутер ещё нужно подключить
+
+##### Статика для шаблонизатора
+Создаём директорию `static`
+```python
+from fastapi.staticfiles import StaticFiles
+
+app = FastAPI()
+
+app.mount('/static', StaticFiles(directory='app /static'), 'static')
+```
+
+#### Загрузка файлов
+```python
+import os  
+  
+from fastapi import APIRouter, UploadFile, File  
+from fastapi.responses import JSONResponse  
+  
+  
+router = APIRouter(prefix='/upload', tags=['Upload', ])  
+  
+UPLOAD_DIRECTORY = "./uploads"  
+os.makedirs(UPLOAD_DIRECTORY, exist_ok=True)  
+  
+  
+@router.post("")  
+async def upload_file(file: UploadFile = File(...)):  
+    file_location = os.path.join(UPLOAD_DIRECTORY, file.filename)  
+  
+    with open(file_location, "wb") as f:  
+        contents = await file.read()  
+        f.write(contents)  
+  
+    return JSONResponse(content={"filename": file.filename, "file_location": file_location})
+```
+
+#### CORS
+```python
+from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
+
+app = FastAPI()
+
+origins = ["*"]
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+```

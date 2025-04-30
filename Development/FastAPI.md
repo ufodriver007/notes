@@ -352,6 +352,10 @@ def getsome(new_id: int = Query(ge=1, le=5)):
 ```
 
 #### Работа с БД
+```bash
+pip install sqlalchemy
+```
+
 Создаём `db.py`
 ```python
 from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine  
@@ -369,6 +373,10 @@ class Base(DeclarativeBase):
 ```
 
 Создаём `config.py` и читаём .env с помощью Pydantic
+```bash
+pip install pydantic-settings
+```
+
 ```python
 from pydantic_settings import BaseSettings  
   
@@ -535,7 +543,7 @@ async def get_horoscopes() -> list[SHoroscope]:
 
 Установим библиотеку для хэширования паролей
 ```bash
-pip install passlib
+pip install 'fastapi-users[sqlalchemy]'
 ```
 
 #### Шаблоны

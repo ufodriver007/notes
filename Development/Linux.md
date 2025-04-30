@@ -739,6 +739,34 @@ sudo wg-quick down wg0                   закрыть туннель
 |`service wg-quick@wg0 status`|статус службы wireguard
 |`cat /etc/wireguard/wg.conf`|конфиг сервера
 
+#### ByeDpi (Linux)
+[GitHub](https://github.com/hufrea/byedpi/releases/)
+Это SOCKS прокси сервер
+
+Запуск
+```bash
+./ciadpi --disorder 1 --auto=torst --tlsrec 1+s
+```
+
+>[!info] Если домены не резолвятся, надо установить DNS сервера `1.1.1.1` и `8.8.8.8`
+
+В браузере установить прокси по протоколу `SOCKS`/`SOCKS5` и порт `1080`
+
+###### Установка прокси-сервера в Firefox
+![[2025-04-30_14-40.png|500]]]
+![[2025-04-30_14-40_1.png|500]]]
+
+###### Установка прокси-сервера в Linux Mint
+![[2025-04-30_14-46.png|500]]
+
+[Видео](https://vk.com/video24452680_456241087)
+
+#### GoodbyeDPI (Windows)
+[GitHub](https://github.com/ValdikSS/GoodbyeDPI)
+
+#### ByeDpi (Android)
+[GitHub](https://github.com/dovecoteescapee/ByeDPIAndroid/)
+
 #### Смена порта SSH
 ```bash
 sudo nano /etc/ssh/sshd_config

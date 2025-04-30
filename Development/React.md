@@ -31,8 +31,8 @@
 
 ###### Начало работы
 >[!info] Чтобы создать React-приложение и начать с ним работать, нужно:
->- Node.js
->- NPM
+>- Node.js (среда выполнения)
+>- NPM (пакетный менеджер)
 >- Инструмент для создания проектов и работы с ними(`Vite` или устаревший `Create-react-app`)
 
 ###### Устанавливаем node js
@@ -44,6 +44,9 @@ node -v
 ```
 ---
 Установка
+
+На [сайте](https://nodejs.org/en/download) есть инструкция, как установить node.js с помощью NVM (Node Version Manager)
+
 ```bash
 curl -sL https://deb.nodesource.com/setup_20.x -o nodesource_setup.sh
 ```

@@ -541,9 +541,114 @@ async def get_horoscopes() -> list[SHoroscope]:
 
 #### Аутентификация и авторизация
 
-Установим библиотеку для хэширования паролей
+###### AuthX
+[GitHub](https://github.com/yezz123/authx)
+[Документация](https://authx.yezz.me/get-started/installation/)
+
+```bash
+pip install authx
+```
+
+```python
+from fastapi import FastAPI, Depends, HTTPException
+from authx import AuthX, AuthXConfig, RequestToken
+from pydantic import BaseModel
+
+app = FastAPI()
+
+config = AuthXConfig()
+config.JWT_SECRET_KEY = 'Secret_Key'  
+config.JWT_ACCESS_COOKIE_NAME = 'my_access_token'  
+config.JWT_TOKEN_LOCATION = ['cookies']
+
+auth = AuthX(config=config)
+
+class UserLoginSchema(BaseModel):  
+    username: str  
+    password: str
+
+@app.exception_handler(MissingTokenError)  
+async def auth_exception_handler(request: Request, exc: Exception):  
+    raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Access denied")
+    
+@app.post('/login')  
+def login(credentials: UserLoginSchema, response: Response):  
+    if credentials.username == 'user' and credentials.password == 'test':  
+        token = security.create_access_token(uid='12345')  
+        response.set_cookie(config.JWT_ACCESS_COOKIE_NAME, token)  
+        return {'access_token': token}  
+    raise HTTPException(status_code=401, detail="Incorrect username or password")
+
+@app.get("/protected", dependencies=[Depends(security.access_token_required)])
+def get_protected(token: RequestToken = Depends()):
+     pass
+```
+
+###### FastAPI Users
+[Документация](https://fastapi-users.github.io/fastapi-users/latest/)
+
 ```bash
 pip install 'fastapi-users[sqlalchemy]'
+```
+
+###### Keycloak
+Keycloak – это бесплатное решение с открытым исходным кодом для управления идентификацией и доступом (Identity and Access Management, IAM). Основная задача Keycloak – обеспечить механизм единого входа (Single Sign-On, SSO), позволяющий пользователям аутентифицироваться один раз и получать доступ к различным приложениям без необходимости повторного ввода учетных данных.
+
+[Статья](https://habr.com/ru/companies/amvera/articles/907990/)
+
+#### Celery
+```bash
+pip install celery flower redis
+```
+
+Создаём файл с конфигурацией Celery `celery_config.py`
+```python
+from celery import Celery  
+
+celery = Celery(  
+    'tasks',  
+    broker='redis://localhost:6379/1',  
+    backend='redis://localhost:6379/1',  
+    include=['tasks']  
+)
+```
+
+Создаём файл с тасками `tasks`
+```python
+from celery_config import celery
+
+@celery.task
+def request():
+    pass
+```
+
+Эндпоинты
+```python
+from celery.result import AsyncResult
+from celery_config import celery
+
+@app.get('/search')  
+def search(q: str):
+    task = vk_search.delay(q)
+    return {"task_id": task.id}
+
+@app.get('/result/{task_id}')  
+def result(task_id: str):  
+    task_result = AsyncResult(task_id, app=celery)  
+    if task_result.ready():  
+        return {"status": "completed", "result": task_result.result}  
+    else:  
+        return {"status": "pending"}
+```
+
+Запуск Celery
+```bash
+celery -A celery_config:celery worker --loglevel=INFO
+```
+
+Запуск Flower
+```bash
+celery -A celery_config:celery flower
 ```
 
 #### Шаблоны

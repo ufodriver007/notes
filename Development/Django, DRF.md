@@ -3049,6 +3049,11 @@ toolbox.router.get("/images/*", toolbox.cacheFirst);
 toolbox.router.get("/*", toolbox.networkFirst, { networkTimeoutSeconds: 5});
 ```
 
+## TWA
+**TWA (Trusted Web App)** — это, можно сказать, улучшенный PWA. По сути, это уже не сохраненная страница, а полноценный «браузер» на движке Chrome, у которого одно предназначение — отображать ваше веб-приложение.
+
+[Статья на Хабре](https://habr.com/ru/companies/selectel/articles/907834/)
+
 ## Celery
 >[!info] Celery - это  распределенная очередь задач. Она позволяет вам выгрузить работу из вашего приложения на Python. Как только вы интегрируете Celery в свое приложение, вы можете отправлять трудоемкие задачи в очередь задач Celery. Таким образом, ваше веб-приложение может продолжать быстро реагировать на запросы пользователей, в то время как Celery асинхронно выполняет операции, требующие больших затрат в фоновом режиме.
 
@@ -3525,3 +3530,148 @@ if __name__ == '__main__':
 - Добавляем токен в строку `Secret`(его будет слать `github` в заголовках)
 
 >[!tip] По нормальному должен быть тестовый сервер, где проверяется работоспособность со свежими изменениями. И только после него заливать изменения на продакшн.
+
+Ещё пример сервера, слушающего вебхуки:
+```python
+from datetime import datetime
+import os
+import subprocess
+import time
+import threading
+
+from flask import Flask, request
+from dotenv import load_dotenv
+from loguru import logger
+from git import Repo
+
+
+load_dotenv()
+app = Flask(__name__)
+GITFLIC_TOKEN = os.getenv('GITFLIC_TOKEN')
+PRIVATE_SSH_KEY_PATH = os.getenv('PRIVATE_SSH_KEY_PATH')
+REPO_DIR = os.getcwd()
+
+logger.remove()
+logger.add('logs/webhook.log', rotation='10mb', level='DEBUG')
+
+# Глобальная блокировка для предотвращения одновременных запросов
+rebuild_lock = threading.Lock()
+
+
+def git_pull() -> bool:
+    try:
+        logger.info('Git pull...')
+
+        os.environ["GIT_SSH_COMMAND"] = f"ssh -i {PRIVATE_SSH_KEY_PATH} -o IdentitiesOnly=yes"
+        repo = Repo(REPO_DIR)
+        current_commit = repo.head.commit.hexsha
+        repo.remotes.origin.pull()
+
+        new_commit = repo.head.commit.hexsha
+        if current_commit != new_commit:
+            logger.info("Успешно!")
+            return True
+        else:
+            logger.info("Изменений нет")
+            return False
+
+    except subprocess.CalledProcessError as e:
+        logger.error(f"Ошибка Git: {e.stderr}")
+        return False
+    except Exception as e:
+        logger.error(f"Общая ошибка: {str(e)}")
+        return False
+
+
+def rebuild_and_restart() -> bool:
+    start_time = time.time()
+    result = git_pull()
+    if not result:
+        return False
+
+    try:
+        logger.info('Git pull...')
+        subprocess.run(
+            ['git', 'pull'],
+            capture_output=True,
+            check=True,
+            text=True
+        )
+
+        # Останавливаем старый контейнер
+        logger.info('Stopping old container...')
+        subprocess.run(
+            ['docker-compose', 'down'],
+            capture_output=True,
+            check=True,
+            text=True
+        )
+
+        # Удаляем образы, которые не используются и старше часа
+        logger.info('Removing old Docker images...')
+        subprocess.run(
+            ['docker', 'system', 'prune', '-a', '-f'],
+            capture_output=True,
+            check=True,
+            text=True
+        )
+
+        logger.info('Removing old static volume...')
+        subprocess.run(
+            ['docker', 'volume', 'rm', 'kct_cabinet_static_volume'],
+            capture_output=True,
+            check=True,
+            text=True
+        )
+
+        # Запускаем новый контейнер из собранного образа
+        logger.info('Starting new container...')
+        subprocess.run(
+            ['docker-compose', 'up', '-d'],
+            capture_output=True,
+            check=True,
+            text=True,
+            timeout=600
+        )
+
+        logger.info(f'Rebuilding complete. Time spent: {(time.time() - start_time):.2f}sec')
+
+        return True
+    except subprocess.TimeoutExpired:
+        logger.error(f"Timeout exception. Retry again...")
+        rebuild_and_restart()
+    except subprocess.CalledProcessError as e:
+        logger.error(f"Error: {e.stderr}")
+        return False
+    except Exception as e:
+        logger.error(f"Unexpected error: {str(e)}")
+        return False
+
+
+@app.route('/webhook', methods=['POST'])
+def webhook():
+    if not rebuild_lock.acquire(blocking=False):
+        logger.warning('Rebuild in progress. New request rejected.')
+        return {'Status': 'busy', 'Message': 'Rebuild in progress'}, 423  # HTTP 423 Locked
+
+    try:
+        token = request.headers.get('Authorization')
+
+        if token != GITFLIC_TOKEN:
+            logger.warning(f'Unauthorized request ({datetime.now()}) from {request.headers.get("X-Forwarded-For") or request.remote_addr}')
+            return {'Status': 'Unauthorized'}, 401
+
+        logger.info('New GitFlic event')
+        logger.info(request.get_json())
+
+        if rebuild_and_restart():
+            return {'Status': 'ok'}, 200
+        return {'Status': 'fail'}, 500
+    finally:
+        # Освобождаем блокировку после завершения обработки
+        rebuild_lock.release()
+
+
+if __name__ == '__main__':
+    app.run(host='0.0.0.0', port=5051)
+```

@@ -1,6 +1,7 @@
 ![[Pasted image 20240115022815.jpg|300]]
 
 [Документация](https://react.dev/learn)
+[Метанит](https://metanit.com/web/react/)
 
 ###### Искусственный пример. Hello, world
 Создадим файл `index.html` в котором прямо внутри подключим из внешнего источника библиотеку React и напишем JS код(не JSX). *Так никто не делает. Просто для понимания структуры.*
@@ -148,7 +149,7 @@ const App = () => {
 }
 export default App
 ```
-В файле, куда хотим подключить(Если рефкт-компонент, то в `'src/index.js'` )
+В файле, куда хотим подключить(Если реакт-компонент, то в `'src/index.js'` )
 ```jsx
 import App from './App';
 
@@ -166,6 +167,34 @@ root.render(
 ```js
 import './index.css'
 ```
+
+#### Модульные стили
+>[!info] Класс стиля будет привязан к определённому компоненту, потому что сгенерируется уникальный ключ. И можно будет лаконично назвать свой класс стиля и он не будет конфликтовать с др. классами.
+
+Создаём файл стилей `MyApp.module.css`
+```css
+.mystyle {
+    font-size: 3.2em;
+    line-height: 1.1;
+    color: green;
+}
+```
+
+Импортируем в требуемый компонент
+```jsx
+import styles from "./MyApp.module.css";
+```
+
+Используем
+```jsx
+<h1 className={styles.mystyle}>My component!</h1>
+```
+
+В браузере после рендера будет что-то вроде
+```jsx
+<h1 class="_myh_16g1c_1">My component!</h1>
+```
+
 
 ###### Создаём простой компонент
 
@@ -201,11 +230,15 @@ root.render(
 );
 ```
 
+>[!info] В каждом компоненте должен быть только один элемент (тэг/фрагмент)! Если нужно несколько - делаете вложенную структуру.
+
+>[!info] Имя компонента в React (который является обычной функцией в JS) пушется с большой буквы, чтобы React понимал, что это преобразуется в пользовательский тэг, а тэгт с маленькой буквы - это стандартные HTML тэги.
+
 #### JSX
 >[!info] JSX — расширение языка JavaScript. Позволяет использовать синтаксис HTML внутри вашего кода JavaScript.
 
 >[!warning] В JSX мы не можем тегам писать `class`, вместо этого пишем `className`. Например `<div className="test"></div>`. 
->- Атрибуты также пишем в CamelCase !
+>- Атрибуты также пишем в camelCase ! `<div style={{ fontSize: "40px" }}>Hello, world!</div>`
 >- JS код пишем в фигурных скобках. Например `<p>{obj.hello}</p>`
 >- Комментарий `{/* */}
 `
@@ -232,7 +265,7 @@ const App = () => {
     
     return (
         <div>
-            <p>{age === 18 & 'good' : 'bad'}</p>
+            <p>{age === 18 ? 'good' : 'bad'}</p>
         </div>
         );
 };
@@ -240,7 +273,39 @@ const App = () => {
 export default App;
 ```
 
-2. Через функцию
+2. Оператор И
+```jsx
+function Product({ productObj }) {  // деструктуризация пропса
+    return (
+     productObj && (  // Если productObj == false, то ничего не вернём
+        <div>
+            <p>{age === 18 ? 'good' : 'bad'}</p>
+        </div>
+        )
+    );
+};
+
+export default App;
+```
+
+3. `IF` вне `JSX`
+```jsx
+const App = () => {
+    const age = 18
+
+    if (age < 18) return null;
+
+    return (
+        <div>
+            <p>Seems like your age is more than 18.</p>
+        </div>
+        );
+};
+
+export default App;
+```
+
+4. Через функцию
 ```jsx
 const App = () => {
     const age = 18;
@@ -360,7 +425,7 @@ export default App
 - Возможно добавляем стили в `MyComponent.css`
 
 #### Props
->[!info] Props представляет коллекцию значений, которые ассоциированы с компонентом. Эти значения позволяют создавать динамические компоненты, которые не зависят от жестко закодированных статических данных.
+>[!info] Props представляет коллекцию значений, которые ассоциированы с компонентом. Эти значения позволяют создавать динамические компоненты, которые не зависят от жестко закодированных статических данных. Можно представить их как аргументы для функции, только read-only и передаваемые одним объектом
 
 ###### Передаём значение
 ```jsx
@@ -412,6 +477,33 @@ function App() {
 }
 ```
 
+##### Children
+Можно передать любой контент(в т.ч. и другие компоненты) внутрь своего компонента
+
+Слово `children` зарезервировано. Определяем место под `prop`
+```jsx
+export function DangerButton({ isDisabled = false, children }) {
+    return (
+        <button
+            className={`${isDisabled ? "disabled" : ""} red`}
+            onClick={() => alert("Test!")}
+        >
+            {children}
+        </button>
+    );
+}
+```
+
+Передаём контент внутрь тэга
+```jsx
+import { DangerButton } from "./components/Buttons.jsx";
+
+export default function App() {
+    return (
+        <DangerButton><span>&#11015;</span>Hello world!</DangerButton>
+    );
+}
+```
 
 #### События
 `App.jsx`
@@ -455,14 +547,15 @@ export default App;
 - useMemo
 - useContext
 
-**useState** Позволяет сохранять значения. Если значение изменено, перерисовывает компонент.
+**useState** Позволяет сохранять значения между рендерами. Если значение изменено, *перерисовывает* компонент.
 ```jsx
 //App.jsx
 import React, { useState } from 'react';
 import './index.css';
 
 const App = () => {
-    const [isDark, setIsDark] = useState(true);  // функция хука возвращ. массив из 2х значений
+    const [isDark, setIsDark] = useState(true);  
+        // функция хука возвращ. массив из 2х значений
         // первое значение - это начальная переменная в котор. хранится значение
         // второе значение - функция для обновления переменной(т.н. setState)
         // setIsDark просто желаемое мной название встроен. функции реакта
@@ -485,9 +578,20 @@ const App = () => {
 export default App;
 ```
 
-Лучшая практика
+Ещё раз
+```jsx
+const [count, setCount] = useState(0);
+// Деструктуризация (распаковка) возвращаемого значения функции useState
+// count - это будет переменная, которая будет хранить наше значение
+// setCount - функция, которая изменит нашу переменную на то, что мы ей передадим.
+//     Например setCount(count + 1)
+// useState(0) - задаём начальное значение 0
+```
+
+Лучшая практика (если нужно установить значение на основе старого значения)
 ```jsx
 const onClickHandler = () => {
+        // используем callback
         setIsDark(prev => prev +1);  // Предыдущее состояние изменяется. Так надёжнее, из-за
                                      // асинхронной природы хука
     };
@@ -496,7 +600,18 @@ const onClickHandler = () => {
 >[!tip] Чтобы не плодить в одном компоненте кучу дублирующегося кода с useState, можно передавать один объект с кучей значений
 
 ###### useEffect
-Служит для определённых side эффектов. Мы можем за чем-либо(переменная, координаты мыши и т.п.) наблюдать и выполнять в случае чего нашу логику
+Служит для определённых side эффектов (любое действие, которое выходит за пределы текущей функции и взаимодействует с чем-то снаружи). Мы можем за чем-либо(переменная, координаты мыши и т.п.) наблюдать и выполнять в случае чего нашу логику.
+
+Вот несколько примеров использования:
+- Запрос данных из API
+- Изменение заголовка страницы
+- Подписка на события, такие как изменение размера окна
+- Установка таймеров или интервалов
+- Чтение и запись в локальное хранилище (localStorage или sessionStorage)
+- Получение текущей геолокации пользователя
+- Показ системных уведомлений
+- Подключение к WebSocket для получения данных в реальном времени
+- Изменение глобальных переменных или состояний, доступных за пределами функции.
 
 ```jsx
 import { useEffect } from "react";
@@ -526,29 +641,81 @@ useEffect(() => {
 }, [myVar])
 ```
 
+В `useEffect` если он срабатывает неоднократно(цилично) нужно описывать функцию очистки, чтобы программа не жрала память.
+```jsx
+useEffect(() => {
+    // основная логика
+    console.log('Component mounted')
+
+    // функция очистки
+    return () => {
+        // логика очистки
+    }
+}, [])
+```
+![[2025-05-20_04-49.png]]
+
+Чтобы избежать состояния гонки, передаём в `fetch` сигнал для отмены запроса.
+1. Создание `AbortController`: Внутри `useEffect` создаётся новый экземпляр `AbortController`, который предоставляет сигнал (`signal`) для управления отменой запроса.
+2. Передача `signal` в `fetch`: В параметрах `fetch` передаётся `signal`, что позволяет отменить запрос, если `AbortController` вызовет `abort()`.
+3. Отмена предыдущего запроса: В `useEffect` возвращается функция очистки, которая вызывает `controller.abort().` Это отменяет любой предыдущий запрос, который всё ещё может быть в процессе выполнения, если query изменяется до завершения запроса.
+4. Обработка ошибки отмены: Если запрос был отменён, возникает ошибка типа `AbortError`. Мы проверяем её в блоке `catch`, чтобы не отображать сообщение об ошибке пользователю, если запрос был отменён преднамеренно.
+```js
+function MyComponent() {
+  useEffect(() => {
+    const controller = new AbortController();  // Создаём AbortController
+    const signal = controller.signal;  // Получаем сигнал из контроллера
+
+    async function fetchData() {
+      try {
+        const response = await fetch('https://api.example.com/data', {signal});
+        const data = await response.json();
+        console.log(data);
+      } catch (err) {
+        if (err.name === 'AbortError') {
+          console.log('Запрос был отменён');
+        } else {
+          console.log('Произошла ошибка', err);
+        }
+      }
+    }
+
+  fetchData();
+
+  return () => controller.abort();  // Прерываем запрос при размонтировании или повторном рендере
+  }, []);  // Пустой массив зависимостей - эффект выполнится один раз при монтировании
+}
+```
+
+
 ###### useRef
-Позволяет сохранять значения. Ели мы не хотим лишний раз рендерить
+Позволяет сохранять значения между рендерами. Хук  похож на `useState`, но не запускает *ререндеринг*.
 
 Увеличение счётчика без дополнительного рендера
 ```jsx
-const renderCounter = useRef(1)  // возвращает объект
-
+const renderCounter = useRef(1)  // возвращает объект с
+                                 //   единственным атрибутом current
 renderCounter.current++
 ```
 
-Фокус на элементе
+Также с его помощью можно получить элемент добавив атрибут `ref`
 ```jsx
-const inputRef = useRef(null)
+import React, {useEffect, useRef} from "react"
 
-function focus() {
-    inputRef.current.focus()
+functiom App() {
+  const inputRef = useRef(null);
+
+  useEffect(() => {
+    console.log(inputRef.current);  // теперь можно манипулировать им
+  }, []);
+
+  return (
+    <div>
+      <button ref={inputRef}>Huge BUTTON</button>
+    </div>
+  );
 }
-...
-<button onClick={focus}>Фокус</button>
-...
 ```
-
-Также с его помощью можно получить предыдущее состояние
 
 ###### useMemo
 Используется для оптимизации производительности компонента, позволяя мемоизировать вычисленные значения. Это полезно, если вычисление значений требует значительных ресурсов или времени
@@ -738,6 +905,65 @@ export default App;
 
 >[!warning] `useContext` не подходит если значение контекста обновляется очень часто, это может привести к повторным рендерам всех компонентов, использующих этот контекст.
 
+###### Кастомный хук
+>[!info] Кастомных хук должен использовать хотя бы один стандартный хук (`useState`, `useEffect`, `useRef`, `useContext`, и так далее).  Имя функции кастомного хука начинается с префикса `use`
+
+Создаём файл `useFetch.jsx`
+```jsx
+import { useState, useEffect } from "react";
+
+function useFetch(url) {
+  const [data, setData] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    async function fetchData() {
+      try {
+        const response = await fetch(url);
+        if (!response.ok) {
+          throw new Error(`HTTP Error $(response.status)`);
+        }
+        const result = await response.json();
+        setData(result);
+      } catch (err) {
+        setError(err.message);
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    fetchData();
+  }, [url]);
+
+  return { data, loading, error };
+}
+
+export default useFetch;
+```
+
+Использование хука в компоненте
+```jsx
+import useFetch from "./useFetch";
+
+function Posts() {
+  const { data, loading, error } = useFetch("https://jsonplaceholder.typicode.com/posts");
+
+  if (loading) return <p>Loading...</p>
+  if (error) return <p>Error: {error}</p>
+
+  return (
+    <ul>
+      {data.map((post) => (
+        <li key={post.id}>{post.title}</li>
+      ))}
+    </ul>
+  );
+}
+
+export default Posts;
+```
+
 #### Маршрутизация(Роутинг)
 ###### Общепринятные маршруты и методы CRUD
 
@@ -754,6 +980,9 @@ export default App;
 [Встроенный роутер React. Документация](https://reactrouter.com/home)
 >[!info] Нужен для того чтобы можно было переходить между страницами
 
+>[!tip] `react-router` - это core библиотека. Может быть использована в `React Native`. Не предназначена для конкретной платформы. `react-router-dom` основана на `react-router` и предоставляет специфические компоненты и функциональность для веб-приложений (браузеров). Если вы разрабатываете веб-приложение, вам, скорее всего, нужна именно **`react-router-dom`**
+
+##### React-Router
 Установка
 ```bash
 npm i react-router
@@ -798,36 +1027,110 @@ import { useNavigate } from "react-router";
 ...
 const navigate = useNavigate();
 useEffect(() => {
-    navigate("/new");  // При загрузи страницы автоматически перейдёт на "/new"
+    navigate("/new");  // При загрузке страницы автоматически перейдёт на "/new"
 }, [])
 ...
 ```
 
-#### Модульные стили
->[!info] Класс стиля будет привязан к определённому компоненту, потому что сгенерируется уникальный ключ. И можно будет лаконично назвать свой класс стиля и он не будет конфликтовать с др. классами.
+##### React-Router-DOM
+https://www.npmjs.com/package/react-router-dom
 
-Создаём файл стилей `MyApp.module.css`
-```css
-.mystyle {
-    font-size: 3.2em;
-    line-height: 1.1;
-    color: green;
+Установка
+```bash
+npm install react-router-dom
+```
+
+Описание путей в  `App.jsx`
+```jsx
+import { createBrowserRouter, RouterProvider } from "react-router-dom";
+import Home from "./Home.jsx";
+import About from "./About.jsx";
+import NotFound from "./NotFound.jsx";
+
+const router = createBrowserRouter([
+  {
+    path: "/",
+    element: <Home />,
+  },
+  {
+    path: "about",
+    element: <About />,
+  },
+  {
+    path: "*",
+    element: <NotFound />,
+  },
+]);
+
+export default function App() {
+  return <RouterProvider router={router} />;
 }
 ```
 
-Импортируем в требуемый компонент
+Ссылка на новую страницу БЕЗ перезагрузки
 ```jsx
-import styles from "./MyApp.module.css";
+import { Link } from "react-router-dom";
+
+function Home() {
+  return (
+    <div>
+      <h1>Hope Page</h1>
+      <p>
+        <Link to={"about"}>About</Link>
+      </p>
+    </div>
+  );
+}
+
+export default Home;
 ```
 
-Используем
-```jsx
-<h1 className={styles.mystyle}>My component!</h1>
-```
+Также есть компонент `<NavLink>`, который при нажатии на ссылку добавляет ей класс `active`
 
-В браузере после рендера будет что-то вроде
+###### Outlet
+Компонент для рендеринга дочерних маршрутов. Работает как `{children}`, только для страниц.
+
+Создадим `Layout.jsx`
 ```jsx
-<h1 class="_myh_16g1c_1">My component!</h1>
+import Header from "./Header";
+import Footer from "./Footer";
+import { Outlet } from "react-router-dom";
+
+function Layout() {
+  return (
+    <>
+      <Header />
+      <Outlet />
+      <Footer />
+    </>
+  );
+}
+
+export default Layout;
+```
+Создадим роутер в `App.jsx`
+```jsx
+import { createBrowserRouter, RouterProvider } from "react-router-dom";
+import Home from "./Home.jsx";
+import About from "./About.jsx";
+import NotFound from "./NotFound.jsx";
+import Layout from "./Layout.jsx";
+
+const router = createBrowserRouter([
+  {
+    path: "/",
+    element: <Layout />,
+    children: [
+      { path: "", element: <Home /> },
+      { path: "about", element: <About /> },
+      { path: "*", element: <NotFound /> },
+    ],
+  },
+]);
+
+export default function App() {
+  return <RouterProvider router={router} />;
+}
 ```
 
 #### React Bootstrap

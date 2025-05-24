@@ -990,6 +990,7 @@ npm i react-router
 
 Добавляем в `main.jsx`
 ```jsx
+// СТАРЫЙ СИНТАКСИС
 import { BrowserRouter, Routes, Route } from "react-router";
 
 createRoot(document.getElementById("root")).render(
@@ -1012,24 +1013,6 @@ createRoot(document.getElementById("root")).render(
     <Route path="settings" element={<Settings />} />
   </Route>
 </Routes>
-```
-
-Ссылка на новую страницу БЕЗ перезагрузки
-```jsx
-<Link to='/new'>Go to new page</Link>
-```
-
-Программный переход на другую страницу
-```jsx
-import { useEffect } from "react";
-import { useNavigate } from "react-router";
-
-...
-const navigate = useNavigate();
-useEffect(() => {
-    navigate("/new");  // При загрузке страницы автоматически перейдёт на "/new"
-}, [])
-...
 ```
 
 ##### React-Router-DOM
@@ -1067,6 +1050,7 @@ export default function App() {
 }
 ```
 
+###### Link
 Ссылка на новую страницу БЕЗ перезагрузки
 ```jsx
 import { Link } from "react-router-dom";
@@ -1085,7 +1069,30 @@ function Home() {
 export default Home;
 ```
 
-Также есть компонент `<NavLink>`, который при нажатии на ссылку добавляет ей класс `active`
+Ещё с помощью такой ссылки можно передать объект состояния. Это просто ообъект. Принимается он с помощью хука `useLocation`
+```jsx
+<Link to="/category/electronics" state={{ from: "Home Page", maxPrice: 600 }}>Cheapest electronics</Link>
+```
+
+###### NavLink
+Также есть компонент `<NavLink>`, который работает по аналогии с `Link`, только при нажатии на ссылку добавляет ей класс `active`
+
+###### Navigate
+Компонент для программного перенаправления. Используется для редиректов.
+
+```jsx
+const router = createBrowserRouter([
+  {
+    path: "/",
+    element: <Layout />,
+    children: [
+      { path: "", element: <Home /> },
+      { path: "about", element: <About /> },
+      { path: "*", element: <Navigate to="/" /> },
+    ],
+  },
+]);
+```
 
 ###### Outlet
 Компонент для рендеринга дочерних маршрутов. Работает как `{children}`, только для страниц.
@@ -1131,6 +1138,300 @@ const router = createBrowserRouter([
 export default function App() {
   return <RouterProvider router={router} />;
 }
+```
+
+###### Динамическая маршрутизация
+В роутере указываем `wildcard`
+```jsx
+const router = createBrowserRouter([
+  {
+    path: "/",
+    element: <Layout />,
+    children: [
+      { path: "", element: <Home /> },
+      { path: "about", element: <About /> },
+      { path: "category/:categoryId", element: <Category /> },  // wildcard
+      { path: "*", element: <NotFound /> },
+    ],
+  },
+]);
+```
+
+В компоненте принимаем с помощью хука `useParams`
+```jsx
+import { useParams } from "react-router-dom";
+
+function Category() {
+  const currentCategory = useParams();  // {categoryID: "clothing"}
+  const { categoryId } = useParams();  // clothing
+
+  return (
+    <>
+      <h1>{ currentCategory }</h1>
+    </>
+  );
+}
+
+export default Category;
+```
+
+###### GET параметры
+>[!info] Хук `useSearchParams` похож на `useState`. Он тоже вызывает ререндеринг, имеет переменную для объекта, содержащего все пары ключ-значение. Имеет функцию для установки объекта.
+
+```jsx
+import { useSearchParams } from "react-router-dom";
+
+function About() {
+  const [searchParams, setSearchParams] = useSearchParams();
+  const name = searchParams.get("name") || "";  // получение значения
+  const hasName = searchParams.has("name");  // true или false
+
+  console.log(name);
+  console.log(hasName);
+
+  // перебор всех пар ключ-значение
+  for (const [key, value] of searchParams.entries()) {
+    console.log(key, value);
+  }
+
+  return <div>About Page</div>;
+}
+
+export default About;
+```
+
+>[!tip] Удобно делать фильтры на сайте через Get параметры.
+
+###### Хук useLocation
+Хук, возвращающий объект текущего URL. Этот объект содержит информацию о текущем пути,
+строке запроса, хэше и состоянии, переданном при навигации.
+
+|Свойство |Описание |
+|---|---|
+|`pathname` |Путь текущего URL (например, /products/123).|
+|`search` |Get параметры.(useSearchParams — предпочтительный способ работы с GET параметрами)
+|`hash`|Хэш (фрагмент URL после символа `#`, например, `#section1`).|
+|`state` |Объект состояния, переданный при навигации (например, через navigate или Link).|
+|`key` |Уникальный идентификатор маршрута (используется React Router для навигации).|
+
+```jsx
+const location = useLocation();
+```
+
+###### Хук useNavigate
+>[!info] Тоже что и тэг `<Link>`, только программное перенаправление.
+
+Программный переход на другую страницу
+```jsx
+import { useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+
+...
+const navigate = useNavigate();
+
+useEffect(() => {
+    navigate("/new");  // При загрузке страницы автоматически перейдёт на "/new"
+}, [])
+...
+```
+
+Программное перенаправление с таймером
+```jsx
+import { useNavigate } from "react-router-dom";
+import { useEffect } from "react";
+
+function About() {
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      navigate("/");
+    }, 5000);
+    
+    return () => clearTimeout(timer);
+  }, [navigate]);
+
+  return (
+    <div>About Page. You will be redirected to the home page in 5 seconds</div>
+  );
+}
+
+export default About;
+```
+
+#### Загрузка данных
+Создаём функцию загрузки
+```jsx
+async function fetchData() {
+  const res = await fetch("https://jsonplaceholder.typicode.com/posts");
+  if (!res.ok) {
+    throw new Error("Failed to fetch posts");
+  }
+
+  return res.json();
+}
+
+export default fetchData;
+```
+
+Создаём элемент, который будет отображаться при ошибке загрузки
+```jsx
+export function ErrorBoundary() {
+  const error = useRouteError();  // хук для получения ошибки
+
+  return (
+    <div>
+      <h1>Error</h1>
+      <p>{error.message}</p>
+    </div>
+  );
+}
+```
+
+В родительском элементе (например Layout) получаем состояние с помощью хука `useNavigation` (не путать с `useNavigate`) и отображаем `<p>Loading...</p>` пока состояние `loading`. Это надо делать именно в родительском элементе, поскольку загрузка начнётся ещё до рендеринга страницы `Posts`.
+```jsx
+import Header from "./Header";
+import Footer from "./Footer";
+import { Outlet, useNavigation } from "react-router-dom";
+
+function Layout() {
+  const navigation = useNavigation();
+
+  return (
+    <>
+      <Header />
+      // idle, loading, submitting
+      {navigation.state === "loading" && <p>Loading...</p>}
+      <Outlet />
+      <Footer />
+    </>
+  );
+}
+
+export default Layout;
+```
+
+В роутере указываем `loader` и `errorElement`
+```jsx
+...
+const router = createBrowserRouter([
+  {
+    path: "/",
+    element: <Layout />,
+    children: [
+      { path: "", element: <Home /> },
+      { path: "posts",
+        element: <Posts />,
+        loader: fetchData,                  // наша функция загрузки
+        errorElement: <ErrorBoundary />     // элемент для отображения ошибки 
+      },  
+      { path: "*", element: <NotFound /> },
+    ],
+  },
+]);]);
+...
+```
+
+Отображаем на странице
+```jsx
+import { useLoaderData } from "react-router-dom";
+
+function Posts() {
+  const posts = useLoaderData();
+
+  return (
+    <div>
+      <h1>Posts</h1>
+
+      <ul>
+        {posts.map((post) => (
+          <li key={post.id}>{post.title}</li>
+        ))}
+      </ul>
+    </div>
+  );
+}
+
+export default Posts;
+```
+
+#### Отправка данных
+В роутере определяем путь для `action`
+```jsx
+const router = createBrowserRouter([
+  {
+    path: "/",
+    element: <Layout />,
+    children: [
+      { path: "", element: <Home /> },
+      { path: "/about", element: <About /> },
+      { path: "/create",
+       element: <CreatePost />,
+       action: createPost,                // указываем функцию для action
+       errorElement: <ErrorBoundary /> 
+	  },
+      { path: "*", element: <NotFound /> },
+    ],
+  },
+]);
+```
+
+Создаём страницу с формой
+```jsx
+import { useActionData, useNavigation } from "react-router-dom";
+import { Form } from "react-router-dom";  // используем именно этот тэг
+
+function CreatePost() {
+// Данные, возвращаемые из action, доступны в компоненте с помощью хука useActionData.
+  const actionData = useActionData();
+  const navigation = useNavigation();  // отслеживаем состояние
+
+  return (
+    <div>
+      <h1>Create Post</h1>
+      <Form method="post" action="/create">
+        <input type="text" name="title" required />
+        <button type="submit" disabled={navigation.state === "submitting"}>
+          {navigation.state === "submitting" ? "Sending..." : "Create Post"}
+        </button>
+      </Form>
+
+      {actionData && (
+        <div>
+          Post created! ID: {actionData.id}, Title: {actionData.title}
+        </div>
+      )}
+    </div>
+  );
+}
+
+export default CreatePost;
+```
+
+Создаём функцию `createPost`
+```jsx
+// Функция action получает объект, содержащий request и params
+const createPost = async ({ request }) => {
+  const formData = await request.formData();
+  const title = formData.get("title");
+  
+  const response = await fetch("https://jsonplaceholder.typicode.com/posts", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ title }),
+  });
+
+  if (!response.ok) {
+    throw new Error("Failed to create a post");
+  }
+
+  const result = await response.json();
+  
+  // результат будет доступен через useActionData
+  return result;
+};
 ```
 
 #### React Bootstrap

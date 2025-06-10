@@ -21,6 +21,68 @@
 |`pip install -r requirements.txt`|установить все пакеты из списка
 |`python3 -m http.server`|встроенный http сервер
 
+#### Пакетный менеджер UV
+[GitHub + Документация](https://github.com/astral-sh/uv)
+
+Установка (Linux)
+```bash
+curl -LsSf https://astral.sh/uv/install.sh | sh
+```
+
+Список версий `Python`
+```bash
+uv python list
+```
+
+Установка/Удаление `Python`
+```bash
+uv python install 3.13.4
+uv python uninstall 3.13.4
+```
+
+Весь код в этой директории будет запускаться при помощи этой версии интерпретатора
+```bash
+uv python pin 3.13.4
+```
+
+Инициализация. Добавляет `.git`, `.gitignore`, `pyproject.toml`(описывает зависимости), `README.md` и директорию `.venv`(с ней не нужно будет работать напрямую)
+```bash
+uv init
+```
+
+Выполнение интерпретации файла. Если нужного интерпретатора нет, UV его скачает.
+```bash
+uv run main.py
+uv run manage.py startapp my_django_app
+```
+
+Установка пакетов
+```bash
+uv add requests
+```
+
+###### Зависимости
+`pyproject.toml` - это приоритетный список зависимостей. Но при необходимости можно создать и `requirements.txt`
+```bash
+uv pip compile -o requirements.txt  # Генерация из pyproject.toml
+uv pip freeze > requirements.txt    # Из текущего окружения
+```
+
+Синхронизация зависимостей (`pyprject.toml`)
+```bash
+uv sync
+```
+
+Установка пакетов из файла зависимостей (`requirements.txt`)
+```bash
+uv pip install -r requrements.txt
+```
+
+Показать зависимости в виде дерева
+```bash
+uv tree
+```
+
 #### Установка свежей версии Python
 ###### Апдейт системы и установка зависимостей
 ```bash
@@ -580,7 +642,7 @@ x[1:5]                  # От индекса 1 до 5(не включая) со
 ```
 
 #### СОРТИРОВКА
-`sort()`    сортирует сам список
+`sort()`    сортирует сам список (сортировка на месте)
 `sorted()` возвращает новый отсортированный список
 параметр `reverse=True` для реверса и `key=len` ключ для сортировки с помощью функции(либо своей функции)
 
@@ -1795,12 +1857,50 @@ from hashlib import sha256
 sha = sha256('test_string'.encode('utf-8')).hexdigest()
 ```
 
+###### Надёжное хэширование пароля
+```bash
+pip install bcrypt
+```
+
+```python
+import bcrypt
+ 
+# Хэширование пароля
+def hash_password(password: str) -> bytes:
+    # Генерация соли
+    salt = bcrypt.gensalt(rounds=12)
+    return bcrypt.hashpw(password.encode('utf-8'), salt)
+
+# Проверка пароля. Сравнение введенного пароля с хэшированным   
+def check_password(password: str, hashed_password: bytes) -> bool:  
+    return bcrypt.checkpw(password.encode('utf-8'), hashed_password)
+
+password = "my_secure_password"
+hashed = hash_password(password)  # b'$2b$12$kKZWLo8d8YJoszQUARJ3jOAD9ZTecGcfNWdiTW98IbOj5pUaZz89S'
+is_valid = check_password("my_secure_password", hashed)  # True
+```
+
+>[!info] Для каждого пароля должна быть своя рандомная соль. Это делает бессмысленным применение к слитым хэшам радужных таблиц.  Соль - не является секретными данными и включена в итоговую строку хэша. При проверке достаём из БД итоговую хэш строку и получаем из неё соль и последнюю часть (которая хэш из пароля и соли).  Алгоритм `bcrypt`  хэширует пользовательский ввод + соль (это должно полностью совпасть с последней частью итоговой хэш строки из БД)
+
+```
+# строго 60 символов
+$2b$12$S223D5sFpE9fTKl0xYbJZeX9Q8Wz7aCv1dO0rR4tGyB5nH6v.1
+
+$2b$   12$   S223D5sFpE9fTKl0xYbJZe   X9Q8Wz7aCv1dO0rR4tGyB5nH6v.1
+
+#   Алгоритм: $2b$
+#   Сложность: 12$ (`12` - число итераций = 2¹² = 4096 раундов)
+#   Соль: S223D5sFpE9fTKl0xYbJZe (22 символа) Соответствует 16 байтам случайных данных
+#   Хэш: X9Q8Wz7aCv1dO0rR4tGyB5nH6v.1 (31 символ) bcrypt(пароль + соль)
+```
+
 #### Логгирование
 ```python
 import logging
 
 logger = logging.getLogger()
 ```
+
 ###### Уровни
 |Уровень|Числовое значение|
 |-------|-----------------|
@@ -1962,7 +2062,7 @@ logger.add('logs/main.log', rotation='10mb', level='DEBUG')
 # rotation='1 day'
 # rotation='12:00'
 ```
-Уровень логгера 'DEBUG' означает, что запишется `debug` и выше
+Уровень логгера `'DEBUG'` означает, что запишется `debug` и выше
 ###### Уровни в Loguru
 ```python
 logger.debug('Hello!)

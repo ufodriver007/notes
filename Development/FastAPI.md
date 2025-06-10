@@ -513,7 +513,7 @@ async with async_session_maker() as session:
 ```
 
 ##### Валидация
-Чтобы Pydantic мог корректно читать данные SQLAlchemy и валидировать их мы создаём схему с режимом ORM
+Чтобы `Pydantic` мог корректно читать данные SQLAlchemy и валидировать их мы создаём схему с режимом ORM
 ```python
 # schemas.py
 from datetime import date  

@@ -275,6 +275,11 @@ async def main() -> None:
 sudo apt install postgresql postgresql-contrib
 ```
 
+Статус демона
+```bash
+sudo service postgresql status
+```
+
 Отключить сервис postgres
 ```bash
 /etc/init.d/postgresql stop

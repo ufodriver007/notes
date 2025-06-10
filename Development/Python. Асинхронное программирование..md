@@ -102,7 +102,7 @@ task1 = asyncio.create_task(print1())
 task2 = asyncio.create_task(print2())
 
 
-# здесь код выпоняетя асинхронно, потому что делаетя await для ЗАДАЧИ.
+# здесь код выпоняется асинхронно, потому что делаетя await для ЗАДАЧИ.
 #  если бы делался await для .create_task, то код был бы синхронным
 await task1
 await task2

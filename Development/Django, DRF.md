@@ -1693,6 +1693,30 @@ class LogicTestCase(TestCase):
 ```
 Запуск тестов(из терминала, из вирт. окружения): `python manage.py test mint_app.tests.test_logic`
 
+###### Тесты скрытого за аутентификацией функционала
+```python
+from django.contrib.auth import get_user_model  
+from django.test import TestCase  
+  
+class TestAuthentication(TestCase):  
+    def test_authenticated_workflow(self):  
+        passphrase = 'woof woof'  
+        get_user_model().objects.create_user('bob', password=passphrase)  
+          
+        self.client.login(username='bob', password=passphrase)  
+        self.assertIn('sessionid', self.client.cookies)  
+        # Заходим на личную страницу. Якобы по HTTPS  
+        response = self.client.get('/accounts/profile', secure=True)  
+          
+        # Проверяем ответ  
+        self.assertEqual(200, response.status_code)  
+        self.assertContains(response, 'bob')  
+          
+        # проверка что Боб вышел  
+        self.client.logout()  
+        self.assertNotIn('sessionid', self.client.cookies)
+```
+
 #### OAuth
 Проще всего сделать через allauth
 ```python

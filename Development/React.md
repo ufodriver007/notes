@@ -111,7 +111,7 @@ npm run start
 npm create vite@latest my-app -- --template react
 ```
 
-Далее последовательно вводим
+Далее вводим
 ```bash
 cd my-app
 npm install            # установить зависимости(node_modules) из package.json
@@ -130,6 +130,7 @@ npm run build
 #### Import и export
 В файле источнике пишем
 ```js
+// именованный экспорт
 export const TEST = 42;
 export my_func() {
     alert("Hello!")
@@ -140,8 +141,9 @@ export my_func() {
 import { TEST, my_func } from './src.js'
 ```
 
-###### Default import
-**Обычный способ подключения React компонентов**
+###### Default export
+Обычный способ подключения React компонентов. Может быть только один на файл.
+
 В файле источнике пишем
 ```jsx
 const App = () => {
@@ -149,6 +151,7 @@ const App = () => {
 }
 export default App
 ```
+
 В файле, куда хотим подключить(Если реакт-компонент, то в `'src/index.js'` )
 ```jsx
 import App from './App';
@@ -795,7 +798,7 @@ const memoizedCallback = useCallback(
 2. **Использование функций в зависимости от `useEffect` или других хуков**:`useCallback` позволяет избежать повторного создания функции, что может вызывать ненужные эффекты.
 
 ###### useContext
-**`useContext`** — это хук, который позволяет получать доступ к значениям из контекста без необходимости оборачивать компоненты в `Consumer`. В отличии от глобальных переменных хук автоматически ренднрит при изменении состояния(реактивность).
+**`useContext`** — это хук, который позволяет получать доступ к значениям из контекста без необходимости оборачивать компоненты в `Consumer`. В отличии от глобальных переменных хук автоматически рендерит при изменении состояния(реактивность).
 
 >[!info] Контекст в React — это механизм для передачи данных через дерево компонентов без необходимости явно передавать пропсы на каждом уровне. Например, вы можете передавать глобальные настройки, тему, язык или состояние авторизации.
 
@@ -813,14 +816,14 @@ const value = useContext(MyContext);
 ```jsx
 import React, { createContext, useContext, useState } from "react";
 
-// Создаем контекст
+// Создаем компонент-контекст
 const ThemeContext = createContext();
 
 function App() {
   const [theme, setTheme] = useState("light");
 
   return (
-    // Предоставляем значение контекста
+    // Предоставляем значение контекста. Оборачиваем необходимые дочерние компоненты
     <ThemeContext.Provider value={{ theme, setTheme }}>
       <Toolbar />
     </ThemeContext.Provider>
@@ -837,7 +840,7 @@ function Toolbar() {
 }
 
 function ThemeSwitcher() {
-  // Получаем значение контекста
+  // Получаем значение контекста. Это просто объект.
   const { theme, setTheme } = useContext(ThemeContext);
 
   return (
@@ -1433,6 +1436,32 @@ const createPost = async ({ request }) => {
   return result;
 };
 ```
+
+## Управление состоянием
+`useState` и проброс пропсов - для маленьких приложений
+`useContext` - для средних приложений
+`Redux` - для больших приложений
+
+## Деплой
+Все изображения помещаем во внутренюю директорию в `src` (например `images`) . А также импортируем их. Таким образом сборщик `Vite` создат хэши изображений (данные в директории `public` сборщик игнорирует). 
+Зачем нужен хэш?  Если обновить изображение, но оставить имя файла прежним, браузер может продолжать использовать старую версию из кэша.
+
+```js
+import laptopImg from "../assets/images/laptop.img"
+
+export const categories = [
+  {id: "Electronics", name: "Electronics", img: laptopImg }
+]
+```
+
+[Плагин для `Vite` для минифицирования изображений](https://github.com/vbenjs/vite-plugin-imagemin)
+
+Билд дистрибутива
+```bash
+npm run build
+```
+
+
 
 #### React Bootstrap
 [Документация](https://react-bootstrap.github.io/docs/getting-started/introduction/)

@@ -557,12 +557,19 @@ subprocess.call(['open', '/home/ufodriver/Загрузки/RegEx.txt'])   # Дл
 ```
 
 #### Выполнить команду
-`os.system('df -h')`
-
-#### Получить вывод терминала
+Здесь возможно внедрение комманд и подстановочных знаков. Низкоуровневое API
 ```python
-cmd = "df -m / | awk 'NR==2 {print $4}'"
-output = os.popen(cmd).read()
+os.system('df -h')
+```
+
+Здесь НЕвозможно внедрение комманд и подстановочных знаков. Высокоуровневое API
+```python
+import subprocess  
+  
+command = ['cat', 'test.txt']  
+completed_process = subprocess.run(command, capture_output=True, check=True)
+# Поулчаем вывод терминала
+print(completed_process.stdout)
 ```
 
 #### Мониторинг(Загруженность CPU и RAM)

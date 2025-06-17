@@ -61,6 +61,11 @@ uv run manage.py startapp my_django_app
 uv add requests
 ```
 
+Удаление пакетов
+```bash
+uv remove requests
+```
+
 ###### Зависимости
 `pyproject.toml` - это приоритетный список зависимостей. Но при необходимости можно создать и `requirements.txt`
 ```bash

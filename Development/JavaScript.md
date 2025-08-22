@@ -141,7 +141,7 @@ console.log(num2); // 123
 Есть ещё функция `Number()`. Это просто более строгий парсинг числа(int или float)
 
 #### Условные конструкции
-###### IF()
+###### IF
 ```javascript
 if(условие){    
     некоторые действия
@@ -151,7 +151,8 @@ if (myVar !== undefined && myVar !== null) {
     console.log(`Переменная myVar имеет значение: ${myVar}`);
 }
 ```
-###### IF()-ELSE()
+
+###### IF-ELSE
 ```javascript
 if(условие){
     действия, если условие истинно
@@ -160,7 +161,8 @@ else{
     действия, если условие ложно
 }
 ```
-###### IF()-ELSE IF()-ELSE()
+
+###### IF-ELSE IF-ELSE
 ```javascript
 const income = 50;
 if(income > 50) {
@@ -173,7 +175,8 @@ else{
     console.log("Доход меньше 50");
 }
 ```
-###### SWITCH()-CASE
+
+###### SWITCH-CASE
 ```javascript
 const income = 200;
 switch(income){

@@ -82,9 +82,9 @@ fmt.Println(math.pi)  // undefined: math.pi
 ## Типы данных
 ```go
 bool
-
+----------------------------------------
 string
-
+----------------------------------------
 int  int8  int16  int32  int64             // целые положительные и отрицательные
 uint uint8 uint16 uint32 uint64 uintptr    // целые положительные
 byte // alias for uint8
@@ -95,6 +95,19 @@ rune // alias for int32
 float32 float64
 
 complex64 complex128
+----------------------------------------
+array                                       // Агрегатные
+struct
+----------------------------------------
+slice                                      // Ссылочные
+map
+function
+channel
+pointer
+----------------------------------------
+interface
+----------------------------------------
+error
 ```
 
 ## Переменные
@@ -226,6 +239,16 @@ for {
 }
 ```
 
+Также присутствуют `break` и `continue`
+```go
+for i := 0; i < 10; i++ {
+    fmt.Println(i)
+    if i == 5 {
+        break
+    }
+}
+```
+
 ## Логические операции
 ```go
 a == b         // Равно
@@ -310,6 +333,19 @@ switch(a) {
 }
 ```
 
+Аналог `if-else if`
+```go
+a := 8
+switch {         // аналог switch true
+    case a < 9:
+        fmt.Println("a < 9")
+    case a == 9:
+        fmt.Println("a = 9")
+    case a > 9:
+        fmt.Println("a > 9")
+}
+```
+
 ## Ввод пользователя
 ```go
 var yourVariable float64
@@ -331,6 +367,23 @@ sad32
 result := fmt.Sprintf("Ваш индекс массы тела: %.2f \n", IMT)
 ```
 
+Итерация по строке
+```go
+var str = "Hello!"
+
+func main() {
+    for _, v := range str {
+        fmt.Println(v, string(v))  // вывод кода Unicode и приведение его к строке
+    }
+}
+// 72 H
+// 101 e
+// 108 l
+// 108 l
+// 111 o
+// 33 !
+```
+
 #### Форматирование
 Вывод с форматированием
 ```go
@@ -348,3 +401,306 @@ fmt.Printf("Now you have %g problems", math.Sqrt(7))
 ```go
 fmt.Printf("Now you have %T problems", math.Sqrt(7))
 ```
+
+## Исключения
+```go
+import "errors"
+
+func myFunc(number int) error {                // Указываем что будет возвращатся ошибка
+    if number > 2 {
+        return errors.New("Кастомная ошибка")  // Создаём новую ошибку
+    } else {
+        return nil                             // Возвращаем ничего (аналог None)
+    }
+}
+
+str, err := myFunc(5)
+str, _ := myFunc(5)     // пустая переменная вместо err если надо проигнорировать
+
+if err != nil {
+    fmt.Println(err)
+}
+```
+
+###### panic
+Если мы НЕ можем обработать ошибку(что-то критическое) выдаём `panic` вместо создания ошибки
+```go
+panic("Какая-то катастрофичекая ошибка. Невозможно продолжить")
+```
+При этом в терминале при панике будет выход из приложения с другим статусом(отличным от нормального), будет выведено наше сообщение и указано место ошибки в коде.
+
+## Массивы
+>[!info] Однотипная последовательность фиксированной длины. При присваивании существующего массива какой-то переменной происходит ПОЛНОЕ КОПИРОВАНИЕ массива.
+
+Объявление массива
+```go
+var exampleArray [2]int  //[0 0]
+// ИЛИ
+exampleArray := [2]int{}
+```
+
+```go
+// [длина_массива]тип{элемент1, элемент2, элемент3}
+numbers := [4]int{99, 88, 77, 66}
+strgs := [2]string{"Hello", "World"}
+```
+
+Доступ к элементам
+```go
+fmt.Println(exampleArray[0])
+```
+
+Изменеие элемента
+```go
+exampleArray[0] = 32
+```
+
+Длина массива
+```go
+len(exampleArray)
+```
+
+Вместимость массива. Capacity определяет сколько места осталось от начала массива/среза до конца
+```go
+cap(exampleArray)
+```
+
+Итерация по массиву
+```go
+for index, value := range myArray {  // Если индекс не нужен используйте _ вместо index
+    fmt.Println(index, value)
+}
+```
+
+## Slice
+>[!info] Срезы - это ссылки и при изменении значения среза меняется и исходный массив
+
+Срез массива `array[start:stop]`.Конечное значение не включается в срез. Как в Python 
+```go
+numbers := [5]int{99, 88, 77, 66, 55}  // Массив для примера
+mySlice := numbers[1:4]  // Срез массива [88 77 66]
+mySlice := numbers[1:]  // С индекса 1 до конца
+mySlice := numbers[:3]  // С начала до индекса 3
+```
+
+Срез динамической длины
+```go
+mySlice := []int{1,2,3,4,5,6}   // под капотом будет создан массив
+mySlice = append(mySlice, 100)  // [1 2 3 4 5 6 100]
+```
+
+Распаковка. Оптимальный способ соединения массивов и срезов
+```go
+mySlice := []int{1,2,3}
+hugeSlice := []int{4,5,6}
+mySlice = append(mySlice, hugeSlice...)  // [1 2 3 4 5 6]
+```
+
+Чтобы оптимизировать выделение памяти можно явно задать `capacity` с помощью функции `make`
+```go
+mySlice := make([]int, 0, 5)  // длина 0, capacity(макс. вместимость) 5
+mySlice = append(mySlice, 1)  // и теперь здесь не происходит доп. выделение памяти
+mySlice = append(mySlice, 2)
+mySlice = append(mySlice, 3)
+```
+
+## Map
+Создание
+```go
+myMap := map[string]string{  // map[тип_ключа]тип_значения
+    "Key": "Value",
+}
+```
+
+Доступ
+```go
+// Чтение
+fmt.Println(myMap["Key"])
+
+// Изменение
+myMap["Key"] = "asdf"
+
+// Добавление
+myMap["New Key"] = "qwerty"
+
+// Удаление
+delete(myMap, "New Key")
+```
+
+Итерация по Map
+```go
+for key, value := range myMap {
+    fmt.Println(key, value)
+}
+```
+
+Чтобы оптимизировать выделение памяти можно явно задать кол-во элементов
+```GO
+m = make(map[string]string, 10)
+```
+
+## Labels
+Именование циклов и свичей
+```go
+Menu:                // Label
+    for {
+        a := 8
+        
+        MySwitch:    // Label
+            switch(a) {
+                case 9:
+                    fmt.Println("a = 9")
+                case 8:
+                    break Menu
+                case 7:
+                    fmt.Println("a = 7")
+                default:
+                    break MySwitch
+             }
+    }
+```
+
+## Type Alias
+Алиасы для удобства
+```go
+type bookmarkMap = map[string]string
+
+bookmarks := bookmarkMap{}
+```
+
+## Указатели
+>[!info] Указатели представляют собой объекты, значением которых служат адреса других объектов (например, переменных). С помощью указателей можно передавать объекты по ссылке (предотвращая лишнее копирование) и таким образом мутировать исходное значение.
+
+```go
+var p *int          // определяем указатель
+```
+
+```go
+num := 10                  // объявление переменной
+numPointer := &num         // получение адреса и присвоение его переменной numPointer
+fmt.Println(*numPointer)   // получение значения из указателя
+```
+
+Пример функции наботающей с указателем и изменяющей исходное значение без копирования
+```go
+func double(num *int) {  // аргумент - указатель на int
+    *num = *num * 2      // получаем значения из указателя и умножаем его на 2
+}
+```
+
+Пример разворота массива с помощью указателя "на месте"
+```go
+func main() {
+    a := [4]int{1, 2, 3, 4}
+    reverseArray(&a)
+    fmt.Println(a)
+}
+
+func reverseArray(arr *[4]int) {
+    // берутся два индекса первый и последний и оба стремятся к середине,
+    //    меняя значение друг на друга
+    for i, j := 0, len(arr)-1; i < j; i, j = i+1, j-1 {
+        arr[i], arr[j] = arr[j], arr[i]
+    }
+}
+```
+
+## Struct
+>[!info] Структуры представляют составной тип данных, определяемый разработчиком и служащий для представления каких-либо объектов.
+
+```go
+type account struct {
+    login string
+    password string
+    url string
+}
+
+my_login = "xxx"
+my_password = "12345"
+my_url = "asdf"
+
+account1 := account{
+    my_login,
+    my_password,
+    my_url,
+}
+
+// ещё один синтаксис
+account2 := account{
+    login: my_login,
+    password: my_password,
+    url: my_url,
+}
+
+// создание пустого инстанса
+account2 := account{}
+
+// доступ к полям инстанса
+fmt.Println(account2)
+fmt.Println(account2.password)
+account2.password = "yyy"
+```
+
+#### Методы Struct
+```go
+func (acc *account) printPassword {  // указатель на struct account
+    fmt.Println(acc.password)
+}
+```
+
+#### Конструктор
+```go
+func newAccount(login, password, url string) (*account, error) {  // возвращаем указатель
+    // тут можно проводить валидацию
+    
+    return &account{
+        url: url,
+        login: login,
+        password: password,
+    }, nil
+}
+
+myAccount, err := newAccount("name", "12345", "https://a.ru")
+if err != nil {
+    ...
+}
+```
+
+#### Композиция (встраивание)
+```go
+type account struct {
+    url string,
+    login string,
+    password string,
+}
+
+type accountWithTimeStamp struct {
+    createdAt time.Time,
+    updatedAt time.Time,
+    account
+}
+
+newAcc := &accountWithTimeStamp{
+    createdAt: time.Now(),
+    updatedAt: time.Now(),
+    account: account{
+        url: "https:\\google.com",
+        login: "xxx",
+        password: "123456",
+    }
+}
+```
+
+## Случайные числа
+```go
+package main
+import (
+    "fmt"
+    "math/rand/v2"
+)
+
+func main() {
+    fmt.Println(rand.IntN(10))  // Псевдо-случайное число от 0 до 10 НЕ включая его
+}
+```
+

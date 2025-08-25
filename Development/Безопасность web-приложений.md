@@ -325,7 +325,7 @@ from cryptography.fernet import Fernet, MultiFernet
 ###### RSA
 RSA – классический пример криптосистемы с открытым ключом, которая выдержала проверку временем.
 
-Вызов openssll, который генерирует закрытый ключ RSA длиной 3072 бита
+Вызов `openssll`, который генерирует закрытый ключ RSA длиной 3072 бита
 ```bash
 openssl genpkey -algorithm RSA -out private_key.pem -pkeyopt rsa_keygen_bits:3072
 ```

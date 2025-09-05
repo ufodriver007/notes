@@ -26,6 +26,58 @@ def getsome():
     return 'Some text'
 ```
 
+###### Параметры для приложения
+Дебаг режим
+```python
+from fastapi import FastAPI
+
+app = FastAPI(debug=True)
+```
+
+Название API , отображаемое в Swagger UI и ReDoc
+```python
+app = FastAPI(title="My First Project")
+```
+
+Краткое описание API, которое будет отображаться в документации
+```python
+app = FastAPI(summary="My CRUD application.")
+```
+
+Подробное описание API, которое будет отображаться в документации
+```python
+app = FastAPI(description="The CRUD application supports **writing**, *reading*, updating, and deleting posts.")
+```
+
+Версия вашего API задаётся через параметр `version`
+```python
+app = FastAPI(version="0.0.1")
+```
+
+Параметр `openapi_url` определяет URL, по которому доступна схема OpenAPI в формате JSON. По умолчанию это `"/openapi.json"`
+```python
+app = FastAPI(openapi_url="/api/v1/openapi.json")
+```
+
+Для группировки операций в документации используется параметр `openapi_tags`. Он принимает список словарей, где каждый тег описывает группу маршрутов, например, `[{"name": "users", "description": "User operations"}]`. Это помогает организовать документацию, особенно если вы используете теги в маршрутах, таких как `@app.get("/users/", tags=["users"])`:
+```python
+app = FastAPI(openapi_tags=[{"name": "users", "description": "User operations"}])
+```
+
+Автоматическая документация доступна через Swagger UI и ReDoc, пути к которым задаются параметрами `docs_url` и `redoc_url`. По умолчанию они установлены как `"/docs"` и `"/redoc"`, но их можно изменить или отключить, установив `None`:
+```python
+app = FastAPI(docs_url="/custom-docs", redoc_url=None)
+```
+
+Контактная информация для API указывается через параметр `contact`, который принимает словарь с полями `name`, `url` и `email`. Это улучшает документацию, показывая, к кому обращаться:
+```python
+app = FastAPI(contact={
+    "name": "John Doe",
+    "url": "https://example.com",
+    "email": "john.doe@example.com"
+})
+```
+
 ###### Запуск
 Внешний
 >[!info]  `--reload`: перезапуск сервера после изменения кода. Делайте это только во время разработки.
@@ -50,8 +102,6 @@ if __name__ == "main":
     uvicorn.run("main:app")  # файл main, приложение app
 ```
 
-Автоматическая документация `/docs`
-
 #### Части запроса
 FastAPI легко может извлечь все части запроса:
 1. Header
@@ -68,6 +118,8 @@ def getsome(new_id: int):
     return f'Your new ID: {new_id}'
 ```
 
+Если есть функция для обработки маршрута `/some/test`, то она дожна быть *ВЫШЕ В КОДЕ*, иначе её обработкой займётся функция `getsome`.
+
 ###### Query. Получение GET параметров
 ```python
 @app.get('/some}')            # поскольку в пути нет {} FastAPI понимает,
@@ -75,7 +127,7 @@ def getsome(getparam):        #   что это query параметры
     return f'Your get param: {getparam}'
 ```
 
-  Опциональные параметры
+  Опциональные (необязательные) параметры
 ```python
 from fastapi import FastAPI  
 from typing import Optional  
@@ -85,6 +137,24 @@ app = FastAPI()
 @app.get('/hi')  
 def great(who: Optional[str] = 'Default'):  
     return f"Hello, {who}!"
+```
+
+**Получение списков значений**
+Класс Query из модуля fastapi позволяет указать, что параметр запроса является списком, используя тип `list` с аннотацией типа (например, `list[str]`). FastAPI автоматически собирает все значения параметра в список.
+
+Например, запрос `[http://127.0.0.1:8000/user?people=Tom&people=Sam&people=Bob](http://127.0.0.1:8000/user?people=Tom&people=Sam&people=Bob)` передаёт три значения для параметра `people`, которые FastAPI интерпретирует как список.
+
+```python
+from typing import Annotated
+
+from fastapi import FastAPI, Path, Query
+
+app = FastAPI()
+
+
+@app.get("/user")
+async def search(people: Annotated[list[str], Query()]) -> dict:
+    return {"user": people}
 ```
 
 ###### Body. Извлечение информации из тела запроса
@@ -113,6 +183,15 @@ def great(body: Dict[str, Any] = Body()):
     return body
 ```
 
+Здесь параметр `message: str = Body(...)` указывает, что строка ожидается в теле запроса. Символ `...`означает, что поле обязательно. Это делает запрос безопасным и позволяет передавать большие данные.
+```python
+@app.post("/messages", status_code=status.HTTP_201_CREATED) 
+async def create_message(message: str = Body(...)) -> str: 
+    current_index = max(messages_db) + 1 if messages_db else 0 
+    messages_db[current_index] = message 
+    return "Message created!"
+```
+
 ###### Header. Получение конкретного заголовка
 Возврат заголовка с именем `User-Agent`
 ```python
@@ -130,7 +209,356 @@ def great(user_agent: str = Header()):
 ##### HTTP-ответы
 По-умолчанию FastAPI преобразует всё, что вы возвращаете из функции в формат JSON. Поэтому HTTP-ответ содержит строку заголовка `Content-type: application/json`.
 
+#### Pydantic
+>[!info] **Pydantic** — это библиотека Python для валидации данных, использующая аннотации типов для проверки и управления данными. Она обеспечивает строгую валидацию, автоматическое преобразование типов и сериализацию. Она позволяет создавать **модели данных** (схемы), которые определяют, как должны выглядеть данные, и автоматически проверяют их на соответствие заданным правилам. Валидация в Pydantic позволяет гарантировать, что данные соответствуют заданным типам, ограничениям и пользовательским правилам.
+
+[Документация](https://docs.pydantic.dev/latest/)
+[Документация PyPI](https://pypi.org/project/pydantic/)
+[Статья на Хабре](https://habr.com/ru/companies/amvera/articles/851642/)
+
+```bash
+pip install pydantic
+```
+
+Pydantic предоставляет возможность задать любую комбинацию следующих проверок:
+- обязательные и необязательные
+- значение по умолчанию, если не указано, но требуется
+- ожидаемый тип или типы данных
+- ограничения диапазона значеий
+- другие проверки на основе функций, если необходимо
+- сериализацию и десериализацию
+
+###### Модели в Pydantic
+Модели в Pydantic наследуются от класса `BaseModel`. Каждая модель описывает набор полей, которые представляют собой структуру данных и условия для их валидации.
+```python
+from pydantic import BaseModel
+
+class Message(BaseModel):
+    id: int
+    content: str
+
+# Пример использования
+message = Message(id=1, content="Hello, Pydantic!")
+print(message)  # Вывод: id=1 content='Hello, Pydantic!'
+print(message.dict())  # Сериализация в словарь: {'id': 1, 'content': 'Hello, Pydantic!'}
+print(message.json())  # Сериализация в JSON: {"id": 1, "content": "Hello, Pydantic!"}
+```
+
+###### Типы в Pydantic
+**Базовые типы Python**
+- `int`: Целое число (например, `id: int`).
+- `str`: Строка (например, `content: str`).
+- `float`: Число с плавающей точкой (например, `price: float`).
+- `bool`: Логическое значение (например, `is_active: bool`).
+- `list`: Список (например, `tags: list[str]` для списка строк).
+- `dict`: Словарь (например, `metadata: dict[str, str]`).
+- `set`: Множество (например, `unique_tags: set[str]`).
+
+**Специализированные типы Pydantic**
+Pydantic предоставляет встроенные типы для сложных случаев, которые автоматически проверяют данные:
+- `EmailStr`: Проверяет, что строка — валидный email (требуется `pip install email-validator`).
+- `HttpUrl`: Проверяет, что строка — валидный URL.
+- `PositiveInt`: Проверяет, что число положительное.
+- `NegativeFloat`: Проверяет, что число с плавающей точкой отрицательное.
+- `constr`: Ограничивает строки (например, по длине или регулярному выражению).
+- `conint`: Ограничивает целые числа (например, по диапазону).
+```python
+from pydantic import BaseModel, EmailStr, HttpUrl, PositiveInt
+
+class User(BaseModel):
+    email: EmailStr
+    website: HttpUrl
+    age: PositiveInt
+```
+
+**Опциональные поля и значения по умолчанию**
+Вы можете сделать поле необязательным с помощью `Optional` из модуля `typing` или задать значение по умолчанию
+```python
+from pydantic import BaseModel
+from typing import Optional
+
+class Message(BaseModel):
+    id: int
+    content: str
+    tags: Optional[list[str]] = None   # Необязательное поле, по умолчанию None
+    priority: int = 0                  # Поле с значением по умолчанию
+```
+
+**Списки и словари с типами**
+Pydantic позволяет задавать типы для элементов списков или словарей
+```python
+from pydantic import BaseModel
+from typing import List, Dict
+
+class Message(BaseModel):
+    id: int
+    content: str
+    tags: List[str]            # Список строк
+    metadata: Dict[str, int]   # Словарь с ключами-строками и значениями-числами
+```
+
+###### Вложенные модели
+Модели могут содержать другие модели, что полезно для сложных структур данных
+```python
+from pydantic import BaseModel
+
+class Author(BaseModel):
+    name: str
+    email: EmailStr
+
+class Message(BaseModel):
+    id: int
+    content: str
+    author: Author  # Вложенная модель
+```
+```python
+message = Message(
+    id=1,
+    content="Hello",
+    author=Author(name="Alice", email="alice@example.com")
+)
+```
+
+###### Валидация полей
+**Типы валидации в Pydantic**:
+1. **Автоматическая валидация**: Проверка типов данных.
+2. **Валидация через `Field`**: Ограничения на поля (например, длина строки, диапазон чисел).
+3. **Кастомная валидация полей**: Пользовательские проверки с помощью `@field_validator`.
+4. **Валидация на уровне модели**: Проверки, учитывающие несколько полей, с помощью `@model_validator`.
+
+ **Валидация через `Field`**
+ Модуль `pydantic.Field` позволяет задавать ограничения для полей, такие как длина строки, диапазон чисел, регулярные выражения и т.д. По умолчанию все поля в модели обязательные.
+
+Основные параметры `Field`
+- `default`: Значение по умолчанию.
+- `default_factory`: Функция для генерации значения по умолчанию (например, `list`).
+- `alias`: Альтернативное имя поля в JSON.
+- `...` (ellipsis): Указывает, что поле обязательно.
+- `min_length` / `max_length`: Минимальная/максимальная длина строки.
+- `pattern`: Регулярное выражение для строки.
+- `gt` / `ge`: Greater than (больше) / Greater or equal (больше или равно).
+- `lt` / `le`: Less than (меньше) / Less or equal (меньше или равно).
+- `multiple_of`: Число должно быть кратным указанному значению.
+- `max_digits` / `decimal_places`: Ограничения для чисел с плавающей точкой.
+
+```python
+from pydantic import BaseModel, Field
+
+class Message(BaseModel):
+    id: int = Field(..., gt=0)  # Явно указываем что это обязательное поле, число больше 0
+    content: str = Field(min_length=1, max_length=500, pattern=r"^[a-zA-Z0-9\s!,.?]*$")  # Строка 1-500 символов, только буквы, цифры, пробелы и знаки
+    priority: float = Field(default=0.0, ge=0.0, le=10.0)  # Число от 0 до 10
+```
+
+Регулярные выражения
+Параметр `pattern` заменил `regex` в Pydantic 2. Для валидации Slug мы можем использовать это регулярное выражение:
+
+```python
+from pydantic import BaseModel, Field, ValidationError
+
+class Article(BaseModel):
+    text: str
+    slug: str = Field(pattern=r'^[-a-zA-Z0-9_]+$')
+
+# Пример использования:
+valid_article = Article(text="Some text", slug="valid-slug_123")
+invalid_article = Article(text="Some text", slug="Invalid Slug!") # Ошибка
+invalid_article2 = Article(text="Some text", slug=" ") # Ошибка
+```
+
+###### Декораторы в Pydantic
+**Кастомная валидация с `@field_validator`**
+Для сложных проверок, выходящих за рамки `Field`, используется декоратор `@field_validator`. Он позволяет писать пользовательские функции для проверки отдельных полей.
+```python
+from pydantic import BaseModel, Field, field_validator
+
+class Message(BaseModel):
+    content: str = Field(min_length=1, max_length=500)
+
+    @field_validator("content")
+    @classmethod
+    def check_forbidden_words(cls, value):
+        forbidden_words = ["spam", "offensive"]
+        if any(word in value.lower() for word in forbidden_words):
+            raise ValueError("Message contains forbidden words")
+        return value
+```
+Как это работает
+- `@field_validator("content")`: Применяет валидатор к полю `content`.
+- Функция проверяет, содержит ли строка запрещенные слова.
+- `raise ValueError`: Вызывает ошибку с пользовательским сообщением, если валидация не проходит.
+- `return value`: Возвращает проверенное (или преобразованное) значение.
+
+Ещё пример
+```python
+from pydantic import BaseModel, field_validator
+
+class User(BaseModel):
+    age: int
+    
+    @field_validator('age')
+    def check_age(cls, value):
+        if value < 18:
+            raise ValueError('Возраст должен быть больше 18 лет')
+        return value
+```
+
+**Кастомная валидация с `@computed_field`**
+- `@computed_field` — поле, которое вычисляется на основе других данных в модели. Его можно использовать для автоматической генерации значений, а также для валидации.
+```python
+from pydantic import BaseModel, computed_field
+
+class User(BaseModel):
+    name: str 
+    surname: str
+    
+	@computed_field
+	def full_name(self) -> str:
+	    return f"{self.name} {self.surname}"
+```
+
+###### Методы
+`model_dump()` — преобразуют модель в словарь Python
+```python
+data = user.model_dump()
+```
+
+`model_dump_json()` — преобразуют модель в JSON-строку.
+```python
+json_data = user.model_dump_json()
+```
+
+###### Передача данных в модель
+1. напрямую при создании экземпляра.
+```python
+user = User(name="Oleg", age=30)
+```
+
+ 1. Можно передать значения полей с помощью распаковки словарей `**`
+```python
+user_data = {"name": "Oleg", "age": 30}
+user = User(**user_data)
+```
+
+###### default_factory
+>[!info] Иногда требуется генерировать значения для полей **динамически**. Для этого используется параметр `default_factory`, который принимает функцию для генерации значения.
+
+```python
+from uuid import uuid4
+
+class Item(BaseModel):
+    id: str = Field(default_factory=lambda: uuid4().hex)
+```
+
+###### Исключение полей из сериализации
+```python
+class User(BaseModel):
+    password: str = Field(exclude=True)
+```
+
+###### Расширенные возможности через Annotated
+Этот способ позволяет добавить метаданные и валидацию более гибко и точно.
+```python
+from typing_extensions import Annotated
+
+class User(BaseModel):
+    id: Annotated[int, Field(gt=0)]
+    name: Annotated[str, Field(min_length=2, max_length=50)]
+    email: Annotated[str, Field(regex=r"[^@]+@[^@]+\.[^@]+")]
+    role: Annotated[str, Field(default="user")]
+```
+
+###### Конфигурация моделей в Pydantic
+```python
+from pydantic import BaseModel, ConfigDict
+
+class MyModel(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+```
+
+Основные опции ConfigDict
+- `from_attributes=True` — позволяет создавать объект модели напрямую из атрибутов Python-объектов (например, когда поля модели совпадают с атрибутами другого объекта). Чаще всего опция применяется для преобразования моделей ORM к моделям Pydantic.
+    
+- `str_to_lower, str_to_upper` - преобразование всех строк модели в нижний или верхний регистр
+    
+- `str_strip_whitespace` - cледует ли удалять начальные и конечные пробелы для типов str (аналог strip)
+    
+- `str_min_length, str_max_length` - задает максимальную и минимальную длину строки для всех строковых полей
+    
+- `use_enum_values` - cледует ли заполнять модели значениями, выбранными из перечислений, вместо того чтобы использовать необработанные значения? Это часто требуется при работе с моделями ORM, в которых колонки определены как перечисления (ENUM).
 ###### Валидация ответа
+**Pydantic и `response_model`**
+Параметр **`response_model`** в декораторах FastAPI (например, `@app.get(..., response_model=...)`) указывает, какая модель Pydantic будет использоваться для формирования и валидации ответа API.
+
+**Валидация параметров пути**
+Класс `**Path**` используется для определения параметров пути в маршрутах FastAPI. Он не только указывает, что параметр является частью пути, но и позволяет задавать правила валидации и метаданные, которые отображаются в документации Swagger UI и ReDoc.
+
+*Параметры класса Path*
+- **Метаданные**:
+    - `title`: Название параметра для документации.
+    - `description`: Подробное описание параметра.
+    - `examples`: Пример значения параметра.
+    - `include_in_schema`: Логический параметр, определяющий, включать ли параметр в схему OpenAPI (по умолчанию True).
+        
+- **Правила валидации**    
+    - `min_length`: Минимальная длина строки.
+    - `max_length`: Максимальная длина строки.
+    - `pattern`: Регулярное выражение для проверки строки.
+    - `gt`: Значение должно быть больше указанного (для чисел).
+    - `ge`: Значение должно быть больше или равно указанному.
+    - `lt`: Значение должно быть меньше указанного.
+    - `le`: Значение должно быть меньше или равно указанному.
+    
+```python
+from fastapi import FastAPI, Path
+
+app = FastAPI() 
+
+@app.get("/user/{username}/{age}") 
+async def login(username: str = Path(min_length=3, max_length=15, description='Enter your username', example='Ilya'),
+                age: int = Path(ge=0, le=100, description="Enter your age")) -> dict:
+     return {"user": username, "age": age}
+```
+
+Пример валидации по паттерну регулярного выражения
+```python
+from typing import Annotated
+from fastapi import FastAPI, Path, Query
+
+app = FastAPI()
+
+@app.get("/user/{username}")
+async def login(
+        username: Annotated[
+            str, Path(min_length=3, max_length=15, description='Enter your username',
+                      example='permin0ff')],
+        first_name: Annotated[
+            str | None, Query(max_length=10, pattern="^J|s$")] = None) -> dict:
+    return {"user": username, "Name": first_name}
+```
+
+**Валидация Query-параметров**
+FastAPI предоставляет класс `Query` из модуля `fastapi` для определения и валидации параметров запросов. Он позволяет задавать правила валидации и метаданные, которые улучшают документацию API в Swagger UI и ReDoc.
+
+Параметры класса Query такие же как у Path(см. выше)
+
+Пример
+```python
+from typing import Annotated
+from fastapi import FastAPI, Path, Query
+
+app = FastAPI()
+
+@app.get("/user/{username}")
+async def login(
+        username: Annotated[
+            str, Path(min_length=3, max_length=15, description='Enter your username',
+                      example='permin0ff')],
+        first_name: Annotated[str | None, Query(max_length=10)] = None) -> dict:
+    return {"user": username, "Name": first_name}
+```
+
+Ещё примеры
 ```python
 class ShemeHotel(BaseModel):
     address: str
@@ -239,19 +667,39 @@ def header(response: Response):
 #### Внедрение зависимостей
 >[!info] *Внедрение зависимостей* - это передача функции любой требующейся ей специфичной информации. Традиционный способ сделать это - передать вспомогательную функцию, которую вы затем вызываете для получения конкретных данных.
 
-Пример зависимости с возвращаемым значением
+Простой пример
 ```python
-from fastapi import FastAPI, Depends, Params
+from fastapi import FastAPI, Depends
+
+app = FastAPI()
+
+from fastapi import FastAPI, Depends
 
 app = FastAPI()
 
 # функция зависимости
-def user_dep(name: str = Params, password: str = Params):
-    return {"name": name, "valid": True}
+def get_message():
+    return "Hello from dependency!"
 
 # эндпоинт
-@app.get("/user")
-def get_user(user: dict = Depends(user_dep)) -> dict:
+@app.get("/welcome")
+def welcome(message: str = Depends(get_message)) -> dict:
+    return {"message": message}
+```
+
+Пример зависимости с возвращаемым значением
+```python
+from fastapi import FastAPI, Depends, Query
+
+app = FastAPI()
+
+# Функция зависимости  
+def user_dep(name: str = Query(...), password: str = Query(...)):  
+    return {"name": name, "valid": True}  
+  
+# Эндпоинт  
+@app.get("/user")  
+def get_user(user: dict = Depends(user_dep)) -> dict:  
     return user
 ```
 
@@ -304,7 +752,7 @@ from pydantic import BaseModel
   
 app = FastAPI()  
 
-# схема
+# схема (модель данных)
 class SBooking(BaseModel):  
     room_id: int  
     rating: str  
@@ -652,24 +1100,29 @@ celery -A celery_config:celery flower
 ```
 
 #### Шаблоны
->[!info] Используется шаблонизатор `Jinja2`
+>[!info] Используется шаблонизатор `Jinja2`. В FastAPI шаблоны рендерятся с помощью `TemplateResponse`, куда передается объект `Request` и контекст — словарь с данными.
 
-Создаём директорию `templates` и в ней `test.html`
-```python
-from fastapi import APIRouter, Request  
-from fastapi.templating import Jinja2Templates 
-  
-
-page_router = APIRouter(prefix='/pages', tags=['Шаблоны', ])  
-
-templates = Jinja2Templates(directory='templates') 
-  
-@page_router.get('')  
-async def get_page(request: Request):  
-    return templates.TemplateResponse(name='test.html', context={'request': request})
+```bash
+pip install jinja2
 ```
 
-Не забываем, что роутер ещё нужно подключить
+Чтобы в дальнейшем использовать формы, сразу установите `python-multipart`.
+```bash
+pip install python-multipart
+```
+
+Создаём директорию `templates` и в ней `index.html`
+```python
+from fastapi import FastAPI, Request
+from fastapi.templating import Jinja2Templates
+
+app = FastAPI()
+templates = Jinja2Templates(directory="templates")
+
+@app.get("/")
+def read_root(request: Request):
+    return templates.TemplateResponse("index.html", {"request": request, "user_name": "Alice"})
+```
 
 ##### Статика для шаблонизатора
 Создаём директорию `static`

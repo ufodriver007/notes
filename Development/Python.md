@@ -2338,14 +2338,14 @@ logger.critical("Не загружается страница")
 [Как получить chat_id](https://stackoverflow.com/questions/32423837/telegram-bot-how-to-get-a-group-chat-id/32572159#32572159)
 
 #### Pydantic
->[!info] **Pydantic 2** — это библиотека для Python, предназначенная для **валидации и трансформации данных**. Она помогает разработчикам гарантировать, что входные данные соответствуют установленным правилам и типам, а также обеспечивает их автоматическое преобразование в нужные форматы.
+>[!info] **Pydantic** — это библиотека Python для валидации данных, использующая аннотации типов для проверки и управления данными. Она обеспечивает строгую валидацию, автоматическое преобразование типов и сериализацию. Она позволяет создавать **модели данных** (схемы), которые определяют, как должны выглядеть данные, и автоматически проверяют их на соответствие заданным правилам. Валидация в Pydantic позволяет гарантировать, что данные соответствуют заданным типам, ограничениям и пользовательским правилам.
 
 [Документация](https://docs.pydantic.dev/latest/)
 [Документация PyPI](https://pypi.org/project/pydantic/)
 [Статья на Хабре](https://habr.com/ru/companies/amvera/articles/851642/)
 
 ```bash
-pip install pydantic[all]
+pip install pydantic
 ```
 
 Pydantic предоставляет возможность задать любую комбинацию следующих проверок:
@@ -2357,31 +2357,167 @@ Pydantic предоставляет возможность задать любу
 - сериализацию и десериализацию
 
 ###### Модели в Pydantic
-
 Модели в Pydantic наследуются от класса `BaseModel`. Каждая модель описывает набор полей, которые представляют собой структуру данных и условия для их валидации.
 ```python
-from pydantic import BaseModel, Field
+from pydantic import BaseModel
+
+class Message(BaseModel):
+    id: int
+    content: str
+
+# Пример использования
+message = Message(id=1, content="Hello, Pydantic!")
+print(message)  # Вывод: id=1 content='Hello, Pydantic!'
+print(message.dict())  # Сериализация в словарь: {'id': 1, 'content': 'Hello, Pydantic!'}
+print(message.json())  # Сериализация в JSON: {"id": 1, "content": "Hello, Pydantic!"}
+```
+
+###### Типы в Pydantic
+**Базовые типы Python**
+- `int`: Целое число (например, `id: int`).
+- `str`: Строка (например, `content: str`).
+- `float`: Число с плавающей точкой (например, `price: float`).
+- `bool`: Логическое значение (например, `is_active: bool`).
+- `list`: Список (например, `tags: list[str]` для списка строк).
+- `dict`: Словарь (например, `metadata: dict[str, str]`).
+- `set`: Множество (например, `unique_tags: set[str]`).
+
+**Специализированные типы Pydantic**
+Pydantic предоставляет встроенные типы для сложных случаев, которые автоматически проверяют данные:
+- `EmailStr`: Проверяет, что строка — валидный email (требуется `pip install email-validator`).
+- `HttpUrl`: Проверяет, что строка — валидный URL.
+- `PositiveInt`: Проверяет, что число положительное.
+- `NegativeFloat`: Проверяет, что число с плавающей точкой отрицательное.
+- `constr`: Ограничивает строки (например, по длине или регулярному выражению).
+- `conint`: Ограничивает целые числа (например, по диапазону).
+```python
+from pydantic import BaseModel, EmailStr, HttpUrl, PositiveInt
 
 class User(BaseModel):
+    email: EmailStr
+    website: HttpUrl
+    age: PositiveInt
+```
+
+**Опциональные поля и значения по умолчанию**
+Вы можете сделать поле необязательным с помощью `Optional` из модуля `typing` или задать значение по умолчанию
+```python
+from pydantic import BaseModel
+from typing import Optional
+
+class Message(BaseModel):
+    id: int
+    content: str
+    tags: Optional[list[str]] = None   # Необязательное поле, по умолчанию None
+    priority: int = 0                  # Поле с значением по умолчанию
+```
+
+**Списки и словари с типами**
+Pydantic позволяет задавать типы для элементов списков или словарей
+```python
+from pydantic import BaseModel
+from typing import List, Dict
+
+class Message(BaseModel):
+    id: int
+    content: str
+    tags: List[str]            # Список строк
+    metadata: Dict[str, int]   # Словарь с ключами-строками и значениями-числами
+```
+
+###### Вложенные модели
+Модели могут содержать другие модели, что полезно для сложных структур данных
+```python
+from pydantic import BaseModel
+
+class Author(BaseModel):
     name: str
-    email: str = Field(..., alias='email_address')
+    email: EmailStr
+
+class Message(BaseModel):
+    id: int
+    content: str
+    author: Author  # Вложенная модель
+```
+```python
+message = Message(
+    id=1,
+    content="Hello",
+    author=Author(name="Alice", email="alice@example.com")
+)
 ```
 
 ###### Валидация полей
+**Типы валидации в Pydantic**:
+1. **Автоматическая валидация**: Проверка типов данных.
+2. **Валидация через `Field`**: Ограничения на поля (например, длина строки, диапазон чисел).
+3. **Кастомная валидация полей**: Пользовательские проверки с помощью `@field_validator`.
+4. **Валидация на уровне модели**: Проверки, учитывающие несколько полей, с помощью `@model_validator`.
 
-1. **Минимальная валидация типов:** Используя встроенные типы Python (например, `str`, `int`), можно проводить базовую проверку полей.
-    
-2. **Использование валидаторов:** В Pydantic доступны валидаторы, такие как `EmailStr` для проверки email-адресов. Для использования расширенных валидаторов требуется установка дополнительных зависимостей: `pydantic[email]` или `pydantic[all]`.
+ **Валидация через `Field`**
+ Модуль `pydantic.Field` позволяет задавать ограничения для полей, такие как длина строки, диапазон чисел, регулярные выражения и т.д. По умолчанию все поля в модели обязательные.
+
+Основные параметры `Field`
+- `default`: Значение по умолчанию.
+- `default_factory`: Функция для генерации значения по умолчанию (например, `list`).
+- `alias`: Альтернативное имя поля в JSON.
+- `...` (ellipsis): Указывает, что поле обязательно.
+- `min_length` / `max_length`: Минимальная/максимальная длина строки.
+- `pattern`: Регулярное выражение для строки.
+- `gt` / `ge`: Greater than (больше) / Greater or equal (больше или равно).
+- `lt` / `le`: Less than (меньше) / Less or equal (меньше или равно).
+- `multiple_of`: Число должно быть кратным указанному значению.
+- `max_digits` / `decimal_places`: Ограничения для чисел с плавающей точкой.
+
 ```python
-from pydantic import BaseModel, EmailStr
+from pydantic import BaseModel, Field
 
-class User(BaseModel):
-    name: str
-    email: EmailStr
+class Message(BaseModel):
+    id: int = Field(..., gt=0)  # Явно указываем что это обязательное поле, число больше 0
+    content: str = Field(min_length=1, max_length=500, pattern=r"^[a-zA-Z0-9\s!,.?]*$")  # Строка 1-500 символов, только буквы, цифры, пробелы и знаки
+    priority: float = Field(default=0.0, ge=0.0, le=10.0)  # Число от 0 до 10
+```
+
+Регулярные выражения
+Параметр `pattern` заменил `regex` в Pydantic 2. Для валидации Slug мы можем использовать это регулярное выражение:
+
+```python
+from pydantic import BaseModel, Field, ValidationError
+
+class Article(BaseModel):
+    text: str
+    slug: str = Field(pattern=r'^[-a-zA-Z0-9_]+$')
+
+# Пример использования:
+valid_article = Article(text="Some text", slug="valid-slug_123")
+invalid_article = Article(text="Some text", slug="Invalid Slug!") # Ошибка
+invalid_article2 = Article(text="Some text", slug=" ") # Ошибка
 ```
 
 ###### Декораторы в Pydantic
-- `@field_validator` — позволяет добавлять кастомную логику валидации поля. Вызывается при создании или изменении модели.
+**Кастомная валидация с `@field_validator`**
+Для сложных проверок, выходящих за рамки `Field`, используется декоратор `@field_validator`. Он позволяет писать пользовательские функции для проверки отдельных полей.
+```python
+from pydantic import BaseModel, Field, field_validator
+
+class Message(BaseModel):
+    content: str = Field(min_length=1, max_length=500)
+
+    @field_validator("content")
+    @classmethod
+    def check_forbidden_words(cls, value):
+        forbidden_words = ["spam", "offensive"]
+        if any(word in value.lower() for word in forbidden_words):
+            raise ValueError("Message contains forbidden words")
+        return value
+```
+Как это работает
+- `@field_validator("content")`: Применяет валидатор к полю `content`.
+- Функция проверяет, содержит ли строка запрещенные слова.
+- `raise ValueError`: Вызывает ошибку с пользовательским сообщением, если валидация не проходит.
+- `return value`: Возвращает проверенное (или преобразованное) значение.
+
+Ещё пример
 ```python
 from pydantic import BaseModel, field_validator
 
@@ -2395,6 +2531,7 @@ class User(BaseModel):
         return value
 ```
 
+**Кастомная валидация с `@computed_field`**
 - `@computed_field` — поле, которое вычисляется на основе других данных в модели. Его можно использовать для автоматической генерации значений, а также для валидации.
 ```python
 from pydantic import BaseModel, computed_field
@@ -2413,6 +2550,7 @@ class User(BaseModel):
 ```python
 data = user.model_dump()
 ```
+
 `model_dump_json()` — преобразуют модель в JSON-строку.
 ```python
 json_data = user.model_dump_json()
@@ -2429,36 +2567,6 @@ user = User(name="Oleg", age=30)
 user_data = {"name": "Oleg", "age": 30}
 user = User(**user_data)
 ```
-
-###### Валидация через Field
-
-```python
-class Product(BaseModel):
-    price: float = Field(gt=0, description="Цена должна быть больше нуля")    
-    name: str = Field(min_length=2, max_length=50, description="Название продукта должно быть от 2 до 50 символов")
-```
-1. gt, ge, lt, le — для числовых ограничений
-- `gt` (greater than): Проверяет, что значение больше указанного числа.  
-    Пример: `Field(gt=0)` — значение должно быть больше нуля.
-    
-- `ge` (greater than or equal): Проверяет, что значение больше или равно указанному числу.  
-    Пример: `Field(ge=1)` — значение должно быть не меньше единицы.
-    
-- `lt` (less than): Проверяет, что значение меньше указанного числа.  
-    Пример: `Field(lt=100)` — значение должно быть меньше ста.
-    
-- `le` (less than or equal): Проверяет, что значение меньше или равно указанному числу.  
-    Пример: `Field(le=10)` — значение должно быть не больше десяти.
-
-2. max_length, min_length — для строковых полей
-- `min_length`: Задаёт минимальное количество символов, которое должно быть в строке.  
-    Пример: `Field(min_length=3)` — строка должна быть не короче 3 символов.
-    
-- `max_length`: Задаёт максимальное количество символов, которое может содержать строка.  
-    Пример: `Field(max_length=100)` — строка должна содержать не более 100 символов.
-
-3. regex — для проверки по регулярному выражению
-- `regex`: Задаёт регулярное выражение, которому должна соответствовать строка.Пример: `Field(regex=r"[^@]+@[^@]+\.[^@]+")` — проверка, что строка является корректным email-адресом.
 
 ###### default_factory
 >[!info] Иногда требуется генерировать значения для полей **динамически**. Для этого используется параметр `default_factory`, который принимает функцию для генерации значения.

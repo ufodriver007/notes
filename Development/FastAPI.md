@@ -102,6 +102,67 @@ if __name__ == "main":
     uvicorn.run("main:app")  # файл main, приложение app
 ```
 
+###### Структура приложения
+**1. Простая структура (для маленьких проектов)**
+Этот подход подходит для небольших приложений с ограниченным количеством endpoints. Все файлы находятся в одном каталоге.
+```python
+myproject/
+├── main.py         # Основной файл приложения
+└── models.py       # Модели данных (Pydantic)
+```
+
+**2. Структура по функциональным областям**
+Для более крупных проектов лучше разделить код по функциональным областям.
+```python
+myproject/
+├── main.py         # Основной файл приложения
+├── users/          # Модуль, отвечающий за пользователей
+│   ├── __init__.py
+│   ├── routes.py   # Маршруты, связанные с пользователями
+│   ├── models.py   # Модели пользователей (Pydantic)
+│   └── services.py # Бизнес-логика для пользователей
+├── products/       # Модуль, отвечающий за продукты
+│   ├── __init__.py
+│   ├── routes.py
+│   ├── models.py
+│   └── services.py
+└── database.py     # Подключение к базе данных
+```
+
+- Каждый подкаталог (`users`,  `products`) содержит код, связанный с конкретной функциональной областью.
+- `routes.py`: Определяет маршруты FastAPI для данной функциональной области.
+- `models.py`: Определяет модели Pydantic для данных.
+- `services.py`: Содержит бизнес-логику, не связанную непосредственно с FastAPI.
+- `database.py`: Содержит функции для взаимодействия с базой данных.
+
+**3. Расширенная структура с использованием слоёв (Layers)**
+Для очень больших и сложных проектов рекомендуется использовать слоистую архитектуру, чтобы обеспечить лучшую организацию кода и повысить его поддерживаемость.
+```python
+myproject/
+├── main.py         # Основной файл приложения
+├── api/            # API слой (FastAPI)
+│   ├── __init__.py
+│   └── routes.py
+├── application/    # Прикладной слой (бизнес-логика)
+│   ├── __init__.py
+│   ├── users/
+│   │   └── services.py
+│   └── products/
+│       └── services.py
+├── infrastructure/ # Инфраструктурный слой (взаимодействие с внешними системами)
+│   ├── __init__.py
+│   ├── database.py
+│   └── external_api.py
+└── models/         # Модели данных (Pydantic)
+    ├── __init__.py
+    ├── user.py
+    └── product.py
+```
+- `api`: Содержит только код FastAPI и определяет маршруты.
+- `application`: Содержит бизнес-логику приложения.
+- `infrastructure`: Взаимодействие с базой данных, внешними API и другими внешними системами.
+- `models`: Определяет модели Pydantic.
+
 #### Части запроса
 FastAPI легко может извлечь все части запроса:
 1. Header
@@ -804,21 +865,45 @@ def getsome(new_id: int = Query(ge=1, le=5)):
 pip install sqlalchemy
 ```
 
+###### Engine
+>Объект **Engine** — это центральный компонент SQLAlchemy, который управляет подключением к базе данных. Он действует как посредник между вашим кодом и базой данных, обеспечивая:
+>- **Пул подключений**: Хранит открытые соединения, чтобы избежать затрат на их повторное создание, повышая производительность.
+>- **Диалект**: Определяет правила взаимодействия с конкретной базой данных (например, SQLite, PostgreSQL). Диалект переводит команды SQLAlchemy в SQL, понятный базе данных.
+>- **DBAPI**: Интерфейс Python для взаимодействия с базой данных. Для SQLite это встроенный модуль `sqlite3`, для PostgreSQL — `psycopg2`, и так далее.
+
+###### Сеанс
+>Сеанс (`Session`) в SQLAlchemy — это объект, который управляет операциями с базой данных, такими как добавление, обновление или удаление данных. Представьте сеанс как "тетрадь для черновиков": он записывает все изменения, которые вы хотите внести в базу (например, создание категории или изменение цены товара), проверяет их корректность и решает, применить их или отменить. Это реализация шаблона проектирования **Unit of Work**, который гарантирует согласованность данных. Сеанс:
+>- Отслеживает изменения в объектах (например, добавление нового товара).
+>- Проверяет, что изменения допустимы (например, соблюдены уникальные ключи).
+>- Координирует выполнение операций через объект `Engine`, настроенный в `app/database.py`.
+>- Поддерживает атомарность транзакций: Это означает, что все операции, выполняемые в рамках одной транзакции, либо полностью применяются (commit), либо полностью отменяются (rollback) в случае ошибки или сбоя. Это гарантирует согласованность данных в базе, исключая ситуации, когда изменения применяются частично.
+
+SQLAlchemy использует **фабрику сеансов** (`sessionmaker`), которая создаёт экземпляры сеансов, привязанные к нашему `Engine`. Это позволяет эффективно управлять подключениями, используя пул соединений из `Engine`.
+
 Создаём `db.py`
 ```python
 from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine  
 from sqlalchemy.orm import DeclarativeBase, sessionmaker  
 from config import settings
-  
-engine = create_async_engine(settings.DATABASE_URL)
 
-# создание сессии
+# dialect+driver://username:password@host:port/database
+engine = create_async_engine(settings.DATABASE_URL)  # например "sqlite:///test.db"
+# Для абсолютного пути используйте четыре слэша
+
+# создание сессии (фабрика сеансов)
 async_session_maker = sessionmaker(engine, class_=AsyncSession, expire_on_commit=False)  
   
 # класс для миграций
 class Base(DeclarativeBase):  
     pass
 ```
+
+```
+dialect+driver://username:password@host:port/database
+```
+- **dialect**: Тип базы данных (например, `sqlite`, `postgresql`, `mysql`).
+- **driver**: DBAPI-драйвер (для SQLite дополнительный драйвер не нужен, так как SQLAlchemy использует встроенный модуль `sqlite3`. Но для других баз данных, таких как PostgreSQL, потребуется установить драйвер, например, `psycopg2`)
+- **username:password@host:port/database**: Параметры подключения (для SQLite не требуются).
 
 Создаём `config.py` и читаём .env с помощью Pydantic
 ```bash
@@ -888,6 +973,117 @@ class MyUser(Base):
     name = Column(String, nullable=False)
     room_id = Column(ForeignKey("rooms.id"))  # должна существовать таблица rooms
 ```
+
+Или самый новый вариант (использование `mapped_column`)
+```python
+from sqlalchemy import String
+from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
+from typing import Optional
+
+
+class Base(DeclarativeBase):
+    pass
+
+
+class Product(Base):
+    __tablename__ = "products"
+    
+    id: Mapped[int] = mapped_column(primary_key=True)
+    name: Mapped[str] = mapped_column(String(50), nullable=False)
+    description: Mapped[Optional[str]] = mapped_column(String(200))
+    price: Mapped[float] = mapped_column(nullable=False)
+```
+- `Mapped` указывает тип данных столбца через аннотации Python.
+- `mapped_column` автоматически определяет тип столбца на основе аннотации (например, `Mapped[int]`преобразуется в `Integer`).
+- `Optional[str]` указывает, что поле `description` может быть `NULL` в базе данных.
+
+###### Параметры столбцов таблицы
+Параметры столбцов в SQLAlchemy позволяют настраивать поведение и ограничения столбцов таблицы. Они задаются как аргументы в `Column` или `mapped_column` (в SQLAlchemy 2.0+) и определяют, как база данных будет обрабатывать данные в столбце.
+
+1. **`primary_key=True`** 
+Указывает, что столбец является первичным ключом таблицы. Первичный ключ уникально идентифицирует каждую запись и не может быть `NULL`. Обычно используется для столбца `id`
+
+2. **`unique=True`**
+Требует, чтобы значения в столбце были уникальными для каждой записи. Это полезно для полей, таких как `email`, `username` или `sku` (артикул товара).
+
+3. **`nullable=False`**
+Указывает, что столбец не может содержать значение `NULL`, делая поле обязательным. По-умолчаню стоит `True`
+
+4. **`default=<значение>`**
+Задает значение по умолчанию для столбца, если оно не указано при создании записи. Значение может быть константой или функцией. Пример:
+`is_active = Column(Boolean, default=True)`
+Пример с функцией: `created_at = Column(DateTime, default=datetime.now)` или 
+`created_at = mapped_column(DateTime, nullable=False, default=func.now)`
+
+5. **`index=True`**
+Создает индекс для столбца, что ускоряет операции поиска и сортировки по этому столбцу, но может замедлить операции записи и увеличить объем базы данных. Примечание: *Используйте индексы для столбцов, по которым часто выполняются запросы (например, фильтрация или сортировка).*
+
+6. **`autoincrement=True`**
+Указывает, что значения столбца (обычно первичного ключа) должны автоматически увеличиваться при добавлении новой записи. Применяется к целочисленным столбцам. Примечание: *В большинстве баз данных (например, SQLite, PostgreSQL) автоинкремент включается автоматически для первичных ключей типа `Integer`, но явное указание может улучшить читаемость кода.*
+
+7. **`check=<выражение>`**
+Добавляет ограничение на значения столбца, используя выражение SQL. Это позволяет задавать дополнительные проверки на уровне базы данных. Пример: 
+`price = Column(Float, check="price >= 0")`
+Примечание: *Поддержка параметра `check` зависит от базы данных (например, SQLite поддерживает ограниченно, а PostgreSQL — полностью).*
+
+Пример
+```python
+from sqlalchemy import Column, Integer, String, Float, Boolean, DateTime
+from sqlalchemy.orm import DeclarativeBase
+from datetime import datetime
+
+
+class Base(DeclarativeBase):
+    pass
+
+
+class Product(Base):
+    __tablename__ = "products"
+    
+    id = Column(Integer, primary_key=True, autoincrement=True, index=True)
+    sku = Column(String(20), unique=True, nullable=False)
+    name = Column(String(100), nullable=False, index=True)
+    description = Column(String(500), default="")
+    price = Column(Float, nullable=False, check="price >= 0")
+    is_available = Column(Boolean, default=True)
+    created_at = Column(DateTime, default=datetime.now)
+```
+
+#### Типы данных в SQLAlchemy
+
+Типы данных в SQLAlchemy определяют, какие значения могут храниться в столбце и как они преобразуются между Python и базой данных. SQLAlchemy предоставляет широкий набор типов данных, которые соответствуют типам данных в реляционных базах данных. Выбор правильного типа данных критически важен для обеспечения производительности, целостности данных и совместимости с базой данных.
+
+###### Основные типы данных SQLAlchemy
+
+|**Тип данных SQL**|**Тип данных SQLAlchemy**|**Описание**|**Пример использования**|
+|---|---|---|---|
+|`INTEGER`|**`Integer`**|Целое число (обычно 32-битное)|`id = Column(Integer, primary_key=True)`|
+|`BIGINT`|**`BigInteger`**|Большое целое число (64-битное)|`user_id = Column(BigInteger)`|
+|`SMALLINT`|**`SmallInteger`**|Малое целое число (16-битное)|`order_status = Column(SmallInteger)`|
+|`VARCHAR(length)`|**`String(length)`**|Строка фиксированной длины|`name = Column(String(100))`|
+|`TEXT`|**`Text`**|Строка переменной длины (без ограничения длины)|`description = Column(Text)`|
+|`BOOLEAN`|**`Boolean`**|Булево значение (`True`/`False`)|`is_active = Column(Boolean, default=True)`|
+|`DATE`|**`Date`**|Дата (без времени)|`birthdate = Column(Date)`|
+|`DATETIME`|**`DateTime`**|Дата и время|`created_at = Column(DateTime)`|
+|`TIME`|**`Time`**|Время (без даты)|`login_time = Column(Time)`|
+|`FLOAT`|**`Float`**|Число с плавающей точкой|`price = Column(Float)`|
+|`DECIMAL(p,s)`|**`Numeric(precision, scale)`**|Десятичное число с заданной точностью|`amount = Column(Numeric(10, 2))`|
+|`JSON`|**`JSON`**|Данные в формате JSON (поддерживается в PostgreSQL, MySQL)|`data = Column(JSON)`|
+|`BLOB`|**`LargeBinary`**|Двоичные данные (например, изображения)|`image = Column(LargeBinary)`|
+
+###### Дополнительные типы данных
+
+- **`Enum`**: Позволяет задавать перечислимые значения для столбца. Полезно для ограниченного набора строковых значений, таких как статус заказа.
+    - Пример: `status = Column(Enum('pending', 'completed', 'cancelled', name='order_status'))`
+- **`Interval`**: Для хранения временных интервалов (поддерживается в PostgreSQL).
+    - Пример: `duration = Column(Interval)`
+- **`UUID`**: Для хранения уникальных идентификаторов UUID.
+    - Пример: `uuid = Column(UUID(as_uuid=True))`
+
+###### Важные моменты при выборе типов данных
+- Для строк используйте `String(length)` с указанием максимальной длины (например, `String(100)`), чтобы оптимизировать использование памяти. Используйте `Text` только для строк переменной длины без ограничений.
+-  Для финансовых данных (цены, суммы) используйте `Numeric(precision, scale)` вместо `Float`, чтобы избежать ошибок округления. Например, `Numeric(10, 2)` для хранения цен с двумя знаками после запятой.
+- Избегайте избыточных индексов, чтобы не перегружать базу данных.
 
 #### SQLAlchemy + Alembic
 SQLAlchemy - это популярная ORM.

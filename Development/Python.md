@@ -108,16 +108,16 @@ sudo apt install software-properties-common
    `ln -s /usr/bin/python3.11 /usr/bin/python`
    `python --version`
 ###### Компиляция из исходников
-1. `apt-get -y update`
-2. `apt -y install zlib1g-dev build-essential libgdbm-dev libncurses5-dev libssl-dev libnss3-dev libffi-dev libreadline-dev wget libsqlite3-dev libbz2-dev`
-3. `mkdir /root/build`
-4. `cd /root/build`
+1. `sudo apt-get -y update`
+2. `sudo apt -y install zlib1g-dev build-essential libgdbm-dev libncurses5-dev libssl-dev libnss3-dev libffi-dev libreadline-dev wget libsqlite3-dev libbz2-dev`
+3. `mkdir /home/ufodriver/build`
+4. `cd /home/ufodriver/build`
 5. `wget https://www.python.org/ftp/python/3.13.5/Python-3.13.5.tgz`
 6. `tar -xf *.tgz`
 7. `cd <версия_python>`
 8. `./configure --enable-optimizations`     запуск процедуры подготовки к компиляции
 9. `make -j $(nproc)`    сборка пакета
-10. `make altinstall `    интеграция собранного вами пакета непосредственно в ОС
+10. `sudo make altinstall`    интеграция собранного вами пакета непосредственно в ОС
 - можно создать симлинк для удобства
   `ln -s /usr/bin/python3.11 /usr/bin/python`
   `python --version`

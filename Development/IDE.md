@@ -1,10 +1,10 @@
 ## PyCharm
-[Спсок пиратских License servers](https://search.censys.io/search?resource=hosts&sort=RELEVANCE&per_page=25&virtual_hosts=EXCLUDE&q=services.http.response.headers.location%3A+account.jetbrains.com%2Ffls-auth) Вводить адрес только с `http://`
-
-[Инструкция для активации](https://teletype.in/@djangocmsrus/OHlHBt-flUS)
+[Инструкция для активации](https://306.antroot.ru/jetbrains-activation)
 [Ключи](https://3.jetbra.in/)
 
-#### Сочетания клавиш
+[Спсок пиратских License servers](https://search.censys.io/search?resource=hosts&sort=RELEVANCE&per_page=25&virtual_hosts=EXCLUDE&q=services.http.response.headers.location%3A+account.jetbrains.com%2Ffls-auth) Вводить адрес только с `http://`
+
+#### Сочетания клавиш (Hotkeys)
 |Описание|Хоткей|
 |------|--------|
 |Поиск по проекту|`Ctrl-Shift-N`

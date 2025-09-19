@@ -322,6 +322,7 @@ ALTER USER postgres WITH PASSWORD 'qwerty';     # установить паро�
 CREATE USER username WITH PASSWORD 'qwerty';    # создать пользователя username с паролем qwerty
 ALTER USER username WITH SUPERUSER;             # дать права суперпользователя username'у
 DROP USER username;                             # удалить пользователя
+CREATE DATABASE ecommerce_db OWNER username ENCODING 'UTF8';
 DROP TABLE table;                               # удалить таблицу
 GRANT ALL PRIVILEGES ON DATABASE myproject TO myprojectuser;    # Предоставить пользователю БД
                                                                 #  права доступа к базе данных

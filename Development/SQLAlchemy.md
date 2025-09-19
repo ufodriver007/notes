@@ -1,3 +1,1 @@
-```bash
-pip install sqlalchemy
-```
+[[FastAPI#SQLAlchemy. Работа с БД]]

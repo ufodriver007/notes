@@ -3,6 +3,8 @@
 [Документация](https://fastapi.tiangolo.com/ru/)
 [Metanit](https://metanit.com/python/fastapi/)
 
+![[fastapi_request.webp]]
+
 FastAPI
 ```bash
 pip install "fastapi[standard]"
@@ -860,11 +862,24 @@ def getsome(new_id: int = Query(ge=1, le=5)):
     return f'Your new ID: {new_id}'
 ```
 
-#### Работа с БД
+#### SQLAlchemy. Работа с БД
+SQLAlchemy - это популярная ORM.
+
+![[sqla_arch_small.png]]
+
 ```bash
 pip install sqlalchemy
 ```
 
+Драйвер для асинхронного подключения
+```bash
+pip install asyncpg
+```
+
+SQLAlchemy использует библиотеку `greenlet` для управления асинхронными операциями.
+```bash
+pip install greenlet
+```
 ###### Engine
 >Объект **Engine** — это центральный компонент SQLAlchemy, который управляет подключением к базе данных. Он действует как посредник между вашим кодом и базой данных, обеспечивая:
 >- **Пул подключений**: Хранит открытые соединения, чтобы избежать затрат на их повторное создание, повышая производительность.
@@ -882,20 +897,23 @@ SQLAlchemy использует **фабрику сеансов** (`sessionmak
 
 Создаём `db.py`
 ```python
-from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine  
-from sqlalchemy.orm import DeclarativeBase, sessionmaker  
-from config import settings
+# --------------- Асинхронное подключение к PostgreSQL -------------------------
+from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker, AsyncSession
+from sqlalchemy.orm import DeclarativeBase
 
-# dialect+driver://username:password@host:port/database
-engine = create_async_engine(settings.DATABASE_URL)  # например "sqlite:///test.db"
-# Для абсолютного пути используйте четыре слэша
+# Строка подключения для SQLite
+DATABASE_URL = "postgresql+asyncpg://ecommerce_user:xxxxxxxx@localhost:5432/ecommerce_db"
 
-# создание сессии (фабрика сеансов)
-async_session_maker = sessionmaker(engine, class_=AsyncSession, expire_on_commit=False)  
-  
-# класс для миграций
-class Base(DeclarativeBase):  
+# Создаём Engine
+async_engine = create_async_engine(DATABASE_URL, echo=True)
+
+# Настраиваем фабрику сеансов
+async_session_maker = async_sessionmaker(async_engine, expire_on_commit=False, class_=AsyncSession)
+
+
+class Base(DeclarativeBase):
     pass
+
 ```
 
 ```
@@ -904,6 +922,24 @@ dialect+driver://username:password@host:port/database
 - **dialect**: Тип базы данных (например, `sqlite`, `postgresql`, `mysql`).
 - **driver**: DBAPI-драйвер (для SQLite дополнительный драйвер не нужен, так как SQLAlchemy использует встроенный модуль `sqlite3`. Но для других баз данных, таких как PostgreSQL, потребуется установить драйвер, например, `psycopg2`)
 - **username:password@host:port/database**: Параметры подключения (для SQLite не требуются).
+
+Создаём зависимость, которая внедряет асинхронную сессию.
+```python
+from typing import AsyncGenerator
+from fastapi import HTTPException, status
+from sqlalchemy.ext.asyncio import AsyncSession
+from app.database import async_session_maker
+
+
+async def get_async_db() -> AsyncGenerator[AsyncSession, None]:
+    """
+    Предоставляет асинхронную сессию SQLAlchemy для работы с базой данных PostgreSQL.
+    """
+    async with async_session_maker() as session:
+        yield session
+```
+
+Далее для работы с БД занимаемся миграциями [[FastAPI#Alembic]]
 
 Создаём `config.py` и читаём .env с помощью Pydantic
 ```bash
@@ -1085,8 +1121,640 @@ class Product(Base):
 -  Для финансовых данных (цены, суммы) используйте `Numeric(precision, scale)` вместо `Float`, чтобы избежать ошибок округления. Например, `Numeric(10, 2)` для хранения цен с двумя знаками после запятой.
 - Избегайте избыточных индексов, чтобы не перегружать базу данных.
 
-#### SQLAlchemy + Alembic
-SQLAlchemy - это популярная ORM.
+#### Связи в ORM
+**ForeignKey**
+Используются для связи таблиц. В один к одному и один ко многим внешний ключ находится в дочерней таблице (например, `profiles.user_id` или `orders.user_id`). В многие ко многим внешние ключи находятся в промежуточной таблице (например, `order_items.order_id` и `order_items.product_id`).
+
+*Параметры*
+- `column`: Имя столбца в родительской таблице, на который ссылается внешний ключ (например, `"users.id"`).
+- `ondelete`: Определяет поведение при удалении записи в родительской таблице (например, `"CASCADE"` для удаления дочерней записи).
+- `onupdate`: Задаёт поведение при обновлении первичного ключа в родительской таблице.
+- `constraint_name`: Указывает имя ограничения внешнего ключа.
+
+**relationship**
+Функция `relationship` используется для установления связи между моделями на уровне ORM, что позволяет автоматически загружать связанные данные. Для отношения один к одному критически важно установить параметр `uselist=False`, чтобы связь возвращала одиночный объект, а не коллекцию.
+
+```python
+relationship("Profile", uselist=False, back_populates="user")
+```
+
+*Параметры*
+- `argument`: Имя или класс связанной модели (например, `"Profile"` или `Profile`).  
+- `back_populates`: Параметр `back_populates` обеспечивает двустороннюю связь между моделями, позволяя обращаться к связанным объектам с обеих сторон (например, `user.profile` и `profile.user`). Он требует указания имени атрибута в связанной модели и должен быть синхронизирован в обеих моделях.  
+- `backref`: Параметр, который создаёт двунаправленную связь с минимальным кодом. Если определить её в одном классе, она автоматически настроит обратную связь в связанном классе. Например: `profile = relationship("Profile", backref="user")`  
+- `uselist`: Булево значение, которое для один к одному должно быть `False`. Неправильная настройка `uselist` может привести к созданию отношения один ко многим вместо один к одному.  
+- `cascade`: Параметр `cascade` управляет поведением связанных записей при выполнении операций, таких как сохранение, обновление или удаление. Например, значение `"all, delete-orphan"` указывает, что при удалении родительской записи все связанные дочерние записи также будут удалены, включая те, которые больше не связаны с родителем. Неправильная настройка каскадов может привести к нежелательному удалению данных, поэтому следует использовать их с осторожностью.  
+- `lazy`: Параметр `lazy` определяет, когда и как загружаются связанные данные. Возможные значения включают:    
+    - `"select"`: Данные загружаются при первом обращении (ленивая загрузка).
+    - `"joined"`: Данные загружаются сразу в одном SQL-запросе.
+    - `"subquery"`: Данные загружаются через отдельный подзапрос.
+    - `"dynamic"`: Позволяет динамически запрашивать данные.
+    Использование ленивой загрузки (`lazy="select"`) может привести к проблеме N+1, когда для загрузки связанных данных выполняется множество дополнительных запросов. Для оптимизации производительности рекомендуется использовать `"joined"` или `"subquery"` в зависимости от контекста.
+
+###### Один к одному
+```python
+Column(Integer, ForeignKey("users.id"), unique=True, nullable=False)
+```
+
+Пример. Каждый пользователь имеет ровно один профиль, а каждый профиль принадлежит ровно одному пользователю.
+```python
+from sqlalchemy import Column, Integer, String, ForeignKey
+from sqlalchemy.orm import DeclarativeBase, relationship
+
+
+# Базовый класс для всех моделей
+class Base(DeclarativeBase):
+    pass
+
+
+# Модель пользователя
+class User(Base):
+    # Имя таблицы в базе данных
+    __tablename__ = "users"
+    
+    # Первичный ключ, целое число, автогенерируемое
+    id = Column(Integer, primary_key=True)
+    
+    # Имя пользователя, строка до 50 символов, уникальное и обязательное
+    username = Column(String(50), unique=True, nullable=False)
+    
+    # Связь один-к-одному с профилем, возвращает одиночный объект Profile
+    profile = relationship(
+        "Profile",                    # Имя связанной модели
+        back_populates="user",       # Имя атрибута обратной связи в Profile
+        uselist=False,               # Указывает, что это одиночный объект
+        cascade="all, delete-orphan" # Удаляет профиль при удалении пользователя
+    )
+
+
+# Модель профиля
+class Profile(Base):
+    # Имя таблицы в базе данных
+    __tablename__ = "profiles"
+    
+    # Первичный ключ профиля
+    id = Column(Integer, primary_key=True)
+    
+    # Биография, строка до 500 символов, может быть NULL
+    bio = Column(String(500))
+    
+    # Внешний ключ на users.id, уникальный и обязательный
+    user_id = Column(Integer, ForeignKey("users.id"), unique=True, nullable=False)
+    
+    # Обратная связь с пользователем, возвращает одиночный объект User
+    user = relationship(
+        "User",                     # Имя связанной модели
+        back_populates="profile"    # Имя атрибута обратной связи в User
+    )
+```
+
+Тот же пример но с использованием современного подхода с `mapped_column()` и аннотациями типов `Mapped[]`. Это делает код более строгим и совместимым с инструментами проверки типов.
+```python
+from sqlalchemy import ForeignKey, String
+from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship
+from typing import Optional
+
+
+# Базовый класс для всех моделей, связывающий их с метаданными базы данных
+class Base(DeclarativeBase):
+    pass
+
+
+# Модель пользователя
+class User(Base):
+    # Имя таблицы в базе данных
+    __tablename__ = "users"
+    
+    # Первичный ключ, целое число, автогенерируемое
+    id: Mapped[int] = mapped_column(primary_key=True)
+    
+    # Имя пользователя, строка до 50 символов, уникальное и обязательное
+    username: Mapped[str] = mapped_column(String(50), unique=True, nullable=False)
+    
+    # Связь один-к-одному с профилем, возвращает одиночный объект Profile
+    profile: Mapped["Profile"] = relationship(
+        "Profile",                   # Имя связанной модели
+        back_populates="user",       # Имя атрибута обратной связи в Profile
+        uselist=False,               # Указывает, что это одиночный объект, а не список
+        cascade="all, delete-orphan" # Удаляет профиль при удалении пользователя
+    )
+
+
+# Модель профиля
+class Profile(Base):
+    # Имя таблицы в базе данных
+    __tablename__ = "profiles"
+    
+    # Первичный ключ профиля, целое число
+    id: Mapped[int] = mapped_column(primary_key=True)
+    
+    # Биография, строка до 500 символов, может быть NULL
+    bio: Mapped[Optional[str]] = mapped_column(String(500))
+    
+    # Внешний ключ на users.id, уникальный и обязательный
+    user_id: Mapped[int] = mapped_column(ForeignKey("users.id"), unique=True, nullable=False)
+    
+    # Обратная связь с пользователем, возвращает одиночный объект User
+    user: Mapped["User"] = relationship(
+        "User",                     # Имя связанной модели
+        back_populates="profile"    # Имя атрибута обратной связи в User
+    )
+```
+
+Ещё пример
+```python
+class User(Base):
+    __tablename__ = "users"
+    id: Mapped[int] = mapped_column(primary_key=True)
+    profile: Mapped["Profile"] = relationship("Profile", uselist=False, back_populates="user")
+
+
+class Profile(Base):
+    __tablename__ = "profiles"
+    id: Mapped[int] = mapped_column(primary_key=True)
+    user_id: Mapped[int] = mapped_column(ForeignKey("users.id"), unique=True, nullable=False)
+    user: Mapped["User"] = relationship("User", back_populates="profile")
+```
+
+###### Один ко многим
+В ORM SQLAlchemy параметр `uselist` либо не указывается (по умолчанию `True`), либо явно устанавливается в `True`, что позволяет атрибуту связи возвращать коллекцию объектов (например, список). Например, в модели `User` атрибут `posts` может возвращать список объектов `Post`, связанных с пользователем.
+
+**Основной синтаксис**:
+- Внешний ключ: `Column(Integer, ForeignKey("users.id"), nullable=False)`.
+- Связь один ко многим: `relationship("Order", back_populates="user", cascade="all, delete-orphan")`.
+- Обратная связь: `relationship("User", back_populates="orders")`.
+
+Пример
+```python
+from sqlalchemy import Column, Integer, String, DateTime, Numeric, ForeignKey
+from sqlalchemy.orm import DeclarativeBase, relationship
+from datetime import datetime
+
+
+# Базовый класс для всех моделей
+class Base(DeclarativeBase):
+    pass
+
+
+# Модель пользователя
+class User(Base):
+    # Имя таблицы в базе данных
+    __tablename__ = "users"
+    
+    # Первичный ключ, целое число, автогенерируемое
+    id = Column(Integer, primary_key=True)
+    
+    # Имя пользователя, строка до 50 символов, уникальное и обязательное
+    username = Column(String(50), unique=True, nullable=False)
+    
+    # Связь один-ко-многим, возвращает список объектов Order
+    orders = relationship(
+        "Order",                     # Имя связанной модели
+        back_populates="user",       # Имя атрибута обратной связи в Order
+        cascade="all, delete-orphan" # Удаляет заказы при удалении пользователя
+    )
+
+
+# Модель заказа
+class Order(Base):
+    # Имя таблицы в базе данных
+    __tablename__ = "orders"
+    
+    # Первичный ключ заказа
+    id = Column(Integer, primary_key=True)
+    
+    # Дата создания заказа, по умолчанию текущая дата и время
+    order_date = Column(DateTime, default=datetime.now)
+    
+    # Сумма заказа, десятичное число с 2 знаками, обязательное
+    total = Column(Numeric(10, 2), nullable=False)
+    
+    # Внешний ключ на users.id, обязательный
+    user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
+    
+    # Обратная связь с пользователем, возвращает одиночный объект User
+    user = relationship(
+        "User",                    # Имя связанной модели
+        back_populates="orders"    # Имя атрибута обратной связи в User
+    )
+```
+
+Пример с использованием `mapped_column`
+```python
+from sqlalchemy import ForeignKey, String, DateTime, Numeric
+from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship
+from typing import List
+from datetime import datetime
+
+
+# Базовый класс для всех моделей
+class Base(DeclarativeBase):
+    pass
+
+
+# Модель пользователя
+class User(Base):
+    # Имя таблицы в базе данных
+    __tablename__ = "users"
+    
+    # Первичный ключ, целое число, автогенерируемое
+    id: Mapped[int] = mapped_column(primary_key=True)
+    
+    # Имя пользователя, строка до 50 символов, уникальное и обязательное
+    username: Mapped[str] = mapped_column(String(50), unique=True, nullable=False)
+    
+    # Связь один-ко-многим, возвращает список объектов Order
+    orders: Mapped[List["Order"]] = relationship(
+        "Order",                     # Имя связанной модели
+        back_populates="user",       # Имя атрибута обратной связи в Order
+        cascade="all, delete-orphan" # Удаляет заказы при удалении пользователя
+    )
+
+
+# Модель заказа
+class Order(Base):
+    # Имя таблицы в базе данных
+    __tablename__ = "orders"
+    
+    # Первичный ключ заказа
+    id: Mapped[int] = mapped_column(primary_key=True)
+    
+    # Дата создания заказа, по умолчанию текущая дата и время
+    order_date: Mapped[datetime] = mapped_column(DateTime, default=datetime.now)
+    
+    # Сумма заказа, десятичное число с 2 знаками, обязательное
+    total: Mapped[float] = mapped_column(Numeric(10, 2), nullable=False)
+    
+    # Внешний ключ на users.id, обязательный
+    user_id: Mapped[int] = mapped_column(ForeignKey("users.id"), nullable=False)
+    
+    # Обратная связь с пользователем, возвращает одиночный объект User
+    user: Mapped["User"] = relationship(
+        "User",                    # Имя связанной модели
+        back_populates="orders"    # Имя атрибута обратной связи в User
+    )
+```
+
+###### Многие ко многим
+Используется функция `relationship` с параметром `secondary`, который указывает на промежуточную таблицу, позволяя автоматически загружать связанные данные, такие как список товаров в заказе или список заказов, содержащих определённый товар.
+
+Промежуточная таблица обычно определяется как объект `Table`, а не как полноценная модель, поскольку её основная задача — хранить связи между сущностями, а не предоставлять сложную бизнес-логику. Такой подход упрощает код и снижает издержки, связанные с созданием полноценного ORM-класса.
+
+Пример
+```python
+from sqlalchemy import Column, ForeignKey, String, Integer, Numeric, Table, DateTime
+from sqlalchemy.orm import DeclarativeBase, relationship
+from datetime import datetime
+
+
+# Базовый класс для всех моделей
+class Base(DeclarativeBase):
+    pass
+
+
+# Промежуточная таблица для связи заказов и товаров
+order_items = Table(
+    "order_items",
+    Base.metadata,
+    Column("order_id", Integer, ForeignKey("orders.id"), primary_key=True, index=True),
+    Column("product_id", Integer, ForeignKey("products.id"), primary_key=True, index=True),
+    Column("quantity", Integer, default=1, nullable=False),
+    Column("price", Numeric(10, 2), nullable=False)
+)
+
+
+# Модель товара
+class Product(Base):
+    __tablename__ = "products"
+
+    id = Column(Integer, primary_key=True)
+    name = Column(String(100), nullable=False)
+    orders = relationship(
+        "Order",
+        secondary=order_items,
+        back_populates="products"
+    )
+
+
+# Модель заказа
+class Order(Base):
+    __tablename__ = "orders"
+
+    id = Column(Integer, primary_key=True)
+    order_date = Column(DateTime, default=datetime.now)
+    total = Column(Numeric(10, 2), nullable=False)
+    products = relationship(
+        "Product",
+        secondary=order_items,
+        back_populates="orders"
+    )
+```
+Промежуточная таблица `order_items` используется только для хранения связей между таблицами `orders` и `products` (через внешние ключи `order_id` и `product_id`) и дополнительных данных, таких как `quantity` и `price`. Она не требует сложной бизнес-логики или ORM-методов, как полноценные модели `Product` и `Order`. Поэтому в SQLAlchemy её часто определяют как объект `Table`, а не как полноценную модель, чтобы упростить код и избежать избыточной функциональности.
+
+Таблица `order_items` имеет один составной первичный ключ, состоящий из двух столбцов: `Column(Integer, ForeignKey(...), primary_key=True, index=True)`. Вместе они обеспечивают уникальность каждой записи. Параметр `index=True` ускоряет поиск по этим столбцам.
+
+Здесь `PRIMARY KEY (order_id, product_id)` явно указывает, что первичный ключ составной и включает оба столбца. Это стандартный подход для промежуточных таблиц в отношениях многие ко многим, чтобы гарантировать уникальность каждой связи.
+
+Пример с использованием `mapped_column` и `Mapped`
+```python
+from sqlalchemy import Column, ForeignKey, String, Integer, Numeric, Table, DateTime
+from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship
+from typing import List
+from datetime import datetime
+
+
+# Базовый класс для всех моделей
+class Base(DeclarativeBase):
+    pass
+
+
+# Промежуточная таблица для связи заказов и товаров
+order_items = Table(
+    "order_items",
+    Base.metadata,
+    Column("order_id", Integer, ForeignKey("orders.id"), primary_key=True, index=True),
+    Column("product_id", Integer, ForeignKey("products.id"), primary_key=True, index=True),
+    Column("quantity", Integer, nullable=False, default=1),
+    Column("price", Numeric(10, 2), nullable=False),
+)
+
+
+# Модель товара
+class Product(Base):
+    __tablename__ = "products"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    name: Mapped[str] = mapped_column(String(100), nullable=False)
+    orders: Mapped[List["Order"]] = relationship(
+        "Order",
+        secondary=order_items,
+        back_populates="products",
+        cascade="all, delete-orphan"
+    )
+
+
+# Модель заказа
+class Order(Base):
+    __tablename__ = "orders"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    order_date: Mapped[datetime] = mapped_column(DateTime, default=datetime.now)
+    total: Mapped[float] = mapped_column(Numeric(10, 2), nullable=False)
+    products: Mapped[List["Product"]] = relationship(
+        "Product",
+        secondary=order_items,
+        back_populates="orders"
+    )
+```
+
+##### SQLAlchemy. Запросы
+>[!info] В SQLAlchemy запросы сначала **составляются** как объекты (типа `Select`), а затем **выполняются** с помощью методов, таких как `session.execute()`. Это разделение позволяет гибко формировать запросы, модифицировать их в зависимости от условий и выполнять только тогда, когда это необходимо.
+
+1. **Составление запроса**:
+    - Вы создаёте объект запроса с помощью функции `select()`.
+    - Добавляете модификаторы, такие как `.where()`, `.order_by()`, `.join()`, `.limit()`, чтобы уточнить, какие данные нужны.
+    - На этом этапе запрос **не выполняется** — вы просто строите инструкцию для базы данных.
+    - Объект запроса можно передавать между функциями, модифицировать или сохранять для повторного использования.
+2. **Выполнение запроса**:
+    - Когда запрос готов, вы передаёте его в метод `session.execute()`.
+    - Только на этом этапе SQLAlchemy отправляет SQL-запрос в базу данных и возвращает результаты.
+    - Вы можете извлечь данные с помощью методов `.scalars()`, `.all()`, `.first()` и других.
+
+###### Составление запроса
+>[!info] **Метод `select()`** — основа для создания запросов в SQLAlchemy. Он определяет, какие сущности (таблицы, модели ORM) или столбцы вы хотите извлечь из базы данных. Это аналог `SELECT` в SQL. Также существуют и `.add()`, `.update()`, `.delete()`.
+
+```python
+from sqlalchemy import select
+from app.models.categories import Category
+
+# Выборка всех столбцов модели Category
+stmt = select(Category)
+
+# Выборка конкретных столбцов
+stmt = select(Category.id, Category.name)
+```
+
+**Where** поддерживает операторы сравнения (`==`, `>`, `<`, `!=`), `like()`, `in_()` и логические операции (`and_`, `or_`)
+```python
+# Фильтрация активных категорий
+stmt = select(Category).where(Category.is_active == True)
+
+# Множественные условия
+from sqlalchemy import and_
+stmt = select(Category).where(and_(Category.is_active == True, Category.name.like('%tech%')))
+
+# Альтернатива с несколькими where()
+stmt = select(Category).where(Category.is_active == True).where(Category.name.like('%tech%'))
+```
+Методы `like()` и `ilike()` (регистронезависимый поиск) используются для поиска строк по шаблону.
+[Описание оператора LIKE](https://tproger.ru/articles/like-sql)
+```python
+# Выборка категорий, имена которых начинаются с "Tech"
+stmt = select(Category).where(Category.name.like('Tech%'))
+
+# Выборка продуктов, в имени которых есть "phone" (регистронезависимо)
+stmt = select(Product).where(Product.name.ilike('%phone%'))
+
+# Выборка категорий, имена которых не содержат "Old"
+stmt = select(Category).where(~Category.name.like('%Old%'))
+
+# Также есть аналоги - startswith, endswith и contains
+stmt = select(Post).where(Post.title.startswith('Python'))
+stmt = select(User).where(User.email.endswith('@gmail.com'))
+stmt = select(Post).where(Post.content.contains('important'))
+```
+Методы `is_()` и `is_not()` используются для проверки значений `NULL`
+```python
+# Выборка продуктов, у которых category_id равен NULL
+stmt = select(Product).where(Product.category_id.is_(None))
+
+# Выборка продуктов, у которых category_id не NULL
+stmt = select(Product).where(Product.category_id.is_not(None))
+```
+Метод `in_()` проверяет, входит ли значение столбца в список, а `not_in()` — не входит.
+```python
+# Выборка категорий с id 1, 2 или 3
+stmt = select(Category).where(Category.id.in_([1, 2, 3]))
+
+# Выборка продуктов, цена которых не в списке [10.0, 20.0, 30.0]
+stmt = select(Product).where(Product.price.not_in([10.0, 20.0, 30.0]))
+
+# найти всех пользователей, чей возраст находится в диапазоне от 20 до 30 лет
+stmt = select(User).where(User.age.between(20, 30))
+```
+Логические комбинации с `and_`, `or_`, `not_`
+```python
+from sqlalchemy import and_, or_, not_
+
+# Выборка активных категорий с именем, начинающимся на "Tech"
+stmt = select(Category).where(and_(Category.is_active == True, Category.name.like('Tech%')))
+
+# Выборка продуктов с ценой > 100 или количеством на складе < 10
+stmt = select(Product).where(or_(Product.price > 100.0, Product.stock < 10))
+
+# Выборка категорий, которые НЕ являются активными
+stmt = select(Category).where(not_(Category.is_active == True))
+```
+Фильтрация по датам
+```python
+from datetime import datetime, timedelta
+
+# Выборка категорий, созданных после 1 января 2025 года
+stmt = select(Category).where(Category.created_at > datetime(2025, 1, 1))
+
+# Выборка категорий, созданных за последние 30 дней
+stmt = select(Category).where(Category.created_at >= datetime.now() - timedelta(days=30))
+```
+
+**order_by()** задает сортировку результатов
+```python
+from sqlalchemy import desc
+
+# Сортировка по имени по возрастанию
+stmt = select(Category).order_by(Category.name)
+
+# Выборка категорий с именем "Electronics" 
+stmt = select(Category).where(Category.name == 'Electronics')
+
+# Выборка продуктов с ценой меньше или равно 50
+stmt = select(Product).where(Product.price <= 50.0)
+
+# Сортировка по имени по убыванию
+stmt = select(Category).order_by(desc(Category.name))
+
+# Множественная сортировка
+stmt = select(Category).order_by(Category.is_active, desc(Category.name))
+```
+
+**join()** позволяет объединять таблицы, аналогично `JOIN` в SQL
+```python
+# JOIN между Category и Product по связи
+stmt = select(Category).join(Product, Category.id == Product.category_id)
+
+# Явное указание связи через ORM
+stmt = select(Category).join(Category.products)
+
+# INNER JOIN (по умолчанию)
+stmt = select(User, Order).join(Order)
+
+# LEFT OUTER JOIN
+stmt = select(User, Order).outerjoin(Order)
+
+# RIGHT OUTER JOIN (не все БД поддерживают)
+stmt = select(User, Order).join(Order, isouter=False)  # или через dialect-specific методы
+
+# FULL OUTER JOIN
+stmt = select(User, Order).join(Order, full=True)
+```
+
+
+**limit()** ограничивает количество возвращаемых строк
+```python
+# Получить только 5 категорий
+stmt = select(Category).limit(5)
+```
+
+**offset()** пропускает указанное количество строк перед возвратом результатов
+```python
+# Пропустить первые 10 категорий и взять следующие 5
+stmt = select(Category).offset(10).limit(5)
+```
+
+###### Выполнение запроса
+```python
+from typing import AsyncGenerator  
+from sqlalchemy.ext.asyncio import AsyncSession  
+from app.database import async_session_maker  
+  
+  
+async def get_async_db() -> AsyncGenerator[AsyncSession, None]:  
+    """  
+    Предоставляет асинхронную сессию SQLAlchemy для работы с базой данных PostgreSQL.    """    async with async_session_maker() as session:  
+        yield session
+```
+Методы **AsyncSession**
+**await execute()** отправляет запрос в базу данных и возвращает объект Result, содержащий результаты. Без дополнительных методов, таких как `scalars()`, результат будет содержать объекты `Row`(список кортежей).
+```python
+async def get_all_categories(db: AsyncSession = Depends(get_async_db)):
+...
+    stmt = select(Category).where(Category.is_active == True)
+    result = await session.execute(stmt)
+    return result
+```
+
+**await scalars()** извлекает первый столбец из каждой строки результата, возвращая объекты ScalarResult. Обычно используется для получения ORM-объектов. Используйте `scalars()` для получения списка ORM-объектов или скалярных значений (например, `id` или `name`).
+
+Преобразует результат запроса (объект `Result`) в итератор, содержащий либо объекты модели (если в запросе выбрана модель, например, `select(Category)`), либо скалярные значения (если выбраны отдельные столбцы, например, `select(Category.id)`).
+
+```python
+result = await session.execute(stmt).scalars()
+```
+
+>[!tip] В SQLAlchemy 2.0 метод `scalars()` можно использовать как через `db.execute(stmt).scalars()`, так и напрямую через `db.scalars(stmt)`, что делает код более компактным.
+
+**await db.delete(obj)**: Помечает объект для удаления и выполняет запрос `DELETE` асинхронно. `await` ожидает завершения удаления, синхронизируя сессию с базой.
+
+**await db.commit()**: Фиксирует изменения (обновление или удаление) в базе асинхронно. `await` гарантирует, что транзакция завершена перед продолжением.
+
+**await db.refresh(obj)**: Обновляет объект данными из базы (например, после обновления `is_active`). `await`ожидает завершения операции.
+
+**all()** возвращает все результаты запроса в виде списка.
+```python
+result = await session.execute(stmt).scalars()
+categories = result.all()
+# Возвращает: [<Category 1>, <Category 2>, ...]
+```
+
+**first()** возвращает первый результат запроса или `None`, если результат пустой.
+```python
+result = await session.execute(stmt).scalars()
+categories = result.first()
+# Возвращает: <Category 1> или None
+```
+
+**scalar()** возвращает первое значение первого столбца первой строки или `None`, если результат пустой.
+```python
+count = session.execute(select(func.count(Category.id))).scalar()
+# Возвращает: 10 (например, количество категорий)
+```
+
+**unique()** Если запрос может вернуть дубликаты (например, при использовании `join`), метод `.unique()` помогает получить только уникальные результаты.
+```python
+result = await db.scalars(stmt)
+return result.unique().all()
+```
+
+**fetch(n)** для получения ограниченного числа результатов
+```python
+result = await db.scalars(stmt)
+return result.fetch(7).all()
+```
+
+###### Объект `func` в SQLAlchemy
+>[!info] Объект `func` в SQLAlchemy — это универсальный интерфейс для вызова SQL-функций
+
+Агрегатные функции (`COUNT`, `SUM`, `AVG`, `MAX`, `MIN`) используются для вычислений над набором строк.
+```python
+stmt = select(func.count(User.id))
+total_users = session.execute(stmt).scalar()
+```
+
+```python
+stmt = select(func.min(Post.created_at), func.max(Post.created_at))
+min_date, max_date = session.execute(stmt).first()
+```
+
+Строковые функции (`UPPER`, `LOWER`, `LENGTH`, `CONCAT`) используются для преобразования или анализа строковых данных.
+```python
+stmt = select(Post.title, func.length(Post.title))
+result = session.execute(stmt).all()  # Для получения обеих колонок
+```
+
+```python
+stmt = select(Book).where(func.length(Book.title) < 10)
+```
+
+#### Alembic
 Alembic для миграций, работает в связке с SQLAlchemy.
 
 >[!info] Существует библиотека от создателя FastAPI, которая представляет собой связку из SQLAlchemy и Pydantic - [SQLModel](https://sqlmodel.tiangolo.com/)
@@ -1099,29 +1767,71 @@ pip install pydantic-settings
 ```
 
 ##### Alembic
-Миграции
+**Alembic** — это библиотека Python, разработанная для управления миграциями базы данных в проектах, использующих SQLAlchemy. Миграции — это способ отслеживать и применять изменения в структуре базы данных, такие как создание новых таблиц, добавление столбцов, изменение типов данных, создание индексов или удаление таблиц.
+
+- **Автоматизация изменений**: Генерирует миграции на основе моделей SQLAlchemy, учитывая новые поля, таблицы или связи (например, самоссылающийся `parent_id` в `Category`).
+- **История и откат**: Сохраняет изменения в скриптах (`app/migrations/versions`) и позволяет откатить их.
+- **Командная работа**: Упрощает синхронизацию схемы через миграции, которыми можно поделиться.
+- **Гибкость**: Поддерживает сложные изменения, такие как добавление внешних ключей, индексов или реорганизация данных.
+
+```bash
+pip install alembic
+```
+
+1. Инициализируем Alembic, чтобы создать структуру для миграций.
 ```bash
 alembic init migrations
+  # Для асинхронного SQLAlchemy
+alembic init -t async migrations
 ```
 
-В появившейся папке `migrations` в файле `env.py` добавляем импорты
+В результате будут созданы следующие файлы:
+- `alembic.ini`: Конфигурационный файл в корне проекта, задающий настройки подключения к базе данных и пути к миграциям.
+- `app/migrations/env.py`: Определяет, как Alembic подключается к базе данных и какие модели SQLAlchemy использовать.
+- `app/migrations/script.py.mako`: Шаблон для генерации скриптов миграций, задающий их структуру (функции `upgrade()` и `downgrade()`).
+- `app/migrations/versions`: Папка для хранения скриптов миграций (пока пустая).
+- `app/migrations/README`: Краткое описание директории миграций.
+
+2. Файл `alembic.ini` содержит основные настройки Alembic. Откройте его в корне проекта и найдите строку с `sqlalchemy.url`. Замените её, чтобы указать путь к нашей базе данных, определённой в `app/database.py`
 ```python
-from db import Base, DATABASE_URL        
-from models import MyUser
+# Например
+sqlalchemy.url = sqlite:///ecommerce.db
 ```
 
-И также изменяем
+Ключевые настройки в `alembic.ini`:
+- `script_location = app/migrations`: Указывает папку для хранения миграций. Мы выбрали `app/migrations`, чтобы миграции были частью структуры проекта.
+- `sqlalchemy.url = sqlite:///ecommerce.db`: Задаёт подключение к базе данных SQLite (файл `ecommerce.db` в корне проекта).
+- `file_template`: Определяет формат именования файлов миграций (по умолчанию `%(rev)s_%(slug)s`, например, `123456_create_tables`). Можно раскомментировать и настроить, чтобы добавить дату (например, `%(year)d_%(month).2d_%(day).2d_%(rev)s_%(slug)s`).
+
+3. Перед тем как начнем подключение наших моделей в Alembic, давайте создадим файл `__init__.py` в папке `app/models`. Это нужно чтобы удобно было импортировать модели в файле `env.py`
 ```python
+from .categories import Category
+from .products import Product 
+
+__all__ = ["Category", "Product"]  # Перечисляем свои модели
+```
+
+4. Теперь перейдем к файлу `app/migrations/env.py`, он указывает Alembic, как подключаться к базе данных и какие модели использовать.
+```python
+# env.py
+from app.database import Base      # Базовый класс, который наследуется от DeclarativeBase
+from app import models             # пакет с моделями
+```
+
+И устанавливаем
+```python
+# env.py
 target_metadata = Base.metadata
-...
-config.set_main_option('sqlalchemy.url', f'{DATABASE_URL}?async_fallback=True')
 ```
 
-Проводим миграцию
+5. Проводим миграцию коммандой
 ```bash
+# генерация миграции, где Initial migration - это комментарий
 alembic revision --autogenerate -m "Initial migration"
 ```
+
 ```bash
+# применение миграции
 alembic upgrade head
 ```
 
@@ -1130,58 +1840,16 @@ alembic upgrade head
 alembic downgrade -1
 ```
 
-##### SQLAlchemy
-###### Выборка
-Выборка всех записей
-```python
-async with async_session_maker() as session:  
-    query = select(Horoscope)  
-    horoscopes = await session.execute(query)  
-    return horoscopes.scalars().all()
-```
+###### Основные команды Alembic
 
-Выборка одной записи
-```python
-async with async_session_maker() as session:  
-    query = select(Horoscope).filter_by(id=1)  
-    horoscopes = await session.execute(query)  
-    return horoscopes.scalar_one_or_none()
-```
-
-Фильтры
-```python
-async with async_session_maker() as session:  
-    query = select(Horoscope).filter_by(user_id=1, price=24500)  
-    horoscopes = await session.execute(query)  
-    return horoscopes.scalars().all()
-```
-
-##### Валидация
-Чтобы `Pydantic` мог корректно читать данные SQLAlchemy и валидировать их мы создаём схему с режимом ORM
-```python
-# schemas.py
-from datetime import date  
-from pydantic import BaseModel  
-  
-class SHoroscope(BaseModel):  
-    id = int  
-    sign = str  
-    text = str  
-    date = date  
-  
-    # Чтобы Pydantic смог получить список данных Алхимии  
-    class Config:  
-        orm_mode = True
-```
-
-И теперь проставляем в роутере тип возвращаемого значения
-```python
-@router.get('')  
-async def get_horoscopes() -> list[SHoroscope]:  
-    return await HoroscopeDAO.find_all()
-```
-
-Теперь благодаря схеме в автодокументации будет пример возвращаемого значения
+|комманда|описание|пример|
+|---|---|---|
+|`alembic revision`|Создаёт новый скрипт миграции. Используется для генерации Python-файла в папке `app/migrations/versions`, описывающего изменения в базе данных. Флаг `--autogenerate` позволяет Alembic сравнить модели SQLAlchemy с текущей базой данных и автоматически сгенерировать изменения.|`alembic revision --autogenerate -m "Create tables"` создаёт скрипт для создания таблиц с сообщением «Create tables».|
+|`alembic upgrade`|Применяет миграции к базе данных. Выполняет функцию `upgrade()` из скриптов миграций, обновляя базу до указанной версии.|`alembic upgrade head` применяет последнюю миграцию, создавая или изменяя таблицы. А команда `alembic upgrade +2`  применит две версии включая текущую для апгрейда|
+|`alembic downgrade`|Откатывает миграции. Выполняет функцию `downgrade()` из скриптов миграций, возвращая базу данных к предыдущей версии|`alembic downgrade -1` откатывает последнюю применённую миграцию|
+|`alembic history`|Показывает историю миграций. Выводит список всех миграций в папке `app/migrations/versions` с их идентификаторами (revision ID) и описаниями|`alembic history` покажет все миграции, например, `xxxxxxx -> yyyyyyy (head), Create tables`|
+|`alembic heads`|Показывает текущую последнюю миграцию (head). Полезно для проверки, какая миграция считается последней|`alembic heads` выведет revision ID последней миграции|
+|`alembic current`|Показывает текущую версию базы данных. Указывает, какая миграция применена к базе в данный момент|`alembic current` выведет revision ID текущей миграции или ничего, если база пустая|
 
 #### Аутентификация и авторизация
 

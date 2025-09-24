@@ -2283,6 +2283,7 @@ output = os.popen(cmd).read()                               # отправляе
 logger.warning(f'Free disk space is running out! {output} Mb left!')     # пишем в лог с уровнем warning
 ```
 ##### Loguru
+[Документация](https://loguru.readthedocs.io/en/stable/overview.html#features)
 ```bash
 pip install loguru
 ```

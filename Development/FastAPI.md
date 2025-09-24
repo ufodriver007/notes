@@ -1852,6 +1852,305 @@ alembic downgrade -1
 |`alembic current`|Показывает текущую версию базы данных. Указывает, какая миграция применена к базе в данный момент|`alembic current` выведет revision ID текущей миграции или ничего, если база пустая|
 
 #### Аутентификация и авторизация
+Общая информация о JWT-токенах [[Django, DRF#Использование JWT-токенов]]
+
+[Пример учебного проекта на FastAPI с использованием авторизации по JWT токенам](https://github.com/Permin0ff/fastapi_ecommerce)
+###### Схема аутентификация с использованием access-токена и refresh-токена
+Эта схема позволяет разделить ответственность между краткосрочным доступом и долгосрочным управлением сессией, обеспечивая баланс между безопасностью и удобством. Давайте разберём, как работает взаимодействие с использованием двух видов токенов.
+
+1. **Вход пользователя (логин)**: Пользователь вводит логин и пароль в клиентском приложении, которое отправляет их на сервер через HTTPS-запрос к эндпоинту `/login`.
+    
+2. **Проверка учетных данных**: Сервер проверяет логин и пароль, сверяя их с данными в базе данных. Если аутентификация успешна, сервер переходит к генерации токенов.
+    
+3. **Генерация двух токенов**: Сервер создаёт два токена:
+    
+    - **Access-токен**: Короткоживущий (например, 15–60 минут), содержит информацию о пользователе (например, `user_id`, `role`) и подписывается секретным ключом. Он используется для доступа к защищённым эндпоинтам.
+    - **Refresh-токен**: Долгоживущий (например, 7 дней или месяц), содержит минимум данных (например, идентификатор сессии или пользователя) и также подписывается. Refresh-токен сохраняется на сервере (например, в базе данных или Redis) с привязкой к пользователю и, возможно, устройству.
+4. **Отправка токенов клиенту**: Сервер возвращает оба токена клиенту в ответе на запрос `/login`, например: `{"access_token": "eyJ...", "refresh_token": "abc..."}`. Refresh-токен обычно хранится в безопасном месте, например, в HttpOnly-куки или защищённом хранилище мобильного приложения.
+    
+5. **Использование access-токена для запросов**: Как и в первой схеме, клиент прикрепляет access-токен к каждому запросу к защищённым эндпоинтам в заголовке `Authorization: Bearer <token>`. Сервер проверяет валидность токена (подпись и срок действия) и обрабатывает запрос.
+    
+6. **Истечение срока действия access-токена**: Когда access-токен истекает, сервер возвращает ошибку 401 Unauthorized. Вместо того чтобы запрашивать у пользователя повторный ввод логина и пароля, клиент отправляет refresh-токен на специальный эндпоинт, например, `/refresh`.
+    
+7. **Обновление access-токена**: Клиент отправляет refresh-токен (обычно в теле POST-запроса, а не в заголовке) на эндпоинт `/refresh`. Сервер проверяет:
+    
+    - Валидность refresh-токена (подпись, срок действия).
+    - Его наличие в базе данных и статус (не отозван ли он).  
+        Если проверка успешна, сервер генерирует новый access-токен (и, при необходимости, новый refresh-токен, чтобы реализовать ротацию токенов). Новый access-токен возвращается клиенту, например: `{"access_token": "eyJ...", "refresh_token": "xyz..."}`.
+8. **Продолжение работы**: Клиент использует новый access-токен для дальнейших запросов. Пользователь не замечает процесса обновления, так как всё происходит в фоновом режиме.
+    
+9. **Завершение сессии или отзыв токена**: Если пользователь выходит из аккаунта (например, через эндпоинт `/logout`) или сервер обнаруживает подозрительную активность, refresh-токен помечается как недействительный в базе данных. Это делает невозможным его использование для получения новых access-токенов, эффективно завершая сессию.
+    
+10. **Истечение refresh-токена**: Если срок действия refresh-токена истекает или он отозван, клиент получает ошибку при попытке обновления. В этом случае пользователю придётся заново пройти аутентификацию, отправив логин и пароль на `/login`.
+
+- **Высокая безопасность:** Access token: 15 минут, Refresh token: 7 дней.
+- **Средняя безопасность:** Access token: 1 час, Refresh token: 30 дней.
+- **Низкая безопасность (не рекомендуется):** Access token: 1 день, Refresh token: 90 дней.
+
+>[!tip] Рефреш-токены можно хранить в HTTP-only cookies для защиты от XSS-атак
+
+###### JWT токены
+```bash
+pip install PyJWT python-multipart
+```
+
+Генерируем любой секретный ключ и записываем в `.env`
+```bash
+openssl rand -hex 32
+```
+
+Создаём модель пользователя
+```python
+from sqlalchemy import Boolean, Integer, String
+from sqlalchemy.orm import Mapped, mapped_column
+
+from app.database import Base
+
+
+class User(Base):
+    __tablename__ = "users"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    email: Mapped[str] = mapped_column(String, unique=True, index=True, nullable=False)
+    hashed_password: Mapped[str] = mapped_column(String, nullable=False)
+    is_active: Mapped[bool] = mapped_column(Boolean, default=True)
+    role: Mapped[str] = mapped_column(String, default="buyer") # "buyer" or "seller"
+```
+
+Генерируем и применяем миграцию
+```bash
+alembic revision --autogenerate -m "Add user model"
+alembic upgrade head
+```
+
+Добавляем Pydantic схемы для валидации
+```python
+from pydantic import BaseModel, Field, ConfigDict, EmailStr
+from typing import Optional
+
+
+class UserCreate(BaseModel):
+    email: EmailStr = Field(description="Email пользователя")
+    password: str = Field(min_length=8, description="Пароль (минимум 8 символов)")
+    role: str = Field(default="buyer", pattern="^(buyer|seller)$", description="Роль: 'buyer' или 'seller'")
+
+
+class User(BaseModel):
+    id: int
+    email: EmailStr
+    is_active: bool
+    role: str
+    model_config = ConfigDict(from_attributes=True)
+```
+
+Устанавливаем `bcrypt` для хэширования пароля с автоматической солью
+```bash
+pip install passlib "bcrypt==4.0.1"
+```
+
+Создаём `auth.py`
+```python
+from passlib.context import CryptContext
+from fastapi.security import OAuth2PasswordBearer
+from datetime import datetime, timedelta, timezone
+import jwt
+from fastapi import Depends, HTTPException, status
+from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy import select
+
+from app.models.users import User as UserModel
+from app.config import SECRET_KEY, ALGORITHM
+from app.db_depends import get_async_db
+
+
+# Создаём контекст для хеширования с использованием bcrypt
+pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+
+ACCESS_TOKEN_EXPIRE_MINUTES = 30
+REFRESH_TOKEN_EXPIRE_DAYS = 7
+
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="users/token")
+
+def hash_password(password: str) -> str:
+    """
+    Преобразует пароль в хеш с использованием bcrypt.
+    """
+    return pwd_context.hash(password)
+
+
+def verify_password(plain_password: str, hashed_password: str) -> bool:
+    """
+    Проверяет, соответствует ли введённый пароль сохранённому хешу.
+    """
+    return pwd_context.verify(plain_password, hashed_password)
+
+
+def create_access_token(data: dict):
+    """
+    Создаёт JWT с payload (sub, role, id, exp).
+    """
+    to_encode = data.copy()
+    expire = datetime.now(timezone.utc) + timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
+    to_encode.update({"exp": expire})
+    return jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
+
+
+def create_refresh_token(data: dict):  
+    """  
+    Создаёт рефреш-токен с длительным сроком действия.    
+    """    
+    to_encode = data.copy()  
+    expire = datetime.now(timezone.utc) + timedelta(days=REFRESH_TOKEN_EXPIRE_DAYS)  
+    to_encode.update({"exp": expire})  
+    return jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
+    
+    
+async def get_current_user(token: str = Depends(oauth2_scheme),
+                           db: AsyncSession = Depends(get_async_db)):
+    """
+    Проверяет JWT и возвращает пользователя из базы.
+    """
+    credentials_exception = HTTPException(
+        status_code=status.HTTP_401_UNAUTHORIZED,
+        detail="Could not validate credentials",
+        headers={"WWW-Authenticate": "Bearer"},
+    )
+    try:
+        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+        email: str = payload.get("sub")
+        if email is None:
+            raise credentials_exception
+    except jwt.ExpiredSignatureError:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Token has expired",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+    except jwt.PyJWTError:
+        raise credentials_exception
+    result = await db.scalars(
+        select(UserModel).where(UserModel.email == email, UserModel.is_active == True))
+    user = result.first()
+    if user is None:
+        raise credentials_exception
+    return user
+    
+    
+async def get_current_seller(current_user: UserModel = Depends(get_current_user)):
+    """ 
+    Проверяет, что пользователь имеет роль 'seller'. 
+    """ 
+    if current_user.role != "seller": 
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Only sellers can perform this action") 
+    return current_user
+```
+
+Создаём эндпоинт для регистрации и получения токена. Не забудте подключить роутер в `main.py`!
+```python
+import jwt
+from fastapi import APIRouter, Depends, HTTPException, status
+from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy import select
+from fastapi.security import OAuth2PasswordRequestForm
+
+from app.models.users import User as UserModel
+from app.schemas import UserCreate, User as UserSchema
+from app.db_depends import get_async_db
+from app.auth import hash_password, verify_password, create_access_token
+from app.config import SECRET_KEY, ALGORITHM  # ALGORITHM = "HS256"
+
+
+router = APIRouter(prefix="/users", tags=["users"])
+
+
+@router.post("/", response_model=UserSchema, status_code=status.HTTP_201_CREATED)
+async def create_user(user: UserCreate, db: AsyncSession = Depends(get_async_db)):
+    """
+    Регистрирует нового пользователя с ролью 'buyer' или 'seller'.
+    """
+    # Проверка уникальности email
+    result = await db.scalars(select(UserModel).where(UserModel.email == user.email))
+    if result.first():
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST,
+                            detail="Email already registered")
+
+    # Создание объекта пользователя с хешированным паролем
+    db_user = UserModel(
+        email=user.email,
+        hashed_password=hash_password(user.password),
+        role=user.role
+    )
+
+    # Добавление в сессию и сохранение в базе
+    db.add(db_user)
+    await db.commit()
+    return db_user
+
+
+@router.post("/token")  
+async def login(form_data: OAuth2PasswordRequestForm = Depends(),  
+                db: AsyncSession = Depends(get_async_db)):  
+    """  
+    Аутентифицирует пользователя и возвращает access_token и refresh_token   
+    """    
+    result = await db.scalars(select(UserModel).where(UserModel.email == form_data.username))  
+    user = result.first()  
+    if not user or not verify_password(form_data.password, user.hashed_password):  
+        raise HTTPException(  
+            status_code=status.HTTP_401_UNAUTHORIZED,  
+            detail="Incorrect email or password",  
+            headers={"WWW-Authenticate": "Bearer"},  
+        )  
+    access_token = create_access_token(data={"sub": user.email, "role": user.role, "id": user.id})  
+    refresh_token = create_refresh_token(data={"sub": user.email, "role": user.role, "id": user.id})  
+    return {"access_token": access_token, "refresh_token": refresh_token, "token_type": "bearer"}
+
+
+@router.post("/refresh-token")  
+async def refresh_token(refresh_token: str, db: AsyncSession = Depends(get_async_db)):  
+    """  
+    Обновляет access_token с помощью refresh_token.    """    credentials_exception = HTTPException(  
+        status_code=status.HTTP_401_UNAUTHORIZED,  
+        detail="Could not validate refresh token",  
+        headers={"WWW-Authenticate": "Bearer"},  
+    )  
+    try:  
+        payload = jwt.decode(refresh_token, SECRET_KEY, algorithms=[ALGORITHM])  
+        email: str = payload.get("sub")  
+        if email is None:  
+            raise credentials_exception  
+    except jwt.exceptions:  
+        raise credentials_exception  
+    result = await db.scalars(select(UserModel).where(UserModel.email == email, UserModel.is_active == True))  
+    user = result.first()  
+    if user is None:  
+        raise credentials_exception  
+    access_token = create_access_token(data={"sub": user.email, "role": user.role, "id": user.id})  
+    return {"access_token": access_token, "token_type": "bearer"}
+```
+
+Защита эндпоинтов. Используйте зависимость, типа созданной ранее `get_current_seller` из `auth.py`
+```python
+@router.delete("/{product_id}", response_model=ProductSchema) 
+async def delete_product( 
+    product_id: int, 
+    db: AsyncSession = Depends(get_async_db), 
+    current_user: UserModel = Depends(get_current_seller) ):
+    ...
+```
+
+
+
+### Особенности схемы с refresh-токеном
+
+Эта схема сложнее, так как требует хранения refresh-токенов на сервере (stateful) и реализации дополнительного эндпоинта `/refresh`. Однако она имеет значительные преимущества:
+
+- **Безопасность**: Короткий срок жизни access-токена минимизирует ущерб при его утечке. Refresh-токен, используемый редко, можно хранить более безопасно и отозвать при необходимости.
+- **Удобство**: Пользователь не вынужден часто вводить логин и пароль, так как клиент автоматически обновляет access-токен в фоновом режиме.
+- **Контроль**: Хранение refresh-токенов на сервере позволяет управлять сессиями, отзывать токены и вести аудит активных устройств.
+- **Гибкость**: Поддержка ротации refresh-токенов (выдача нового при каждом рефреше) дополнительно повышает безопасность.
+
+Эта схема идеально подходит для современных приложений, где важны как безопасность, так как и пользовательский опыт, например, в мобильных приложениях, SPA или корпоративных системах.
 
 ###### AuthX
 [GitHub](https://github.com/yezz123/authx)
@@ -1908,6 +2207,73 @@ Keycloak – это бесплатное решение с открытым ис
 
 [Статья](https://habr.com/ru/companies/amvera/articles/907990/)
 
+#### Версионирование API
+###### Включение номера версии в URL
+```python
+from fastapi import FastAPI
+
+app = FastAPI()
+
+
+@app.get("/v1/products")
+async def get_products_v1():
+    return {"message": "Products API Version 1"}
+
+
+@app.get("/v2/products")
+async def get_products_v2():
+    return {"message": "Products API Version 2"}
+```
+
+###### Добавление версии в качестве параметра запроса
+```python
+from fastapi import FastAPI
+
+app = FastAPI()
+
+
+@app.get("/products/")
+async def get_products(version: int = 1):
+    if version == 1:
+        return {"message": "Products API Version 1"}
+    elif version == 2:
+        return {"message": "Products API Version 2"}
+```
+
+###### Версионирование на основе пути с использованием префикса URL
+Лучшее решение - использовать подприложения для разделения каждой версии вашего API на собственный объект приложения. Таким образом, вы можете иметь больший контроль и гибкость над каждой версией, а также иметь независимую документацию для каждой версии. Например, вы можете иметь /v1/docs и /v2/docs в качестве разных эндпоинтов для разных версий вашей документации.
+
+```python
+from fastapi import FastAPI
+
+
+app = FastAPI()
+app_v1 = FastAPI( 
+    title="My API v1", 
+    description="The first version of my API", 
+)
+app_v2 = FastAPI( 
+    title="My API v2", 
+    description="The second version of my API", 
+)
+
+
+@app_v1.get("/products")
+async def get_products_v1():
+    return {"message": "Products API Version 1"}
+
+
+@app_v2.get("/products")
+async def get_products_v2():
+    return {"message": "Products API Version 2"}
+
+app.mount("/v1", app_v1)
+app.mount("/v2", app_v2)
+```
+
+Теперь будет две версии документации по адресам `http://localhost:8000/v1/docs` и  `http://localhost:8000/v2/docs`
+![[versions.png]]
+
 #### Celery
 ```bash
 pip install celery flower redis
@@ -1955,12 +2321,90 @@ def result(task_id: str):
 
 Запуск Celery
 ```bash
+# celery -A my_file:celery_instance worker
 celery -A celery_config:celery worker --loglevel=INFO
 ```
 
 Запуск Flower
 ```bash
 celery -A celery_config:celery flower
+```
+
+Выполнить задачу через N времени
+```python
+call_background_task.apply_async(args=[message], countdown=60*5)
+```
+
+Выполнить задачу в определенное время
+```python
+task_datetime = datetime.now(timezone.utc) + timedelta(minutes=10) call_background_task.apply_async(args=[message], eta=task_datetime)
+```
+
+Отмена задачи, если она ещё на начала выполняться
+```python
+​​​​​​​from celery.result import AsyncResult
+
+# Получаем task_id при вызове задачи
+result = call_background_task.apply_async(args=[message], countdown=60*5)
+task_id = result.id
+
+# Отменяем задачу
+AsyncResult(task_id).revoke()
+```
+
+###### Переодические задачи. Celery Beat
+>[!info] В Celery периодические задачи (periodic tasks) — это задачи, которые выполняются автоматически через определённые интервалы времени или в запланированные моменты. Для их реализации в Celery используется компонент  `celery beat`.
+
+```python
+# main.py
+from fastapi import FastAPI
+from celery import Celery
+from task import call_background_task
+
+app = FastAPI()
+
+celery = Celery(
+    __name__,
+    broker='redis://127.0.0.1:6379/0',
+    backend='redis://127.0.0.1:6379/0',
+    broker_connection_retry_on_startup=True
+)
+
+
+
+@app.get("/")
+async def hello_world(message: str):
+    call_background_task.apply_async(args=[message], expires=3600)
+    return {'message': 'Hello World!'}
+
+
+celery.conf.beat_schedule = {
+    'run-me-background-task': {
+        'task': 'task.call_background_task',
+        'schedule': 60.0,
+        'args': ('Test text message',)
+    }
+}
+```
+
+```python
+# task.py
+import time  
+from celery import shared_task  
+  
+@shared_task()  
+def call_background_task(message):  
+    time.sleep(3)  
+    print(f"Background Task called!")  
+    print(message)
+```
+
+Запуск
+```bash
+celery -A main.celery beat --loglevel=info
+```
+```bash
+celery -A main.celery worker --loglevel=info
 ```
 
 #### Шаблоны
@@ -2023,14 +2467,90 @@ async def upload_file(file: UploadFile = File(...)):
     return JSONResponse(content={"filename": file.filename, "file_location": file_location})
 ```
 
-#### CORS
+#### Middleware
+>[!info] В FastAPI промежуточное программное обеспечение находится перед эндпоинтами API, обрабатывая запросы и ответы. Когда поступает запрос, он проходит через уровень Middleware, прежде чем достичь эндпоинта API. Аналогичным образом, когда ответ готов, он проходит через уровень Middleware, прежде чем быть отправленным обратно клиенту.
+
+![[middleware-flow.png]]
+
+Встроенное промежуточное программное обеспечение в FastAPI и его функциональные возможности:
+1. **CORSMiddleware**: Включает необходимые заголовки CORS в исходящих ответах для включения запросов с перекрестным исходным доступом из веб-браузеров.
+2. **TrustedHostMiddleware**: Проверяет заголовок хоста входящих запросов для предотвращения потенциальных атак заголовка хоста HTTP.
+3. **HTTPSRedirectMiddleware**:  Проверяет входящие запросы, чтобы они были на HTTPS. В ином случае выполнит редирект.
+4. **SessionMiddleware**: Реализует подписанные HTTP-сеансы на основе файлов cookie, в которых данные сеанса читаемы, но не редактируются.
+5. **GZip Middleware**: сжимает ответы для снижения использования трафика, что приводит к более быстрой передаче данных.
+
+###### Custom middleware на основе класса
+```python
+from fastapi import FastAPI
+import time
+
+
+class TimingMiddleware:
+    def __init__(self, app):
+        self.app = app
+
+    async def __call__(self, scope, receive, send):
+        start_time = time.time()
+        await self.app(scope, receive, send)
+        duration = time.time() - start_time
+        print(f"Request duration: {duration:.10f} seconds")
+
+
+app = FastAPI()
+app.add_middleware(TimingMiddleware)
+
+
+@app.get("/hello")
+async def greeter():
+    return {"Hello": "World"}
+
+
+@app.get("/goodbye")
+async def farewell():
+    return {"Goodbye": "World"}
+
+```
+
+###### Custom middleware на основе функции
+```python
+from fastapi import FastAPI, Request
+import time
+
+app = FastAPI()
+
+
+@app.middleware("http")
+async def modify_request_response_middleware(request: Request, call_next):
+    start_time = time.time()
+    response = await call_next(request)
+    duration = time.time() - start_time
+    print(f"Request duration: {duration:.10f} seconds")
+    return response
+
+
+@app.get("/hello")
+async def greeter():
+    return {"Hello": "World"}
+
+
+@app.get("/goodbye")
+async def farewell():
+    return {"Goodbye": "World"}
+```
+
+###### CORS
+>[!info] CORS нужен только в случае, если ваш бэкенд обслуживает запросы от фронтенда, который находится на другом домене, порту.
+
 ```python
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 app = FastAPI()
 
-origins = ["*"]
+origins = [ 
+    "http://localhost:3000", 
+    "https://example.com",
+]
 
 app.add_middleware(
     CORSMiddleware,

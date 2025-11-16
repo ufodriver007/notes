@@ -1252,7 +1252,7 @@ t=str.maketrans("aeiou", "12345")    # а затем транслируем по
 "Hello".translate(t)                 # H2ll4
 ```
 
-#### Форматирование строк
+###### Форматирование строк
 ```python
 f'Hello, {name}! I am {python}'
 f'{intgr:,}'                        # форматировать число с разделителем, например 23,123,213.21
@@ -1261,6 +1261,34 @@ f'{intgr:>3d}'                      # трехзначное десятично�
 f'{now=:%m-%d-%Y}'                  # форматирование даты now = datetime.datetime.now()
 f"{x:0>2}"                          # заполнение нулями СЛЕВА, если меньше 2х цифр
 f"{x:g}"                            # убрать лишние нули в дробной части
+```
+
+###### T-strings
+Шаблонные стоки
+```python
+from string.templatelib import Interpolation  
+  
+name = 'Mike'  
+profession = 'programmer'  
+  
+template = t'Hello, {name}, {profession}! How are you?'  
+fstring = f'Hello, {name}, {profession}! How are you?'  
+  
+print(template)  # Template(strings=('Hello, ', ', ', '! How are you?'), interpolations=(Interpolation('Mike', 'name', None, ''), Interpolation('programmer', 'profession', None, '')))
+print(fstring)  
+  
+print(type(template))  # <class 'string.templatelib.Template'>
+print(type(fstring))  # <class 'str'>
+  
+final_parts = []  
+  
+for element in template:  
+    if isinstance(element, Interpolation):
+        final_parts.append(str(element.value).title())  
+    else:  
+        final_parts.append(element)  
+  
+print(''.join(final_parts))  # Hello, Mike, Programmer! How are you?
 ```
 
 #### Файлы
@@ -1914,6 +1942,47 @@ for n in range(4):
     p.start()
 
 # модуль threading не имеет функции terminate()
+```
+
+#### Несколько интерпретаторов
+>[!info] Также в 3.14 добавлена возможность запуска нескольких интерпретаторов. Они не имеют общей памяти, поэтому невозможна гонка состояний. Это похоже на Multiprocessing.
+
+```python
+import time  
+from concurrent import interpreters  
+  
+  
+def cpu_task(n: int):  
+    return sum([i*i for i in range(n)])  
+  
+N = 20_000_000  
+  
+# --------------------------------------------  
+# 1. Один интерпретатор, последовательно  
+# --------------------------------------------  
+  
+t0 = time.perf_counter()  
+res1 = cpu_task(N)  
+res2 = cpu_task(N)  
+t1 = time.perf_counter()  
+print('Sequential:', round(t1 - t0, 2), 'seconds')  # Sequential: 3.08 seconds
+  
+# --------------------------------------------  
+# 1. Два интерпретатора, параллельно  
+# --------------------------------------------  
+interp1 = interpreters.create()  
+interp2 = interpreters.create()  
+  
+t0 = time.perf_counter()  
+f1 = interp1.call_in_thread(cpu_task, N)  # запуск функции в новом потоке
+f2 = interp2.call_in_thread(cpu_task, N)  
+# прикол в том, что эти потоки не имеют общего GIL  
+  
+# Ждём результаты  
+res1 = f1.join()  
+res2 = f2.join()  
+t1 = time.perf_counter()  
+print('Parallel:', round(t1 - t0, 2), 'seconds')  # Parallel: 1.56 seconds
 ```
 
 #### Асинхронный Python

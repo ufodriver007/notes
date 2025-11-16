@@ -497,7 +497,7 @@ json_data = user.model_dump_json()
 user = User(name="Oleg", age=30)
 ```
 
- 1. Можно передать значения полей с помощью распаковки словарей `**`
+ 2. Можно передать значения полей с помощью распаковки словарей `**`
 ```python
 user_data = {"name": "Oleg", "age": 30}
 user = User(**user_data)
@@ -554,7 +554,7 @@ class MyModel(BaseModel):
 Параметр **`response_model`** в декораторах FastAPI (например, `@app.get(..., response_model=...)`) указывает, какая модель Pydantic будет использоваться для формирования и валидации ответа API.
 
 **Валидация параметров пути**
-Класс `**Path**` используется для определения параметров пути в маршрутах FastAPI. Он не только указывает, что параметр является частью пути, но и позволяет задавать правила валидации и метаданные, которые отображаются в документации Swagger UI и ReDoc.
+Класс `Path` используется для определения параметров пути в маршрутах FastAPI. Он не только указывает, что параметр является частью пути, но и позволяет задавать правила валидации и метаданные, которые отображаются в документации Swagger UI и ReDoc.
 
 *Параметры класса Path*
 - **Метаданные**:
@@ -997,7 +997,7 @@ async def get_horoscopes():
 ```
 
 ###### Модели
-Создаём файл с моделями
+Создаём файл с моделями SQLAlchemy
 ```python
 from sqlalchemy import JSON, Column, Integer, String  
 from db import Base  
@@ -1130,6 +1130,10 @@ class Product(Base):
 - `ondelete`: Определяет поведение при удалении записи в родительской таблице (например, `"CASCADE"` для удаления дочерней записи).
 - `onupdate`: Задаёт поведение при обновлении первичного ключа в родительской таблице.
 - `constraint_name`: Указывает имя ограничения внешнего ключа.
+
+```python
+playlist = Column(ForeignKey("playlists.id", ondelete="CASCADE"))
+```
 
 **relationship**
 Функция `relationship` используется для установления связи между моделями на уровне ORM, что позволяет автоматически загружать связанные данные. Для отношения один к одному критически важно установить параметр `uselist=False`, чтобы связь возвращала одиночный объект, а не коллекцию.
@@ -2056,7 +2060,7 @@ from fastapi.security import OAuth2PasswordRequestForm
 from app.models.users import User as UserModel
 from app.schemas import UserCreate, User as UserSchema
 from app.db_depends import get_async_db
-from app.auth import hash_password, verify_password, create_access_token
+from app.auth import hash_password, verify_password, create_access_token, create_refresh_token
 from app.config import SECRET_KEY, ALGORITHM  # ALGORITHM = "HS256"
 
 
@@ -2109,7 +2113,9 @@ async def login(form_data: OAuth2PasswordRequestForm = Depends(),
 @router.post("/refresh-token")  
 async def refresh_token(refresh_token: str, db: AsyncSession = Depends(get_async_db)):  
     """  
-    Обновляет access_token с помощью refresh_token.    """    credentials_exception = HTTPException(  
+    Обновляет access_token с помощью refresh_token.
+    """
+    credentials_exception = HTTPException(  
         status_code=status.HTTP_401_UNAUTHORIZED,  
         detail="Could not validate refresh token",  
         headers={"WWW-Authenticate": "Bearer"},  

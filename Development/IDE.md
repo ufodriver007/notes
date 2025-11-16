@@ -34,6 +34,9 @@ CSS Peek
 Auto Rename Tag
 IntelliSense for CSS class names in HTML
 Live Server
+Code Runner
+ESLint
+
 
 #### Файлы и их назначение
 1. **%name%.code-workspace**  

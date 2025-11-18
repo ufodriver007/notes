@@ -736,10 +736,6 @@ from fastapi import FastAPI, Depends
 
 app = FastAPI()
 
-from fastapi import FastAPI, Depends
-
-app = FastAPI()
-
 # функция зависимости
 def get_message():
     return "Hello from dependency!"

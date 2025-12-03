@@ -98,7 +98,7 @@ for (const user of users) {
 
 Экспорт из файла
 ```js
-export const users = ['Alex', 'Julia];
+export const users = ['Alex', 'Julia'];
 
 export function greet(name) {
 	console.log(`Привет ${name}`);
@@ -203,6 +203,9 @@ console.log(parseFloat("10.5"));  // 10.5
 const num = 123;
 console.log(num.toString()); // конвертация в строку
 console.log(String(num));
+
+let num = 255;
+let hex = num.toString(16); // конвертация в шестнадцатиричное
 ```
 
 С помощью специальной функции `isNaN()` можно проверить, представляет ли строка число
@@ -906,6 +909,11 @@ console.log(user);
 'Test string'.at[-1];  // метод at допускает отрицательные индексы
 ```
 
+Удаление пробелов
+```js
+"  привет  ".trim(); // "привет"
+```
+
 Изменение регистра
 ```js
 'Test string'.toUpperCase();
@@ -999,6 +1007,29 @@ const regex = new RegExp("шаблон", "флаги");
 - `s` — включает символ новой строки в `.`.
 - `u` — поддержка Unicode.
 - `y` — поиск с привязкой к позиции (sticky).
+
+Соответствует ли строка регулярному выражению
+```js
+const regex = /^\d+$/;       // только цифры
+const str = "12345";
+
+if (regex.test(str)) {      // .test(` возвращает boolean
+  console.log("Строка состоит только из цифр");
+} else {
+  console.log("Строка содержит не только цифры");
+}
+```
+
+```js
+const regex = /^\d+$/;
+const str = "12345";
+
+if (str.match(regex)) {   // .match() возвращает массив совпадений или null, если совпадений нет
+  console.log("Совпадение найдено");
+} else {
+  console.log("Совпадение не найдено");
+}
+```
 
 #### Массивы
 ```javascript
@@ -1100,7 +1131,7 @@ console.log(sequence); // [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
 const arr = ['a', 'b', 'c', 'd'];
 const indexToRemove = 2;
 
-arr.splice(indexToRemove, 1); // удаляет 1 элемент, начиная с индекса 2
+arr.splice(indexToRemove, 1); // начиная с индекса 2 удаляет 1 элемент
 console.log(arr); // ['a', 'b', 'd']
 ```
 
@@ -1584,6 +1615,10 @@ punkt.setAttribute('id', 'fiva');           // теперь у инпута бу
 ```javascript
 navigator.userAgent            // информация о текущем браузере
 navigator.platform             // информация о платформе
+navigator.geolocation.GetCurrentPosition((position) => {
+	console.log(position), 
+	(err) => console.error(err)
+});                            // координаты
 alert(location.href);          // показывает текущий URL
 ```
 
@@ -2468,6 +2503,8 @@ npm cache clean          # очистка кэша
 npm audit                # посмотреть детально предупреждения о пакетах
 npm audit fix --force    # фиксит уязвимые версии, скачивая новые
 npm dedup                # убиает дубликаты
+
+npm list -g --depth=0    # список глобальных зависимостей
 ```
 
 #### Сборка

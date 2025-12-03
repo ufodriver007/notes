@@ -2562,3 +2562,266 @@ app.add_middleware(
     allow_headers=["*"],
 )
 ```
+
+#### Websockets
+>[!info] WebSocket — это протокол, позволяющий создать постоянное двунаправленное соединение между клиентом (например, браузером) и сервером для обмена данными в режиме реального времени. В отличие от традиционного HTTP, где каждый запрос требует нового соединения, WebSocket открывает одно долгоживущее соединение, благодаря чему сервер может отправлять данные клиенту в любое время без предварительного запроса. При необходимости **двусторонней связи** лучший выбор – **WebSockets**
+
+![[149434877-e3754c13-0d5d-4a9e-b91b-01860659a48c.png]]
+
+Схема работы вкратце:
+1. **Handshake (HTTP Upgrade):** Переход от HTTP к WebSocket.
+2. **Постоянное соединение:** Установление долгоживущего TCP-соединения.
+3. **Обмен фреймами:** Передача данных в виде маленьких пакетов.
+4. **Двунаправленный поток:** Одновременная передача данных от клиента к серверу и обратно.
+5. **Закрытие соединения:** Упорядоченное завершение соединения.
+
+###### Пример работы с сокетами
+Для простейшего примера будем использовать шаблоны
+```bash
+pip install fastapi
+pip install websockets
+pip install jinja2
+pip install uvicorn
+```
+
+Создаём FastAPI приложение
+```python
+from fastapi.templating import Jinja2Templates
+from fastapi.responses import HTMLResponse
+from fastapi import FastAPI, WebSocket, Request
+from starlette.websockets import WebSocketDisconnect
+
+app = FastAPI()
+templates = Jinja2Templates(directory="templates")
+
+
+@app.get("/", response_class=HTMLResponse)
+def read_index(request: Request):
+    return templates.TemplateResponse("index.html", {"request": request})
+
+
+@app.websocket("/ws")
+async def websocket_endpoint(websocket: WebSocket):
+	# Сервер открывает шлюз для приключения с WebSocket
+    await websocket.accept()
+    try:
+        while True:
+	        # WebSocket ожидает входящие сообщения от клиента
+            data = await websocket.receive_text()
+            # Сервер отправляет ответ
+            await websocket.send_text(data)
+    except WebSocketDisconnect as e:
+        print(f'Connection closed {e.code}')
+```
+
+Теперь создадим папку `templates` и внутри ее файл `index.html`
+```html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FastAPI + WebSocket Example</title>
+</head>
+<body>
+    <h1>FastAPI + WebSocket Example</h1>
+    <input type="text" id="inputText" placeholder="Text...">
+    <button id="submitButton">Submit</button>
+    <div id="container"></div>
+
+    <script>
+        // Создаем WebSocket-соединение с сервером
+        const socket = new WebSocket('ws://127.0.0.1:8000/ws');
+
+        // Функция отображения сообщений на странице
+        function showMessage(message) {
+            const messageContainer = document.getElementById('container');
+            const messageElement = document.createElement('div');
+            messageElement.textContent = message;
+            messageContainer.appendChild(messageElement);
+        }
+
+        // Обработчик события для установления соединения
+        socket.addEventListener('open', (event) => {
+            showMessage('Connected to server.');
+        });
+
+        // Обработчик события для получения сообщений от сервера
+        socket.onmessage = (event) => {
+            showMessage("You sent : " + event.data)
+        }
+
+        // Обработчик событий при закрытии соединения
+        socket.addEventListener('close', (event) => {
+            showMessage('Connection closed.');
+        });
+
+        const inputText = document.getElementById("inputText");
+        const submitButton = document.getElementById("submitButton");
+
+        submitButton.addEventListener("click", function() {
+            const inputValue = inputText.value;
+            socket.send(inputValue)
+        });
+
+    </script>
+</body>
+</html>
+```
+
+Запускаем
+```bash
+uvicorn main:app --reload
+```
+
+###### Когда лучше использовать WebSockets
+
+WebSockets подходят для сценариев, когда требуется двусторонняя связь между клиентом и сервером. Это идеальный выбор, если приложение должно отправлять данные как от клиента к серверу, так и от сервера к клиенту в режиме реального времени.
+
+1. **Приложения с высокой интерактивностью и двусторонней связью**. WebSockets идеально подходят для чатов, игр, и финансовых платформ, где пользователи взаимодействуют друг с другом и отправляют данные на сервер с минимальной задержкой.
+2. **Сценарии с частыми и неограниченными обновлениями**. WebSockets поддерживают постоянное двустороннее соединение, что позволяет обмениваться данными в любой момент.
+3. **Сложные интерфейсы с большим объемом данных**. Если приложение постоянно получает или отправляет данные в обе стороны (платформа для мониторинга в реальном времени с большим количеством пользователей).
+4. **Работа с бинарными данными**. WebSockets поддерживают как текстовые, так и бинарные данные, что делает их подходящими для мультимедийных приложений, передающих изображения, видео или файлы.
+5. **Низкая задержка и критичность времени отклика**. В сценариях, где задержка в миллисекунды может влиять на пользовательский опыт, например, в торговых платформах, WebSockets позволяют передавать данные в реальном времени с минимальной задержкой.
+
+#### SSE (Server-Sent Events)
+>[!info] **SSE** (Server-Sent Events — «события, посылаемые сервером») представляет собой технологию отправки уведомлений от сервера к веб-браузеру в виде DOM-событий. Технология Server-Sent Events сейчас стандартизируется как часть HTML5. Когда нужна **односторонняя передача данных** с сервера клиенту, подойдут **Server-Sent Events (SSE)**
+
+![[9b0b59111d7da1852ff093c20828216f.jpeg]]
+
+###### Пример на FastAPI + Celery + Redis
+1. Celery-задача выполняется в фоне.
+2. По завершении она записывает результат в Redis.
+3. FastAPI через SSE уведомляет клиента.
+4. Клиент (JS) получает сообщение и реагирует.
+
+Celery: фоновая задача, записывающая результат в Redis
+```python
+# tasks.py
+from celery import Celery
+import redis
+import time
+
+app = Celery(
+    "tasks",
+    broker="redis://localhost:6379/0",
+    backend="redis://localhost:6379/0",
+)
+
+r = redis.Redis(host="localhost", port=6379, db=1)
+
+# Celery task
+@app.task
+def long_task(task_id):
+    time.sleep(5)  # имитация долгой работы
+    r.set(f"task:{task_id}", "DONE")
+    return "OK"
+```
+
+FastAPI: SSE endpoint, стримящий статус задачи
+```python
+# main.py
+from fastapi import FastAPI
+from fastapi.responses import StreamingResponse
+import asyncio
+import redis
+from tasks import long_task
+
+app = FastAPI()
+r = redis.Redis(host="localhost", port=6379, db=1)
+
+async def task_status_stream(task_id: str):
+	# Каждую секунду проверяем Redis
+	# Как только задача закончена → отправляем событие → закрываем поток.
+    while True:
+        status = r.get(f"task:{task_id}")
+        if status:
+            yield f"data: {{\"task_id\": \"{task_id}\", \"status\": \"{status.decode()}\"}}\n\n"
+            break
+        await asyncio.sleep(1)
+
+
+# Эндпоинт стримящий статус задачи
+@app.get("/task-status/{task_id}")
+async def task_status(task_id: str):
+    return StreamingResponse(task_status_stream(task_id), media_type="text/event-stream")
+    
+    
+# Эндпоинт запускающий Celery task
+@app.post("/run-task")
+def run_task():
+    task_id = "123"
+    long_task.delay(task_id)
+    return {"task_id": task_id}
+```
+
+JS-клиент (в браузере): подписка на SSE
+```html
+<!DOCTYPE html>
+<html>
+<body>
+
+<script>
+function waitForTask(taskId) {
+    const evtSource = new EventSource(`/task-status/${taskId}`);
+
+    evtSource.onmessage = (event) => {
+        const data = JSON.parse(event.data);
+        console.log("Task update:", data);
+
+        if (data.status === "DONE") {
+            alert("Задача выполнена!");
+            evtSource.close();
+        }
+    };
+
+    evtSource.onerror = () => {
+        console.log("SSE connection error");
+        evtSource.close();
+    };
+}
+
+// Пример: ждём задачу с ID = 123
+waitForTask("123");
+</script>
+
+</body>
+</html>
+```
+
+**Фронт**
+1. вызывает `/run-task` → получает `task_id`.    
+2. открывает `EventSource("/task-status/<task_id>")`.
+    
+**Celery**
+выполняет задачу → пишет в Redis `task:<id> = DONE`.
+
+**FastAPI (SSE)**
+как только ключ появляется — пушит сообщение клиенту.
+
+**Фронт**
+получает событие → показывает уведомление → закрывает стрим.
+
+###### Когда лучше использовать Server-Sent Events (SSE)
+
+SSE с его однонаправленным подключением лучше всего подходит для приложений, где сервер должен отправлять данные клиенту, но не требуется ответных сообщений от клиента в реальном времени.
+
+1. **Приложения с однонаправленным потоком данных от сервера к клиенту**. SSE хорошо подходит для лент новостей, уведомлений, ценовых обновлений и других данных, которые сервер отправляет клиенту без необходимости получать ответы.
+2. **Сценарии с меньшими требованиями к частоте обновления**. Если данные обновляются с предсказуемой или средней частотой, SSE достаточно для поддержания потока.
+3. **Поддержка автоматического переподключения и восстановления после разрывов**. SSE автоматически восстанавливает соединение, если оно разрывается, и не требует сложной логики на стороне клиента.
+4. **Энергосбережение на мобильных устройствах**. SSE менее требователен к энергии на мобильных устройствах, чем WebSockets, так как оно не требует постоянного пинга для поддержания соединения.
+5. **Поддержка стандартных сетей и кэширования**. SSE работает поверх HTTP и использует текстовые данные, что упрощает поддержку в корпоративных сетях и через прокси-серверы.
+
+###### Сравнение WebSocket и SSE
+|Критерий|WebSocket|Server-Sent Events (SSE)|
+|---|---|---|
+|Тип связи|Двусторонняя (full-duplex)|Односторонняя: сервер → клиент|
+|Тип соединения|Постоянное|Постоянное|
+|Формат данных|Текст и бинарные данные|Только текст (UTF-8)|
+|Задержка|Низкая|Низкая|
+|Нагрузка на сервер|Низкая|Низкая|
+|Потребление энергии|Выше, особенно на мобильных устройствах|Ниже, оптимально для мобильных|
+|Сценарии использования|Чаты, онлайн-игры, торговые/биржевые платформы, любые интерактивные системы|Новостные ленты, уведомления, мониторинг, стриминг данных от сервера|
+|Переподключение|Требует ручной реализации|Автоматическое (встроено в SSE протокол)|
+|Совместимость|Возможны проблемы с прокси и корпоративными сетями|Хорошая совместимость, работает поверх HTTP|
+|Требования к реализации|Более сложная реализация, нужен протокол WebSocket|Простая реализация поверх стандартного HTTP|

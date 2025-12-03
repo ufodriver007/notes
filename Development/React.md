@@ -3,33 +3,6 @@
 [Документация](https://react.dev/learn)
 [Метанит](https://metanit.com/web/react/)
 
-###### Искусственный пример. Hello, world
-Создадим файл `index.html` в котором прямо внутри подключим из внешнего источника библиотеку React и напишем JS код(не JSX). *Так никто не делает. Просто для понимания структуры.*
-```html
-<!DOCTYPE html>
-<html>
-  <head>
-    <title>My First React Application</title>
-    <script src="https://unpkg.com/react@18.3.1/umd/react.development.js"></script>
-    <script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js"></script>
-  </head>
-  <body>
-    <div id="root"></div>
-    <script type="text/javascript">
-      const reactElement = React.createElement(
-        'h1',
-        null,
-        'Hello world!!!'
-      );
-
-      ReactDOM
-        .createRoot(document.getElementById('root'))
-        .render(React.createElement('h1', null, 'Hello world!'));
-    </script>
-  </body>
-</html>
-```
-
 ###### Начало работы
 >[!info] Чтобы создать React-приложение и начать с ним работать, нужно:
 >- Node.js (среда выполнения)
@@ -64,6 +37,7 @@ sudo apt install nodejs
 [Статья на DigitalOcean по установке node js](https://www.digitalocean.com/community/tutorials/how-to-install-node-js-on-ubuntu-20-04-ru)
 
 ###### NPM и NPX
+**Node Package Manager**
 - **npm** пакетный менеджер, который скачивает исходники и добавляет в проект
 - **npx** пакетный менеджер, который скачивает, выполняет и затем удаляет исходники
 
@@ -71,21 +45,33 @@ sudo apt install nodejs
 
 >[!tip] Дописываем в `package.json` в основную секцию стоку `"homepage": "./",`
 
->[!info] `public` - папка для статики
-
+Примеры скриптов
 ```bash
 npm run start             # запустить на тестовом сервере
 npm run build             # собрать билд
 ```
 
 После сборки билда можно открывать `index.html` в браузере.
+
 >[!info]  Директория `node_modules` это аналог виртуального окружения в Python. Её добавляют в `.gitignore`
 
 ```bash
 npm init                 # создать package.json
+
 npm install              # установить зависимости(node_modules) из package.json
+npm search http          # поиск пакета
 npm install react        # установить библиотеку
+npm install -g rollup    # установить библиотеку глобально
+npm install -D rollup    # установить библиотеку как DEV
 npm uninstall react      # удалить библиотеку
+npm uni -g rollup        # удалить глобальную библиотеку
+
+npm cache clean          # очистка кэша
+npm audit                # посмотреть детально предупреждения о пакетах
+npm audit fix --force    # фиксит уязвимые версии, скачивая новые
+npm dedup                # убиает дубликаты
+
+npm list -g --depth=0    # список глобальных зависимостей
 ```
 
 ###### Создаём react-приложение с помощью create-react-app
@@ -128,21 +114,31 @@ npm run build
 После установки расширения браузера на сайте с React в инструментах разработчика появятся 2 дополнительные вкладки
 
 #### Import и export
-В файле источнике пишем
+Подключение в HTML
+```html
+<script src="js/main.js" type="module"></script>
+```
+
+Экспорт из файла
 ```js
-// именованный экспорт
-export const TEST = 42;
-export my_func() {
-    alert("Hello!")
+export const users = ['Alex', 'Julia'];
+
+export function greet(name) {
+	console.log(`Привет ${name}`);
 }
 ```
-В файле, куда хотим подключить
+
+Импорт в файл
 ```js
-import { TEST, my_func } from './src.js'
+import { users, greet } from './test.js'
+
+for (const user of users) {
+	greet(user);
+}
 ```
 
 ###### Default export
-Обычный способ подключения React компонентов. Может быть только один на файл.
+Обычный способ подключения React компонентов. Может быть только один на модуль (файл).
 
 В файле источнике пишем
 ```jsx
@@ -165,13 +161,20 @@ root.render(
 );
 ```
 
-
+#### CSS
 ###### Импорт CSS
 ```js
 import './index.css'
 ```
 
-#### Модульные стили
+###### Инлайновые стили 
+Передаём объектом
+```jsx
+// JSX
+<div style={{ fontSize: "40px" }}>Hello, world!</div>
+```
+
+###### Модульные стили
 >[!info] Класс стиля будет привязан к определённому компоненту, потому что сгенерируется уникальный ключ. И можно будет лаконично назвать свой класс стиля и он не будет конфликтовать с др. классами.
 
 Создаём файл стилей `MyApp.module.css`
@@ -198,45 +201,6 @@ import styles from "./MyApp.module.css";
 <h1 class="_myh_16g1c_1">My component!</h1>
 ```
 
-
-###### Создаём простой компонент
-
-В `'src`' создаём файл `'header.jsx'`
-```jsx
-function Header() {
-    return (
-        <header>
-            <img src="logo.png" />
-
-            <nav>
-                <a href="#">На главную</a>
-                <a href="#">Портфолио</a>
-                <a href="#">Контакты</a>
-            </nav>
-        </header>
-    );
-}
-
-export default Header
-```
-Затем поключаем его в файле `src/index.js`
-```jsx
-import React from 'react';
-import ReactDOM from 'react-dom/client';
-import Header from './header'
-
-const root = ReactDOM.createRoot(document.getElementById('root'));
-root.render(
-    <React.StrictMode>
-    <Header></Header>
-    </React.StrictMode>
-);
-```
-
->[!info] В каждом компоненте должен быть только один элемент (тэг/фрагмент)! Если нужно несколько - делаете вложенную структуру.
-
->[!info] Имя компонента в React (который является обычной функцией в JS) пушется с большой буквы, чтобы React понимал, что это преобразуется в пользовательский тэг, а тэгт с маленькой буквы - это стандартные HTML тэги.
-
 #### JSX
 >[!info] JSX — расширение языка JavaScript. Позволяет использовать синтаксис HTML внутри вашего кода JavaScript.
 
@@ -245,6 +209,9 @@ root.render(
 >- JS код пишем в фигурных скобках. Например `<p>{obj.hello}</p>`
 >- Комментарий `{/* */}
 `
+
+Под капотом JSX превращается в JS.
+
 ###### Передача переменных
 ```jsx
 const App = () => {
@@ -331,8 +298,8 @@ export default App;
 ###### Циклы
 Реакт не понимает объекты JS. Нужно их конвертировать в реакт объекты.
 ```jsx
-const array = [{hello: 'world}, {hello: 'world2}]   # объекты JS
-const array ReactElements = []
+const array = [{hello: 'world}, {hello: 'world2}];   # объекты JS
+const arrayReactElements = [];
 
 for (let i = 0; i < array.length; i++) {
     const obj = array[i];
@@ -384,11 +351,15 @@ return (
 ```
 
 #### Создание нового компонента
+>[!info] В каждом компоненте должен быть только один элемент (тэг/фрагмент)! Если нужно несколько - делаете вложенную структуру.
+
+>[!info] Имя компонента в React (который является обычной функцией в JS) пишется с большой буквы, чтобы React понимал, что это преобразуется в пользовательский тэг, а тэгт с маленькой буквы - это стандартные HTML тэги.
+
 >[!info] Желательно не делать компоненты гигантскими. Ориентир - 100 строк кода.
 
 - Создаём файл `MyComponent.jsx` с функцией и нужными импортами. В конце файла добавляем
 ```jsx
-export default MyComponent;
+export default MyComponent;  // имена функций-компонентов в Реакт пишем с большой буквы
 ```
 Например
 ```jsx
@@ -396,8 +367,8 @@ import { useState } from 'react'
 
 function MyComponent() {
     return (
-        <>                       // Это React фрагмент. Пустой тег, который никак не обрабатывается
-                                 // Поскольку нельзя возвращать больше одного элемента
+        <>              // Это React фрагмент. Пустой тег, который никак не обрабатывается
+                        // Поскольку нельзя возвращать больше одного элемента
             <h1>New component</h1>
             <p>MyComponent </p>
         </>
@@ -427,10 +398,30 @@ export default App
 ```
 - Возможно добавляем стили в `MyComponent.css`
 
+###### Как создаётся элемент под капотом
+```js
+import React from "react";
+
+// тестовая функция компонента React
+function Header() {
+	return (
+		<header>
+			<h1>Example</h1>
+		</header>
+	);
+}
+
+// Babel под капотом превращает jsx код(который выше) в такой код js
+function Header() {
+	return React.createElement("header", null, React.createElement("h1", null, "Example"));
+}
+```
+
 #### Props
->[!info] Props представляет коллекцию значений, которые ассоциированы с компонентом. Эти значения позволяют создавать динамические компоненты, которые не зависят от жестко закодированных статических данных. Можно представить их как аргументы для функции, только read-only и передаваемые одним объектом
+>[!info] Props (сокр. от *properties*) представляет коллекцию значений, которые ассоциированы с компонентом. Эти значения позволяют создавать динамические компоненты, которые не зависят от жестко закодированных статических данных. Можно представить их как аргументы для функции, только read-only и передаваемые одним объектом
 
 ###### Передаём значение
+Передаём атрибуты в компонент
 ```jsx
 import { useState } from 'react'
 import reactLogo from './assets/react.svg'
@@ -448,6 +439,7 @@ export default App
 ```
 
 ###### Получаем значение
+Получаем атрибуты через объект, переданный в аргументах
 ```jsx
 function Hello(props) {
 const { name, age } = props;
@@ -480,22 +472,32 @@ function App() {
 }
 ```
 
-##### Children
-Можно передать любой контент(в т.ч. и другие компоненты) внутрь своего компонента
-
-Слово `children` зарезервировано. Определяем место под `prop`
+###### Деструктуризация пропсов
+Для удобства можно сразу извлекать объект из пропса
 ```jsx
-export function DangerButton({ isDisabled = false, children }) {
-    return (
-        <button
-            className={`${isDisabled ? "disabled" : ""} red`}
-            onClick={() => alert("Test!")}
-        >
-            {children}
-        </button>
-    );
-}
+function Product({ productObj }) {
+	...
 ```
+
+Либо так
+```jsx
+function Product(props) { 
+	const { productObj } = props;
+	...
+```
+
+Чтобы потом удобнее было обращаться
+```jsx
+// Не так
+<p>{ props.productObj.name }</p>
+
+// А вот так
+<p>{ productObj.name }</p>
+```
+
+
+#### Children
+>[!info] Можно передать любой контент(в т.ч. и другие компоненты) внутрь своего компонента
 
 Передаём контент внутрь тэга
 ```jsx
@@ -503,7 +505,24 @@ import { DangerButton } from "./components/Buttons.jsx";
 
 export default function App() {
     return (
-        <DangerButton><span>&#11015;</span>Hello world!</DangerButton>
+        <DangerButton>
+	        <span>&#11015;</span>Hello world!  // Помещаем контент внутрь
+	    </DangerButton>
+    );
+}
+```
+
+Слово `children` зарезервировано. Определяем под него место.
+```jsx
+// функция компонента
+export function DangerButton({ isDisabled = false, children }) {
+    return (
+        <button
+            className={`${isDisabled ? "disabled" : ""} red`}
+            onClick={() => alert("Test!")}
+        >
+            {children}  // Здесь будет весь контент переданный внутрь тэга
+        </button>
     );
 }
 ```
@@ -529,6 +548,7 @@ const App = () => {
             Test form
             <input type="text" onChange={onChangeHandler} />
             <button type="submit" onClick={onClickHandler}>BUTTON</button>
+            <button onClick={() => alert("Hello!"))}>Alert button</button>
         </form>
     );
 };
@@ -536,11 +556,47 @@ const App = () => {
 export default App;
 ```
 
-Есть ещё `onMouseEnter` - событие, когда навели мышью
+|Событие|Описание|
+|---|---|
+|**События мыши**|**Описание**|
+|onClick|Клик левой кнопкой мыши
+|onContextMenu|Клик правой кнопкой мыши для вызова контекстного меню
+|onDoubleClick|Двойной клик мышью
+|onDrag / onDragEnd / onDragEnter / onDragExit / onDragLeave / onDragOver / onDragStart / onDrop|События, связанные с перетаскиванием элементов
+|onMouseDown / onMouseEnter / onMouseLeave / onMouseMove / onMouseOut / onMouseOver / onMouseUp|События, связанные с действиями мыши
+||
+|**События клавиатуры**|**Описание**|
+|onKeyDown / onKeyPress / onKeyUp|События нажатия клавиш на клавиатуре|
+||
+|**События форм**|**Описание**|
+|onChange| Изменение значения элемента формы (например, при вводе текста или выборе значения)
+|onInput| Ввод данных пользователем в поле ввода
+|onSubmit| Отправка формы
+||
+|**События фокуса**|**Описание**|
+|onFocus| Элемент получает фокус
+|onBlur| Элемент теряет фокус
+||
+|**События сенсорного ввода**|**Описание**|
+|onTouchCancel / onTouchEnd / onTouchMove / onTouchStart| События, связанные с касаниями на сенсорных устройствах
+||
+|**События UI**|**Описание**|
+|onScroll| Прокрутка элемента или страницы
+||
+|**События колеса мыши**|**Описание**|
+|onWheel| Вращение колесика мыши
+||
+|**События изображения**|**Описание**|
+|onLoad| Загрузка изображения завершена
+|onError| Ошибка при загрузке изображения или файла
+||
+|**Другие события**|**Описание**|
+|onSelect| Выделение текста пользователем
+|onAnimationStart / onAnimationEnd / onAnimationIteration| События CSS анимаций
+|onTransitionEnd| Окончание CSS перехода|
 
 #### Хуки
 >[!info] Вспомогательные функции, которые помогают работать с компонентом
->Функция, которая принимает некое значение.
 
 **Основные хуки:**
 - useState
@@ -585,9 +641,15 @@ export default App;
 ```jsx
 const [count, setCount] = useState(0);
 // Деструктуризация (распаковка) возвращаемого значения функции useState
+//
 // count - это будет переменная, которая будет хранить наше значение
-// setCount - функция, которая изменит нашу переменную на то, что мы ей передадим.
-//     Например setCount(count + 1)
+//
+// setCount - функция, которая изменит нашу переменную:
+//  1) на то, что мы ей передадим.
+//     Например setCount(33);
+//  2) либо передав функцию, которая принимает предидущее значение и возвращает новое
+//     Например setCount((prev) => prev + 1);
+//
 // useState(0) - задаём начальное значение 0
 ```
 
@@ -602,11 +664,14 @@ const onClickHandler = () => {
 
 >[!tip] Чтобы не плодить в одном компоненте кучу дублирующегося кода с useState, можно передавать один объект с кучей значений
 
+>[!tip] Всегда используем `useState` из возвращаемого значения (JSX), иначе будут постоянные ререндеры в бесконечном цикле
+
 ###### useEffect
-Служит для определённых side эффектов (любое действие, которое выходит за пределы текущей функции и взаимодействует с чем-то снаружи). Мы можем за чем-либо(переменная, координаты мыши и т.п.) наблюдать и выполнять в случае чего нашу логику.
+Служит для определённых side эффектов (любое действие, которое выходит за пределы текущей функции и взаимодействует с чем-то снаружи). Мы можем за чем-либо(переменная, координаты мыши и т.п.) наблюдать и выполнять в случае чего нашу логику. *Выполняется после рендера.*
 
 Вот несколько примеров использования:
 - Запрос данных из API
+- Отрображение индикатора загрузки
 - Изменение заголовка страницы
 - Подписка на события, такие как изменение размера окна
 - Установка таймеров или интервалов
@@ -620,7 +685,7 @@ const onClickHandler = () => {
 import { useEffect } from "react";
 ```
 
-Базовое использование
+Использование без массива зависимостей.** Исполняется после каждого рендера.**
 ```jsx
 useEffect(() => {
     console.log('render')  // выполнится при каждом рендере и если здесь будет код,
@@ -628,14 +693,14 @@ useEffect(() => {
 })
 ```
 
-С пустым массивом зависимостей
+С пустым массивом зависимостей. **Исполняется один раз.**
 ```jsx
 useEffect(() => {
     console.log('Component mounted')  // выполнится один раз
 }, [])
 ```
 
-Отслеживание переменной из массива зависимостей
+Отслеживание переменной из массива зависимостей. **Исполняется после каждого изменения в массиве зависимостей.**
 ```jsx
 let myVar = 123;
 
@@ -644,7 +709,9 @@ useEffect(() => {
 }, [myVar])
 ```
 
-В `useEffect` если он срабатывает неоднократно (циклично) нужно описывать функцию очистки, чтобы программа не жрала память.
+###### Return в useEffect
+**Возвращаем функцию очистки**
+В `useEffect` если он срабатывает неоднократно (циклично) нужно описывать функцию очистки, чтобы программа не жрала память. Нужно возвращать коллбэк с очисткой. Она выполнится при *размонтировании* компонента.
 ```jsx
 useEffect(() => {
     // основная логика
@@ -652,12 +719,24 @@ useEffect(() => {
 
     // функция очистки
     return () => {
-        // логика очистки
+        // логика очистки, например очищаем таймер и т.д.
     }
 }, [])
 ```
-![[2025-05-20_04-49.png]]
 
+| Источник утечки / Что нужно чистить | Почему происходит | Как правильно отписаться |
+|-------------------------------------|--------------------|---------------------------|
+| Таймеры и интервалы (`setTimeout`, `setInterval`) | Они продолжают работать после удаления компонента | ```return () => clearTimeout(timer);``` |
+| Слушатели событий (`addEventListener`) | Обработчики продолжают работать после удаления компонента | ```return () => window.removeEventListener("resize", handleResize);``` |
+| WebSocket | Соединение остаётся открытым и передаёт данные | ```return () => socket.close();``` |
+| Подписки на данные (например, RxJS) | Подписка продолжает получать данные | ```return () => subscription.unsubscribe();``` |
+| Анимации (`requestAnimationFrame`) | Запросы продолжаются | ```return () => cancelAnimationFrame(frameId);``` |
+| Геолокация (`watchPosition`) | Отслеживание продолжается | ```return () => navigator.geolocation.clearWatch(watchId);``` |
+| Асинхронные операции | Попытка обновить состояние после размонтирования вызывает ошибку | ```return () => { isMounted = false; };``` |
+| Внешние API или сторонние библиотеки | Они продолжают использовать ресурсы | ```return () => subscription.unsubscribe();``` |
+| Глобальные браузерные события (scroll, keydown и др.) | Обработчики остаются активными | ```return () => window.removeEventListener("scroll", handleScroll);``` |
+
+**Возвращаем прерывание запроса**
 Чтобы избежать состояния гонки, передаём в `fetch` сигнал для отмены запроса.
 1. Создание `AbortController`: Внутри `useEffect` создаётся новый экземпляр `AbortController`, который предоставляет сигнал (`signal`) для управления отменой запроса.
 2. Передача `signal` в `fetch`: В параметрах `fetch` передаётся `signal`, что позволяет отменить запрос, если `AbortController` вызовет `abort()`.
@@ -667,13 +746,12 @@ useEffect(() => {
 function MyComponent() {
   useEffect(() => {
     const controller = new AbortController();  // Создаём AbortController
-    const signal = controller.signal;  // Получаем сигнал из контроллера
+    const signal = controller.signal;  // Получаем объект сигнала из контроллера
 
     async function fetchData() {
       try {
         const response = await fetch('https://api.example.com/data', {signal});
         const data = await response.json();
-        console.log(data);
       } catch (err) {
         if (err.name === 'AbortError') {
           console.log('Запрос был отменён');
@@ -692,7 +770,7 @@ function MyComponent() {
 
 
 ###### useRef
-Позволяет сохранять значения между рендерами. Хук  похож на `useState`, но не запускает *ререндеринг*.
+Позволяет сохранять значения между рендерами. Хук  похож на `useState`, но *не запускает ререндеринг* (в отличии от `useState`).
 
 Увеличение счётчика без дополнительного рендера
 ```jsx
@@ -1437,6 +1515,30 @@ const createPost = async ({ request }) => {
 };
 ```
 
+#### Обработка ошибок
+>[!info] Для обработки ошибок создаём состояние для ошибки, если ответ не `ok` - кидаем ошибку, которую ловит блок `catch` и записывает ошибку в состояние. И уже исходя из этого состояния отображаем или нет данные в JSX.
+
+```js
+const [error, setError] = useState(null);
+
+async function getData() {
+	try {
+		const res = await fetch(
+			`http://api.weatherapi.com/v1/current.json?key=${KEY}&q=${city}`
+		);
+
+		if (!res.ok) {
+			throw new Error("Невозможно получить данные.");
+		}
+
+		const data = await res.json();
+		return data;
+	} catch (err) {
+		setError("Невозможно получить данные " + err.message);
+	}
+}
+```
+
 ## Управление состоянием
 `useState` и проброс пропсов - для маленьких приложений
 `useContext` - для средних приложений
@@ -1463,7 +1565,7 @@ npm run build
 
 
 
-#### React Bootstrap
+## React Bootstrap
 [Документация](https://react-bootstrap.github.io/docs/getting-started/introduction/)
 
 ```bash
@@ -1490,4 +1592,17 @@ function onClickHandler() {
     Click me!
 </Button>
 ```
+
+## Формы
+- Для каждого инпута делаем состояние `useState` и каждому записываем в `value` это сотояние
+- Делаем обработчик в котором:
+	- `e.preventDefault()`
+	- Делаем с данными (которые уже хранит `useState`) то что нужно
+	- Очищаем все состояния для инпутов
+
+##  Сортировка компонентов
+- Делаем состояние в котором храним все типы сортировки
+- Делаем состояние в которм храним (`asc`/`desc`)
+- Делаем функцию сортировки, которая в зависимости от этих 2х `useState` сортирует нужным образом
+
 

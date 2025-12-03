@@ -30,12 +30,15 @@ Black Formatter
 Django
 Docker
 Dev Containers
+Color Highlight
 CSS Peek
+All Autocomplete
 Auto Rename Tag
 IntelliSense for CSS class names in HTML
 Live Server
 Code Runner
 ESLint
+Prettier
 
 
 #### Файлы и их назначение

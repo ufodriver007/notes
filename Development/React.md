@@ -177,7 +177,7 @@ import './index.css'
 ###### Модульные стили
 >[!info] Класс стиля будет привязан к определённому компоненту, потому что сгенерируется уникальный ключ. И можно будет лаконично назвать свой класс стиля и он не будет конфликтовать с др. классами.
 
-Создаём файл стилей `MyApp.module.css`
+Создаём файл стилей `MyComponent.module.css` (Имя должно быть такое же как у компонента)
 ```css
 .mystyle {
     font-size: 3.2em;
@@ -199,6 +199,116 @@ import styles from "./MyApp.module.css";
 В браузере после рендера будет что-то вроде
 ```jsx
 <h1 class="_myh_16g1c_1">My component!</h1>
+```
+
+#### Tailwind
+>[!info] Tailwind - это CSS-фреймворк, ориентированный на утилиты, оснащенный такими классами, как `flex`, `pt-4`, `text-center` и `rotate-90`, которые можно скомпоновать для создания любого дизайна непосредственно в вашей разметке.
+
+[Установка Tailwind](https://tailwindcss.ru/docs/installation/using-vite)
+
+Устанавливаем Tailwind
+```bash
+npm install tailwindcss @tailwindcss/vite
+```
+
+Настраиваем плагин Vite
+```jsx
+// vite.config.js
+import { defineConfig } from 'vite'
+import tailwindcss from '@tailwindcss/vite'
+
+export default defineConfig({
+	plugins: [ 
+		tailwindcss(),
+	],
+})
+```
+
+Импортируем Tailwind CSS
+```css
+@import "tailwindcss";
+```
+
+Начнаем процесс сборки
+```bash
+npm run dev
+```
+
+>[!tip] Убедитесь, что скомпилированный CSS включён в `<head>`
+
+###### Плагины для Tailwind
+Для VS Code есть плагин **Tailwind CSS IntelliSense**, который подсказывает классы стилей
+
+Для форматирования и сортировки классов Tailwind:
+1. Устанавливаем Prettier и плагин для него
+```bash
+npm install -D prettier prettier-plugin-tailwindcss
+```
+
+2. Создаём файл в корне проекта `prettier.config.cjs` и вписываем туда:
+```js
+module.exports = {
+	plugins: ["prettier-plugin-tailwindcss"],
+};
+```
+
+###### Работа с Tailwind
+[Документация](https://tailwindcss.ru/docs/colors)
+**Настройка своих цветов**
+Используйте `@theme` для добавления пользовательских цветов в ваш проект под пространством имен темы `--color-*`:
+```css
+@import "tailwindcss";
+
+@theme {
+	--color-midnight: #121063;
+	--color-tahiti: #3ab7bf;
+	--color-bermuda: #78dcca;
+}
+```
+
+**Задание своего размера**
+```html
+<h1 className="text-[201px]">Header</h1>
+```
+
+**Height**
+```html
+Фиксированная
+<div class="h-96 ...">h-96</div>
+<div class="h-80 ...">h-80</div>
+<div class="h-64 ...">h-64</div>
+<div class="h-48 ...">h-48</div>
+<div class="h-40 ...">h-40</div>
+<div class="h-32 ...">h-32</div>
+<div class="h-24 ...">h-24</div>
+
+Проценты
+<div class="h-full ...">h-full</div>
+<div class="h-9/10 ...">h-9/10</div>
+<div class="h-3/4 ...">h-3/4</div>
+<div class="h-1/2 ...">h-1/2</div>
+<div class="h-1/3 ...">h-1/3</div>
+```
+
+**Margin и Padding**
+```html
+p-10          padding 10 * 4
+py-10         padding вверх и вниз 
+px-10         padding враво и влево
+pt-10         padding ввех
+pb-10         padding вниз
+pr-10         padding справа
+pl-10         padding слева
+```
+
+```
+m-10          margin 10 * 4
+my-10         margin вверх и вниз 
+mx-10         margin враво и влево
+mt-10         margin ввех
+mb-10         margin вниз
+mr-10         margin справа
+ml-10         margin слева
 ```
 
 #### JSX
@@ -417,6 +527,16 @@ function Header() {
 }
 ```
 
+###### Рендеринг компонента
+**Рендеринг компонента** - это процесс, при котором React *вызывает функцию компонента*, чтобы получить описание интерфейса в виде *React-элементов*. Эти элементы используются для создания и обновления **виртуального DOM**, который затем **синхронизируется с реальным DOM**.  Рендеринг запускается при первой загрузке и когда изменяется состояние/изменяются `props` (или когда рендерится родительский компонент). 
+
+Фазы ренднринга:
+1. Вызов компонента и получение элементов
+2. Построение/обновление виртуального DOM
+3. Сравнение виртуального DOM с предыдущей версией
+
+И уже **после** рендеринга наступает следующий шаг - **отрисовка на экране** (*Commit phase*).
+
 #### Props
 >[!info] Props (сокр. от *properties*) представляет коллекцию значений, которые ассоциированы с компонентом. Эти значения позволяют создавать динамические компоненты, которые не зависят от жестко закодированных статических данных. Можно представить их как аргументы для функции, только read-only и передаваемые одним объектом
 
@@ -449,6 +569,9 @@ const { name, age } = props;
     </div>
 }
 ```
+
+###### prop key
+>[!warning] Если э**лементы находятся в списке и находятся на одном уровне одновременно** , props должен иметь **ключ**, поскольку если его нет, то React **не может корректно сопоставить элементы** между рендерами. 
 
 ###### Пример прокидывания информации с бекэнда
 Представим, что `VIDEOS` это массив с объектами, пришедший с бекэнда
@@ -526,6 +649,53 @@ export function DangerButton({ isDisabled = false, children }) {
     );
 }
 ```
+
+#### Memo
+>[!info] `React.memo`  предотвращает повторный ререндер **компонента** при тех же пропсах. Если пропс — объект, массив или функция, они будут меняться при каждом рендере, если не стабилизированы через `useMemo` или `useCallback`.
+
+Пример, где при повторном рендере родительского компонента **дочерний компонент** (к примеру очень дорогой по ресурсам) **НЕ ререндерится**.
+```jsx
+import { useState, useMemo } from "react";
+
+function Parent() {
+  const [count, setCount] = useState(0);
+
+  // useMemo кэширует значение если аргументы не изменились
+  const user = useMemo(() => ({ name: "Alice" }), []);
+
+  return (
+    <div>
+      <button onClick={() => setCount(count + 1)}>
+        Increment: {count}
+      </button>
+
+      <UserInfo user={user} />
+    </div>
+  );
+}
+
+// memo предотвращает рендер компонента если пропсы не изменились
+const UserInfo = React.memo(function UserInfo({ user }) {
+  // Здесь например загрузка огромного кол-ва информации пользователя
+  console.log("UserInfo rendered");
+  return <div>User: {user.name}</div>;
+});
+
+export default Parent;
+
+```
+
+#### Формы
+- Для каждого инпута делаем состояние `useState` и каждому записываем в `value` это состояние
+- Делаем обработчик в котором:
+	- `e.preventDefault()`
+	- Делаем с данными (которые уже хранит `useState`) то что нужно
+	- Очищаем все состояния для инпутов
+
+####  Сортировка компонентов
+- Делаем состояние в котором храним все типы сортировки
+- Делаем состояние в которм храним (`asc`/`desc`)
+- Делаем функцию сортировки, которая в зависимости от этих 2х `useState` сортирует нужным образом
 
 #### События
 `App.jsx`
@@ -666,6 +836,8 @@ const onClickHandler = () => {
 
 >[!tip] Всегда используем `useState` из возвращаемого значения (JSX), иначе будут постоянные ререндеры в бесконечном цикле
 
+>[!warning] Изменение родительского состояния приводит к ререндерингу всех компонентов-потомков!
+
 ###### useEffect
 Служит для определённых side эффектов (любое действие, которое выходит за пределы текущей функции и взаимодействует с чем-то снаружи). Мы можем за чем-либо(переменная, координаты мыши и т.п.) наблюдать и выполнять в случае чего нашу логику. *Выполняется после рендера.*
 
@@ -770,7 +942,7 @@ function MyComponent() {
 
 
 ###### useRef
-Позволяет сохранять значения между рендерами. Хук  похож на `useState`, но *не запускает ререндеринг* (в отличии от `useState`).
+Позволяет сохранять значения между рендерами. Хук  похож на `useState`, но *не запускает ререндеринг* (в отличии от `useState`). Этим значением может быть ссылка на DOM-элемент.
 
 Увеличение счётчика без дополнительного рендера
 ```jsx
@@ -779,7 +951,7 @@ const renderCounter = useRef(1)  // возвращает объект с
 renderCounter.current++
 ```
 
-Также с его помощью можно получить элемент добавив атрибут `ref`
+Также с его помощью можно получить HTML-элемент, добавив атрибут `ref`
 ```jsx
 import React, {useEffect, useRef} from "react"
 
@@ -788,6 +960,7 @@ functiom App() {
 
   useEffect(() => {
     console.log(inputRef.current);  // теперь можно манипулировать им
+    inputRef.current.focus();       // например фокусироваться на нём
   }, []);
 
   return (
@@ -801,7 +974,7 @@ functiom App() {
 ###### useMemo
 Используется для оптимизации производительности компонента, позволяя мемоизировать вычисленные значения. Это полезно, если вычисление значений требует значительных ресурсов или времени
 
-`useMemo` запоминает результат вычислений до тех пор, пока не изменятся зависимости, указанные в массиве зависимостей. Если зависимости не изменились, то возвращается мемоизированное значение из предыдущего рендера.
+`useMemo` запоминает результат вычислений до тех пор, **пока не изменятся зависимости**, указанные в массиве зависимостей. Если зависимости не изменились, то возвращается мемоизированное значение из предыдущего рендера.
 
 ```jsx
 const memoizedValue = useMemo(() => computeExpensiveValue(a, b), [a, b]);
@@ -1014,10 +1187,10 @@ function useFetch(url) {
       }
     }
 
-    fetchData();
+    fetchData(url);
   }, [url]);
 
-  return { data, loading, error };
+  return { data, loading, error };  // { data: data, loading: loading, error: error }
 }
 
 export default useFetch;
@@ -1110,22 +1283,31 @@ import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import Home from "./Home.jsx";
 import About from "./About.jsx";
 import NotFound from "./NotFound.jsx";
+import Header from "../components/Header";
+import Footer from "../components/Footer";
 
+// createBrowserRouter принимает массив объектов, каждый
+//   объект - это страница
 const router = createBrowserRouter([
   {
     path: "/",
     element: <Home />,
   },
   {
-    path: "about",
+    path: "about",  // Здесь не надо использовать абсолютный путь
     element: <About />,
   },
   {
     path: "*",
-    element: <NotFound />,
+    element: (<>
+			    <Header />
+			    <NotFound />
+			    <Footer />
+			  </>),               // так можно возвращать несколько компонентов сразу
   },
 ]);
 
+// теперь App возвращает компонент RouterProvider
 export default function App() {
   return <RouterProvider router={router} />;
 }
@@ -1141,7 +1323,7 @@ function Home() {
     <div>
       <h1>Hope Page</h1>
       <p>
-        <Link to={"about"}>About</Link>
+        <Link to={"/about"}>About</Link>  // В ссылках обязательно указываем АБСОЛЮТНЫЙ путь
       </p>
     </div>
   );
@@ -1156,27 +1338,10 @@ export default Home;
 ```
 
 ###### NavLink
-Также есть компонент `<NavLink>`, который работает по аналогии с `Link`, только при нажатии на ссылку добавляет ей класс `active`
-
-###### Navigate
-Компонент для программного перенаправления. Используется для редиректов.
-
-```jsx
-const router = createBrowserRouter([
-  {
-    path: "/",
-    element: <Layout />,
-    children: [
-      { path: "", element: <Home /> },
-      { path: "about", element: <About /> },
-      { path: "*", element: <Navigate to="/" /> },
-    ],
-  },
-]);
-```
+Также есть компонент `<NavLink>`, который работает по аналогии с `Link`, только при нажатии на ссылку **добавляет ей класс** `active`
 
 ###### Outlet
-Компонент для рендеринга дочерних маршрутов. Работает как `{children}`, только для страниц.
+Компонент для рендеринга дочерних маршрутов. Работает как `{children}`, только для страниц. Опционально выбираем для удобства.
 
 Создадим `Layout.jsx`
 ```jsx
@@ -1188,7 +1353,9 @@ function Layout() {
   return (
     <>
       <Header />
-      <Outlet />
+      <main>
+	      <Outlet />
+	  </main>
       <Footer />
     </>
   );
@@ -1210,6 +1377,7 @@ const router = createBrowserRouter([
     element: <Layout />,
     children: [
       { path: "", element: <Home /> },
+  //  { index: true, element: <Home /> },   тоже что и path: ""
       { path: "about", element: <About /> },
       { path: "*", element: <NotFound /> },
     ],
@@ -1221,7 +1389,7 @@ export default function App() {
 }
 ```
 
-###### Динамическая маршрутизация
+###### Динамическая маршрутизация (`useParams`)
 В роутере указываем `wildcard`
 ```jsx
 const router = createBrowserRouter([
@@ -1256,7 +1424,7 @@ function Category() {
 export default Category;
 ```
 
-###### GET параметры
+###### GET параметры (`useSearchParams`)
 >[!info] Хук `useSearchParams` похож на `useState`. Он тоже вызывает ререндеринг, имеет переменную для объекта, содержащего все пары ключ-значение. Имеет функцию для установки объекта.
 
 ```jsx
@@ -1264,11 +1432,20 @@ import { useSearchParams } from "react-router-dom";
 
 function About() {
   const [searchParams, setSearchParams] = useSearchParams();
-  const name = searchParams.get("name") || "";  // получение значения
-  const hasName = searchParams.has("name");  // true или false
+  const name = searchParams.get("name") || "";      // получение значения
+  const hasName = searchParams.has("name");         // true или false
+  
+  function handleClick() {
+	  setSearchParams({maxPrice: 150});             // установка GET параметра
+  }
 
   console.log(name);
   console.log(hasName);
+
+
+  searchParams.keys()           // итератор по всем ключам параметров
+  searchParams.values()         // итератор по всем значениям параметров
+  searchParams.entries()        // итератор по всем парам [ключ, значение]
 
   // перебор всех пар ключ-значение
   for (const [key, value] of searchParams.entries()) {
@@ -1292,7 +1469,7 @@ export default About;
 |`pathname` |Путь текущего URL (например, /products/123).|
 |`search` |Get параметры.(useSearchParams — предпочтительный способ работы с GET параметрами)
 |`hash`|Хэш (фрагмент URL после символа `#`, например, `#section1`).|
-|`state` |Объект состояния, переданный при навигации (например, через navigate или Link).|
+|`state` |Объект состояния, переданный при навигации (например, через `navigate` или `Link`).|
 |`key` |Уникальный идентификатор маршрута (используется React Router для навигации).|
 
 ```jsx
@@ -1338,6 +1515,23 @@ function About() {
 }
 
 export default About;
+```
+
+###### Navigate
+Компонент для программного перенаправления. Используется для редиректов.
+
+```jsx
+const router = createBrowserRouter([
+  {
+    path: "/",
+    element: <Layout />,
+    children: [
+      { path: "", element: <Home /> },
+      { path: "about", element: <About /> },
+      { path: "*", element: <Navigate to="/" /> },
+    ],
+  },
+]);
 ```
 
 #### Загрузка данных
@@ -1592,17 +1786,5 @@ function onClickHandler() {
     Click me!
 </Button>
 ```
-
-## Формы
-- Для каждого инпута делаем состояние `useState` и каждому записываем в `value` это сотояние
-- Делаем обработчик в котором:
-	- `e.preventDefault()`
-	- Делаем с данными (которые уже хранит `useState`) то что нужно
-	- Очищаем все состояния для инпутов
-
-##  Сортировка компонентов
-- Делаем состояние в котором храним все типы сортировки
-- Делаем состояние в которм храним (`asc`/`desc`)
-- Делаем функцию сортировки, которая в зависимости от этих 2х `useState` сортирует нужным образом
 
 

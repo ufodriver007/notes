@@ -224,7 +224,7 @@ export default defineConfig({
 })
 ```
 
-Импортируем Tailwind CSS
+Импортируем Tailwind CSS в `index.css`
 ```css
 @import "tailwindcss";
 ```
@@ -252,6 +252,11 @@ module.exports = {
 };
 ```
 
+**Tailwindcss-typography**
+>[!info] [Tailwindcss-typography](https://github.com/tailwindlabs/tailwindcss-typography) — официальный плагин к Tailwind CSS, предоставляющий готовую реализацию типографики для аккуратного стилизованного форматирования заданного текстового контента (например какой-нибудь статьи в новостном сайте).
+
+[Статья](https://olegbarabanov.ru/dev/ispolzovanie-plagina-tailwindcss-typography-dlya-realizacii-tipografiki-na-sajte)
+
 ###### Работа с Tailwind
 [Документация](https://tailwindcss.ru/docs/colors)
 **Настройка своих цветов**
@@ -274,20 +279,20 @@ module.exports = {
 **Height**
 ```html
 Фиксированная
-<div class="h-96 ...">h-96</div>
-<div class="h-80 ...">h-80</div>
-<div class="h-64 ...">h-64</div>
-<div class="h-48 ...">h-48</div>
-<div class="h-40 ...">h-40</div>
-<div class="h-32 ...">h-32</div>
-<div class="h-24 ...">h-24</div>
+h-96
+h-80
+h-64
+h-48
+h-40
+h-32
+h-24
 
 Проценты
-<div class="h-full ...">h-full</div>
-<div class="h-9/10 ...">h-9/10</div>
-<div class="h-3/4 ...">h-3/4</div>
-<div class="h-1/2 ...">h-1/2</div>
-<div class="h-1/3 ...">h-1/3</div>
+h-full
+h-9/10
+h-3/4
+h-1/2
+h-1/3
 ```
 
 **Margin и Padding**
@@ -309,6 +314,101 @@ mt-10         margin ввех
 mb-10         margin вниз
 mr-10         margin справа
 ml-10         margin слева
+```
+
+**Композиция из классов**
+`index.css`
+```css
+@layer components {
+	.hlinks {
+		@apply font-semibold text-blue-800 hover:text-red-400;
+	}
+}
+```
+
+Далее можно использовать наш кастомный класс
+```jsx
+<NavLink className="hlinks" to={"/about"}>About</NavLink>
+```
+
+*Однако лучшей практикой будет создание своих React-компонентов для этого*. Например создаём директорию UI и в ней создаём свой компонент
+```jsx
+import { NavLink } from "react-router-dom";
+
+function NavLinkMenu({ to, children }) {
+	return (
+		<NavLink className="text-blue-500 hover:text-red-400" to={to}>
+			{children}
+		</NavLink>
+	);
+}
+
+export default NavLinkMenu;
+```
+
+**Свои шрифты через CDN**
+1. Выбираем на [Google fonts](https://fonts.google.com/)
+2. Нажимаем `Get font` -> Get embed code -> Web -> `<link>`
+3. Записываем полученную директиву `<link>` в  шапку `index.html`
+4. Описываем переменную для этого шрифта  в `index.css`
+```css
+@theme {
+	--font-yellowtail: "Yellowtail", cursive;
+	--font-roboto-condensed: "Roboto Condensed", sans-serif;
+	--font-poppins: "Poppins", sans-serif;
+}
+```
+
+5. Применяем шрифт на нужном элементе `html` или `jsx`
+```html
+<body class="font-poppins text-sm text-slate-950">   # Наш новый шрифт
+	<div id="root"></div>
+	<script type="module" src="/src/main.jsx"></script>
+</body>
+```
+
+**Адаптивный дизайн**
+ [Tailwind - это mobile-first приложение](https://tailwindcss.ru/docs/responsive-design). Поэтому все свойства разрабатывются в первую очередь для самых маленьких размеров. 
+ 
+|Breakpoint prefix|Минимальная ширина вьюпорта|CSS|
+|---|---|---|
+|`sm`|640px|`@media (min-width: 640px) { ... }`|
+|`md`|768px|`@media (min-width: 768px) { ... }`|
+|`lg`|1024px|`@media (min-width: 1024px) { ... }`|
+|`xl`|1280px|`@media (min-width: 1280px) { ... }`|
+|`2xl`|1536px|`@media (min-width: 1536px) { ... }`|
+
+Прмер классов для разных свойств под разные брейкпоинты
+```html
+// ширина на всю доступню область по умолчанию
+// ширина 96*4px для вьюпорта после 768px
+// ширина в половину вьюпорта после 1024px
+<img className="w-full md:w-96 lg:w-1/2" src="/122.png" />
+```
+
+**Group**
+Стилизация дочерних элементов
+```html
+// Когда наводишь мышку на div, текст span становится синим
+<div class="group">
+	<span class="group-hover:text-blue-600">Name</span>
+</div>
+```
+
+**Peer**
+Стилизация соседних элементов
+```html
+// Когда наводишь мышку на инпут, текст label становится синим
+<input class="peer" type="text id="name" />
+<label class="peer-hover:text-blue-600" for="name">Name</label>
+```
+
+**Готовые классы анимаций**
+[Несколько готовых классов анимации](https://tailwindcss.ru/docs/animation). Добавляются к элементам как и все остальные классы.
+```jsx
+<span className="animate-pulse">
+	{category.name}
+</span>
 ```
 
 #### JSX
@@ -769,13 +869,23 @@ export default App;
 >[!info] Вспомогательные функции, которые помогают работать с компонентом
 
 **Основные хуки:**
-- useState
-- useEffect
-- useCallback
-- useRef
-- useMemo
-- useContext
 
+|Хук|Краткое описание|
+|---|---|
+|**useState**|Позволяет добавлять состояние в функциональный компонент.|
+|**useEffect**|Выполняет побочные эффекты (например, fetch, подписки, таймеры) после рендера.|
+|**useCallback**|Кэширует функцию, чтобы её ссылка не менялась между рендерами, оптимизация производительности.|
+|**useRef**|Хранит мутируемое значение, которое сохраняется между рендерами; используется для доступа к DOM.|
+|**useMemo**|Кэширует вычисленное значение между рендерами, оптимизация производительности.|
+|**useContext**|Позволяет получать значение из контекста React без проброса через пропсы.|
+|**useReducer**|Позволяет управлять сложным состоянием через редьюсер, похож на Redux внутри компонента.|
+|**useNavigation**|(React Router) Предоставляет информацию о текущей навигации (например, состояние перехода).|
+|**useNavigate**|(React Router) Позволяет программно выполнять навигацию между маршрутами.|
+|**useLocation**|(React Router) Получает объект текущего URL (pathname, search, state).|
+|**useParams**|(React Router) Получает параметры маршрута из URL (например, `/users/:id`).|
+|**useSearchParams**|(React Router) Позволяет читать и изменять query-параметры URL.|
+
+###### useState
 **useState** Позволяет сохранять значения между рендерами. Если значение изменено, *перерисовывает* компонент.
 ```jsx
 //App.jsx
@@ -1070,6 +1180,7 @@ import React, { createContext, useContext, useState } from "react";
 // Создаем компонент-контекст
 const ThemeContext = createContext();
 
+// верхнеуровневый компонент с нужным состоянием
 function App() {
   const [theme, setTheme] = useState("light");
 
@@ -1081,6 +1192,7 @@ function App() {
   );
 }
 
+// Дочерний компонент
 function Toolbar() {
   return (
     <div>
@@ -1090,6 +1202,7 @@ function Toolbar() {
   );
 }
 
+// Самый вложенный компонент в котором мы и получаем нужное состояние (перменные/функции)
 function ThemeSwitcher() {
   // Получаем значение контекста. Это просто объект.
   const { theme, setTheme } = useContext(ThemeContext);
@@ -1157,7 +1270,147 @@ export default App;
 2. Значение контекста (пользователь и функция для его обновления) предоставляется через `AuthContext.Provider`.
 3. Компоненты `Header` и `Main` используют `useContext` для доступа к состоянию авторизации.
 
+**Best practice**
+Можно создать отдельный компонент `TaskProvider`,  где будет содержатся весь контекст приложения. 
+```jsx
+export const TaskContext = createContext();
+
+export function TaskProvider({ children }) {
+	const [tasks, setTasks] = useState([]);  // все необходимые переменные/состояния
+	
+	return (
+		<TaskContext.Provider value={{ tasks, setTasks }}>
+			{children}        // сюда через children будут проходить все props
+		</TaskContext.Provider>
+	);
+}
+
+export function useTask() {   // сделаем свой хук просто чтобы не ипортировать везде
+                              //   useContext и TaskContext. Вместо этого будет один
+                              //   импорт - useTask
+	const context = useContext(TaskContext);
+	
+	return context;
+}
+```
+
+Всё наше приложение оборачиваем в этот компонент
+```jsx
+import { StrictMode } from "react";
+import { createRoot } from "react-dom/client";
+import "./index.css";
+import App from "./App.jsx";
+import { TaskProvider } from "./TaskProvider.jsx";
+
+createRoot(document.getElementById("root")).render(
+<StrictMode>
+	<TaskProvider>
+		<App />
+	</TaskProvider>
+</StrictMode>
+);
+```
+
+Далее на любом уровне ниже получаем данные из контекста
+```jsx
+// App.jsx
+import { useTask } from "./TaskProvider";
+
+...
+function App() {
+	const { tasks, setTasks } = useTask();  // получаем из нашего хука
+
+	return (
+...
+```
+
 >[!warning] `useContext` не подходит если значение контекста обновляется очень часто, это может привести к повторным рендерам всех компонентов, использующих этот контекст.
+
+###### useReducer
+>[!info] **`useReducer`** — это хук, который позволяет управлять сложным состоянием компонента. Он **похож** на `useState`, но представляет **больше возможностей для организации и управления состоянием**, особенно если изменения состояния зависят от различных типов действий. Ререндер происходит при изменении состояния.
+
+```jsx
+import { useReducer } from "react";
+
+function reducer(state, action) {  // action - это объект, который передала функция dispatch
+	switch (action.type) {
+		case "INCREMENT":
+		return state + 1;
+	case "DECREMENT":
+		return state - 1;
+	case "RESET":
+		return 0;
+	case "incrementBy":
+		return state + action.payload;
+	default:
+		return new Error("Invalid action type");
+	}
+}
+
+function App() {
+	const [count, dispatch] = useReducer(reducer, 0);
+	// count - это текущее состояние
+	// dispatch - просто функция, которая отправляет объект в функцию, 
+	//     которую мы создадим (reducer)
+	// 0 - начальное значение
+
+	return (
+		<div>
+			<p>{count}</p>
+			<button onClick={() => dispatch({ type: "INCREMENT" })}>+</button>
+			<button onClick={() => dispatch({ type: "DECREMENT" })}>-</button>
+			<button onClick={() => dispatch({ type: "RESET" })}>Reset</button>
+			<button onClick={() => dispatch({ type: "incrementBy", payload: 5 })}>+5</button>
+		</div>
+	);
+}
+
+export default App;
+```
+
+Этот же пример, но начальное значение - это объект
+```jsx
+import { useReducer } from "react";
+
+const initialState = { count: 0, inputValue: "" };
+
+function reducer(state, action) {
+	console.log(state);            // { count: 0, inputValue: "" }
+	console.log(action);           // {type: 'incrementBy', payload: 5}
+
+	switch (action.type) {
+		case "INCREMENT":
+			return { ...state, count: state.count + 1 };  // state мутировать нельзя, поэтому
+			                                      //  мы создаём новый объект с нужным значением
+		case "DECREMENT":
+			return { ...state, count: state.count - 1 };
+		case "RESET":
+			return { ...state, count: 0 };
+		case "incrementBy":
+			return { ...state, count: state.count + 5 };
+		default:
+			return new Error("Invalid action type");
+	}
+}
+
+function App() {
+	const [resObj, dispatch] = useReducer(reducer, initialState);
+  
+	return (
+		<div>
+			<p>{resObj.count}</p>
+			<button onClick={() => dispatch({ type: "INCREMENT" })}>+</button>
+			<button onClick={() => dispatch({ type: "DECREMENT" })}>-</button>
+			<button onClick={() => dispatch({ type: "RESET" })}>Reset</button>
+			<button onClick={() => dispatch({ type: "incrementBy", payload: 5 })}>
+				+5
+			</button>
+		</div>
+	);
+}
+
+export default App;
+```
 
 ###### Кастомный хук
 >[!info] Кастомных хук должен использовать хотя бы один стандартный хук (`useState`, `useEffect`, `useRef`, `useContext`, и так далее).  Имя функции кастомного хука начинается с префикса `use`
@@ -1216,6 +1469,157 @@ function Posts() {
 }
 
 export default Posts;
+```
+
+## Redux
+>[!info]  Redux - библиотека, предназначенная для управления состоянием в больших приложениях.
+
+```bash
+npm install @reduxjs/toolkit react-redux
+```
+
+[Redux DevTools](https://chromewebstore.google.com/detail/redux-devtools/lmhkpmbekcpmknklioeibfkpmmfibljd)
+
+Основные концепции Redux
+1. **Store** — единый объект состояния для всего приложения. Он содержит всё состояние приложения.
+2. **Actions** — объекты, которые описывают события или изменения, которые должны произойти в состоянии.
+3. **Reducers** — чистые функции, которые принимают текущее состояние и действие, а затем возвращают новое состояние.
+4. **Dispatch** (отправка действий) — способ отправить действие в хранилище, чтобы редьюсер обработал его и обновил состояние.
+5. **Selectors** — функции, которые извлекают нужные данные из состояния для использования в компонентах.
+
+#### Создаём хранилище
+```js
+// store.js
+import { configureStore } from "@reduxjs/toolkit";
+import userListReducer from "./features/usersList/userListSlice";
+import userDetailsReducer from "./features/usersDetails/userDetailsSlice";
+
+const store = configureStore({
+	reducer: {
+		userList: userListReducer,
+		userDetails: userDetailsReducer,
+	},
+});
+
+export default store;
+```
+
+#### Создание редьюсера и экшенов
+```js
+// userListSlice.js
+import { createSlice } from "@reduxjs/toolkit";
+
+const initailState = {
+	users: [],
+	loading: false,
+	error: null,
+};
+
+// Создаём Slice - это часть состояния Redux
+const userListSlice = createSlice({
+	name: "userList",
+	initialState: initailState,
+	reducers: {
+		addUser(state, action) {
+			state.users.push(action.payload);
+		},
+		deleteUser(state, action) {
+			state.users = state.users.filter((elem) => elem.id !== action.payload);
+		},
+	},
+});
+
+export const { addUser, deleteUser } = userListSlice.actions;
+export default userListSlice.reducer;
+```
+
+#### Работа с асинхронными запросами
+```js
+// userListSlice.js
+import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";  
+  
+const initailState = {  
+    users: [],  
+    loading: false,  
+    error: null,  
+};  
+  
+export const fetchUsers = createAsyncThunk(  
+    "userList/fetchUsers",  
+    async (_, { rejectWithValue }) => {  
+        const res = await fetch("https://jsonplaceholder.typicode.com/users");  
+  
+        if (!res.ok) {  
+	        // Здесь можно просто: throw new Error("Failed to fetch info");
+            return rejectWithValue({  
+                status: res.status,  
+                message: "Failed to fetch users",  
+            });  
+        }  
+        return res.json();  
+    }  
+);  
+  
+const userListSlice = createSlice({  
+    name: "userList",  
+    initialState: initailState,  
+    reducers: {  
+        addUser(state, action) {  
+            state.users.push(action.payload);  
+        },  
+        deleteUser(state, action) {  
+            state.users = state.users.filter((elem) => elem.id !== action.payload);  
+        },  
+    },  
+    extraReducers: (builder) => {  
+        builder.addCase(fetchUsers.pending, (state) => {  
+            state.loading = true;  
+            state.error = null;  
+        });  
+        builder.addCase(fetchUsers.fulfilled, (state, action) => {  
+            state.loading = false;  
+            state.users = action.payload;  
+        });  
+        builder.addCase(fetchUsers.rejected, (state, action) => {  
+            state.loading = false;  
+            state.error = action.payload.message;  
+        });  
+    },  
+});  
+  
+export default userListSlice.reducer;  
+export const { addUser, deleteUser } = userListSlice.actions;
+```
+
+#### Использование в компоненте React
+```jsx
+import { useDispatch, useSelector } from "react-redux";  
+import { fetchUsers } from "./userListSlice";  
+import { useEffect } from "react";  
+  
+function UserList() {  
+    const dispatch = useDispatch();  
+    const { users, loading, error } = useSelector(  
+        (state) => state.userList.users  
+    );  
+  
+    useEffect(() => {  
+        dispatch(fetchUsers());  // запрос к API
+    }, []);
+      
+    if (loading) return <p>Loading</p>;  
+    if (error) return <p>Error</p>;  
+  
+    return (  
+        <ul>  
+            {users.map((user) => (  
+                <li key={user.id}>{user.name}</li>  
+            ))}  
+        </ul>  
+    );  
+}  
+  
+export default UserList;
 ```
 
 #### Маршрутизация(Роутинг)
@@ -1335,6 +1739,16 @@ export default Home;
 Ещё с помощью такой ссылки можно передать объект состояния. Это просто ообъект. Принимается он с помощью хука `useLocation`
 ```jsx
 <Link to="/category/electronics" state={{ from: "Home Page", maxPrice: 600 }}>Cheapest electronics</Link>
+```
+
+Состояние принимается на целевой странице с помощью хука `useLocation`
+```js
+const location = useLocation();
+console.log(location);  // {pathname: '/product/6',
+						//             search: '',
+						//             hash: '', 
+						//             state: {…},
+						//             key: 'tuetbpny'}
 ```
 
 ###### NavLink
@@ -1551,6 +1965,8 @@ export default fetchData;
 
 Создаём элемент, который будет отображаться при ошибке загрузки
 ```jsx
+import { useRouteError } from "react-router-dom";
+
 export function ErrorBoundary() {
   const error = useRouteError();  // хук для получения ошибки
 
@@ -1563,15 +1979,16 @@ export function ErrorBoundary() {
 }
 ```
 
-В родительском элементе (например Layout) получаем состояние с помощью хука `useNavigation` (не путать с `useNavigate`) и отображаем `<p>Loading...</p>` пока состояние `loading`. Это надо делать именно в родительском элементе, поскольку загрузка начнётся ещё до рендеринга страницы `Posts`.
+В родительском элементе (например Layout) получаем *состояние* с помощью хука `useNavigation` (не путать с `useNavigate`) и отображаем `<p>Loading...</p>` пока состояние `loading`. Это надо делать именно в родительском элементе, поскольку загрузка начнётся ещё до рендеринга страницы `Posts`.
 ```jsx
 import Header from "./Header";
 import Footer from "./Footer";
 import { Outlet, useNavigation } from "react-router-dom";
 
 function Layout() {
-  const navigation = useNavigation();
-
+  const navigation = useNavigation();  // Возвращает объект, который указывает на текущее
+                                       //   состояние (state) и может принимать значения:
+                                       //   idle, loading или submitting
   return (
     <>
       <Header />
@@ -1597,7 +2014,8 @@ const router = createBrowserRouter([
       { path: "", element: <Home /> },
       { path: "posts",
         element: <Posts />,
-        loader: fetchData,                  // наша функция загрузки
+        loader: fetchData,                  // наша функция загрузки срабатывает до
+                                            //    рендера компонента <Posts />
         errorElement: <ErrorBoundary />     // элемент для отображения ошибки 
       },  
       { path: "*", element: <NotFound /> },
@@ -1612,7 +2030,7 @@ const router = createBrowserRouter([
 import { useLoaderData } from "react-router-dom";
 
 function Posts() {
-  const posts = useLoaderData();
+  const posts = useLoaderData();   // специальный хук react-router-dom для получения
 
   return (
     <div>
@@ -1687,7 +2105,7 @@ export default CreatePost;
 ```jsx
 // Функция action получает объект, содержащий request и params
 const createPost = async ({ request }) => {
-  const formData = await request.formData();
+  const formData = await request.formData();  // извлекаем данные тела запроса
   const title = formData.get("title");
   
   const response = await fetch("https://jsonplaceholder.typicode.com/posts", {

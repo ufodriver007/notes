@@ -60,3 +60,5 @@ QUERY[GET]
 MUSTATION[POST]
 
 SUBSCRIPTION[real time]
+
+https://itproger.com/course/graphql

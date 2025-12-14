@@ -74,21 +74,7 @@ npm dedup                # убиает дубликаты
 npm list -g --depth=0    # список глобальных зависимостей
 ```
 
-###### Создаём react-приложение с помощью create-react-app
->[!info] Код react-приложения с помощью `create-react-app` и `node js` конвертируется в обычный JavaScript, который уже потом скармливается браузеру.
-
-```bash
-npx create-react-app@5.0.1 my-app              
-```
-```bash
-cd my-app
-```
-```bash
-npm run start
-```
-Затем в браузере откройте [http://localhost:3000/](http://localhost:3000/)
-
-###### Создаём react-приложение с помощью Vite
+###### Создаём react-приложение с помощью Vite (сборщик)
 [Документация](https://vite.dev/guide/)
 [Использование вместе с React](https://www.dev-notes.ru/articles/react/guide-to-using-vite-with-react/)
 >[!info]  Это современный инструмент для сборки фронтенд-проектов, который делает разработку быстрее и удобнее. Предназначен для работы с современными JavaScript-фреймворками, такими как Vue, React, Svelte и др.
@@ -227,6 +213,21 @@ export default defineConfig({
 Импортируем Tailwind CSS в `index.css`
 ```css
 @import "tailwindcss";
+```
+
+Убедитесь, что файл CSS подключен в html странице
+```html
+<!doctype html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link href="/src/style.css" rel="stylesheet">
+</head>
+<body>
+
+</body>
+</html>
 ```
 
 Начнаем процесс сборки
@@ -411,6 +412,16 @@ export default NavLinkMenu;
 </span>
 ```
 
+**Блок по центру экрана**
+```jsx
+<div className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-blue-500 w-32 h-32">
+  Центр экрана
+</div>
+```
+- `fixed` — позиционирует элемент относительно **окна браузера** (экрана), а не родителя.
+- `top-1/2 left-1/2` — верхний левый угол элемента ставится в середину экрана.
+- `-translate-x-1/2 -translate-y-1/2` — сдвигает элемент на половину его ширины и высоты, чтобы центр совпал с центром экрана.
+
 #### JSX
 >[!info] JSX — расширение языка JavaScript. Позволяет использовать синтаксис HTML внутри вашего кода JavaScript.
 
@@ -566,6 +577,8 @@ return (
 >[!info] Имя компонента в React (который является обычной функцией в JS) пишется с большой буквы, чтобы React понимал, что это преобразуется в пользовательский тэг, а тэгт с маленькой буквы - это стандартные HTML тэги.
 
 >[!info] Желательно не делать компоненты гигантскими. Ориентир - 100 строк кода.
+
+>[!info] При ререндере **родительского** компонента, все **дочерние тоже запускают ререндер**!
 
 - Создаём файл `MyComponent.jsx` с функцией и нужными импортами. В конце файла добавляем
 ```jsx
@@ -748,41 +761,6 @@ export function DangerButton({ isDisabled = false, children }) {
         </button>
     );
 }
-```
-
-#### Memo
->[!info] `React.memo`  предотвращает повторный ререндер **компонента** при тех же пропсах. Если пропс — объект, массив или функция, они будут меняться при каждом рендере, если не стабилизированы через `useMemo` или `useCallback`.
-
-Пример, где при повторном рендере родительского компонента **дочерний компонент** (к примеру очень дорогой по ресурсам) **НЕ ререндерится**.
-```jsx
-import { useState, useMemo } from "react";
-
-function Parent() {
-  const [count, setCount] = useState(0);
-
-  // useMemo кэширует значение если аргументы не изменились
-  const user = useMemo(() => ({ name: "Alice" }), []);
-
-  return (
-    <div>
-      <button onClick={() => setCount(count + 1)}>
-        Increment: {count}
-      </button>
-
-      <UserInfo user={user} />
-    </div>
-  );
-}
-
-// memo предотвращает рендер компонента если пропсы не изменились
-const UserInfo = React.memo(function UserInfo({ user }) {
-  // Здесь например загрузка огромного кол-ва информации пользователя
-  console.log("UserInfo rendered");
-  return <div>User: {user.name}</div>;
-});
-
-export default Parent;
-
 ```
 
 #### Формы
@@ -1080,83 +1058,6 @@ functiom App() {
   );
 }
 ```
-
-###### useMemo
-Используется для оптимизации производительности компонента, позволяя мемоизировать вычисленные значения. Это полезно, если вычисление значений требует значительных ресурсов или времени
-
-`useMemo` запоминает результат вычислений до тех пор, **пока не изменятся зависимости**, указанные в массиве зависимостей. Если зависимости не изменились, то возвращается мемоизированное значение из предыдущего рендера.
-
-```jsx
-const memoizedValue = useMemo(() => computeExpensiveValue(a, b), [a, b]);
-
-// computeExpensiveValue функция, возвращающая значение, которое нужно мемоизировать.
-// [a, b] массив зависимостей. Когда их значения меняются, функция
-// computeExpensiveValue вызывается заново.
-```
-
-Пример мемоизации
-```jsx
-import React, { useState, useMemo } from "react";
-
-function ExpensiveComputationComponent() {
-  const [count, setCount] = useState(0);
-  const [otherState, setOtherState] = useState(0);
-
-  // "Тяжелое" вычисление
-  const computeExpensiveValue = (num) => {
-    console.log("Выполняется тяжелое вычисление...");
-    for (let i = 0; i < 1000000000; i++) {}
-    return num * 2;
-  };
-
-  // Мемоизация результата
-  const memoizedValue = useMemo(() => computeExpensiveValue(count), [count]);
-
-  return (
-    <div>
-      <h1>Тяжелое значение: {memoizedValue}</h1>
-      <button onClick={() => setCount(count + 1)}>Увеличить счетчик</button>
-      <button onClick={() => setOtherState(otherState + 1)}>
-        Изменить другое состояние
-      </button>
-    </div>
-  );
-}
-
-export default ExpensiveComputationComponent;
-```
-
-- Функция `computeExpensiveValue` вызывается только тогда, когда `count` изменяется.
-- При изменении `otherState` функция **не выполняется повторно**, так как `otherState` не включен в зависимости.
-
->[!warning] Когда **не нужно** использовать `useMemo`:
-> 1.  Если вычисления легковесные — использование `useMemo` не оправдано.
-2. Если мемоизация усложняет читаемость кода.
-3. Если оптимизация не имеет заметного эффекта (профилируйте перед использованием).
-
-###### useCallback
->[!info] Callback — это функция, переданная другой функции, которая вызывается позже.
-
-**`useCallback`** — это хук в React, который возвращает **мемоизированную** версию функции. Он предотвращает создание новой функции при каждом рендере компонента, что может быть полезно для оптимизации производительности, особенно при передаче функций дочерним компонентам или при работе с `useEffect`.
-```jsx
-const memoizedCallback = useCallback(
-	() => {
-	                 // Ваш код функции   
-	},
-	[dependencies]   // Зависимости
-);
-```
-
-- **Первый аргумент**: функция, которая будет запоминаться.
-- **Второй аргумент**: массив зависимостей, определяющий, когда нужно пересоздать функцию.
-
-Если массив зависимостей пуст (`[]`), функция будет создаваться только один раз — при первом рендере.
-
-`useCallback` полезен в следующих случаях:
-
-1. **Передача функции в дочерний компонент**: Если дочерний компонент оптимизирован с помощью `React.memo`, передача новой функции при каждом рендере может нарушить мемоизацию. Хук `useCallback` предотвращает это, создавая одну и ту же функцию между рендерами, если зависимости не изменились.
-    
-2. **Использование функций в зависимости от `useEffect` или других хуков**:`useCallback` позволяет избежать повторного создания функции, что может вызывать ненужные эффекты.
 
 ###### useContext
 **`useContext`** — это хук, который позволяет получать доступ к значениям из контекста без необходимости оборачивать компоненты в `Consumer`. В отличии от глобальных переменных хук автоматически рендерит при изменении состояния(реактивность).
@@ -1471,6 +1372,165 @@ function Posts() {
 export default Posts;
 ```
 
+#### Оптимизация
+###### Memo (Мемоизация примитивов)
+>[!info] `React.memo`  предотвращает повторный ререндер **компонента** при тех же пропсах. Если пропс — объект, массив или функция, они будут меняться при каждом рендере, если не стабилизированы через `useMemo` или `useCallback`. Не работает с объектами (объекты изменяются, но ссылка на них нет, поэтому и пропсы не меняются => `memo` не ререндерит изменёёный объект).
+
+Пример, где при повторном рендере родительского компонента **дочерний компонент** (к примеру очень дорогой по ресурсам) **НЕ ререндерится**.
+```jsx
+import { useState, useMemo } from "react";
+
+function Parent() {
+  const [count, setCount] = useState(0);
+
+  // useMemo кэширует значение если аргументы не изменились
+  const user = useMemo(() => ({ name: "Alice" }), []);
+
+  return (
+    <div>
+      <button onClick={() => setCount(count + 1)}>
+        Increment: {count}
+      </button>
+
+      <UserInfo user={user} />
+    </div>
+  );
+}
+
+// memo предотвращает рендер компонента если пропсы не изменились
+const UserInfo = React.memo(function UserInfo({ user }) {
+  // Здесь например загрузка огромного кол-ва информации пользователя
+  console.log("UserInfo rendered");
+  return <div>User: {user.name}</div>;
+});
+
+export default Parent;
+
+```
+
+###### useMemo (Мемоизация объектов)
+Используется для оптимизации производительности компонента, позволяя мемоизировать вычисленные значения. Это полезно, если вычисление значений требует значительных ресурсов или времени
+
+`useMemo` запоминает результат вычислений до тех пор, **пока не изменятся зависимости**, указанные в массиве зависимостей. Если зависимости не изменились, то возвращается мемоизированное значение из предыдущего рендера.  Работает с объектами.
+
+```jsx
+const memoizedValue = useMemo(() => computeExpensiveValue(a, b), [a, b]);
+
+// computeExpensiveValue функция, возвращающая значение, которое нужно мемоизировать.
+// [a, b] массив зависимостей. Когда их значения меняются, функция
+// computeExpensiveValue вызывается заново.
+```
+
+Пример мемоизации
+```jsx
+import React, { useState, useMemo } from "react";
+
+function ExpensiveComputationComponent() {
+  const [count, setCount] = useState(0);
+  const [otherState, setOtherState] = useState(0);
+
+  // "Тяжелое" вычисление
+  const computeExpensiveValue = (num) => {
+    console.log("Выполняется тяжелое вычисление...");
+    for (let i = 0; i < 1000000000; i++) {}
+    return num * 2;
+  };
+
+  // Мемоизация результата
+  const memoizedValue = useMemo(() => computeExpensiveValue(count), [count]);
+
+  return (
+    <div>
+      <h1>Тяжелое значение: {memoizedValue}</h1>
+      <button onClick={() => setCount(count + 1)}>Увеличить счетчик</button>
+      <button onClick={() => setOtherState(otherState + 1)}>
+        Изменить другое состояние
+      </button>
+    </div>
+  );
+}
+
+export default ExpensiveComputationComponent;
+```
+
+- Функция `computeExpensiveValue` вызывается только тогда, когда `count` изменяется.
+- При изменении `otherState` функция **не выполняется повторно**, так как `otherState` не включен в зависимости.
+
+>[!warning] Когда **не нужно** использовать `useMemo`:
+> 1.  Если вычисления легковесные — использование `useMemo` не оправдано.
+2. Если мемоизация усложняет читаемость кода.
+3. Если оптимизация не имеет заметного эффекта (профилируйте перед использованием).
+
+###### useCallback (Мемоизация функций)
+>[!info] Callback — это функция, переданная другой функции, которая вызывается позже.
+
+**`useCallback`** — это хук в React, который возвращает **мемоизированную** версию функции. Он предотвращает создание новой функции при каждом рендере компонента, что может быть полезно для оптимизации производительности, особенно при передаче функций дочерним компонентам или при работе с `useEffect`.
+```jsx
+const memoizedCallback = useCallback(
+	() => {
+	                 // Ваш код функции   
+	},
+	[dependencies]   // Зависимости
+);
+```
+
+- **Первый аргумент**: функция, которая будет запоминаться.
+- **Второй аргумент**: массив зависимостей, определяющий, когда нужно пересоздать функцию.
+
+Если массив зависимостей пуст (`[]`), функция будет создаваться только один раз — при первом рендере.
+
+`useCallback` полезен в следующих случаях:
+
+1. **Передача функции в дочерний компонент**: Если дочерний компонент оптимизирован с помощью `React.memo`, передача новой функции при каждом рендере может нарушить мемоизацию. Хук `useCallback` предотвращает это, создавая одну и ту же функцию между рендерами, если зависимости не изменились.
+    
+2. **Использование функций в зависимости от `useEffect` или других хуков**:`useCallback` позволяет избежать повторного создания функции, что может вызывать ненужные эффекты.
+
+###### Ленивая загрузка компонентов
+>[!info] Ленивые компоненты загружаются только в тот момент, когда к нему обращаются.
+
+```jsx
+import { createBrowserRouter, RouterProvider } from "react-router-dom";
+import { lazy } from "react";  // функция для ленивой подгрузки
+import { Suspense } from "react";  // компонент в который можно оборачивать ленивые компоненты
+
+const Home = lazy(() => import("./Home.jsx"));  // компонент с ленивой загрузкой
+const About = lazy(() => import("./About.jsx"));
+const NotFound = lazy(() => import("./NotFound.jsx"));
+const Header = lazy(() => import("../components/Header"));
+const Footer = lazy(() => import("../components/Footer"));
+
+// createBrowserRouter принимает массив объектов, каждый
+//   объект - это страница
+const router = createBrowserRouter([
+  {
+    path: "/",
+    element: <Home />,
+  },
+  {
+    path: "about",  // Здесь не надо использовать абсолютный путь
+    // Оборачиваем ленивый компонент в <Suspense> для отображения кастомного контента,
+    //    пока он подгружается (Для key нужнен уникальный идентификатор).
+    element: (<Suspense key={"About"} fallback={<p>Loading component...</p>}>
+			    <About />
+			  </Suspense>),
+  },
+  {
+    path: "*",
+    element: (<>
+			    <Header />
+			    <NotFound />
+			    <Footer />
+			  </>),               // так можно возвращать несколько компонентов сразу
+  },
+]);
+
+// теперь App возвращает компонент RouterProvider
+export default function App() {
+  return <RouterProvider router={router} />;
+}
+```
+
+
 ## Redux
 >[!info]  Redux - библиотека, предназначенная для управления состоянием в больших приложениях.
 
@@ -1496,6 +1556,7 @@ import userDetailsReducer from "./features/usersDetails/userDetailsSlice";
 
 const store = configureStore({
 	reducer: {
+		// перечисление всех редьюсеров
 		userList: userListReducer,
 		userDetails: userDetailsReducer,
 	},
@@ -1520,7 +1581,10 @@ const userListSlice = createSlice({
 	name: "userList",
 	initialState: initailState,
 	reducers: {
+		// Здесь мы описывакм редьюсеры (функции, работающие с состоянием)
 		addUser(state, action) {
+			// state - это текущее состояние
+			// action - это то что приходит в редьюсер, dispatch(addUser({id: 123}))
 			state.users.push(action.payload);
 		},
 		deleteUser(state, action) {
@@ -1594,7 +1658,7 @@ export const { addUser, deleteUser } = userListSlice.actions;
 #### Использование в компоненте React
 ```jsx
 import { useDispatch, useSelector } from "react-redux";  
-import { fetchUsers } from "./userListSlice";  
+import { fetchUsers, clearState } from "./userListSlice";  
 import { useEffect } from "react";  
   
 function UserList() {  
@@ -1611,11 +1675,18 @@ function UserList() {
     if (error) return <p>Error</p>;  
   
     return (  
-        <ul>  
-            {users.map((user) => (  
-                <li key={user.id}>{user.name}</li>  
-            ))}  
-        </ul>  
+	    <>
+	        <ul>  
+	            {users.map((user) => (  
+	                <li key={user.id}>{user.name}</li>  
+	            ))}  
+	        </ul>
+	        // dispatch - способ отправить действие в хранилище, чтобы редьюсер обработал
+	        //    его и обновил состояние
+	        <button className="clear-btn" onClick={() => dispatch(clearState())}>
+				Clear state
+			</button>
+		</>
     );  
 }  
   
@@ -1715,6 +1786,48 @@ const router = createBrowserRouter([
 export default function App() {
   return <RouterProvider router={router} />;
 }
+```
+
+Пример роутера с Layout
+```jsx
+const router = createBrowserRouter([
+	{
+		path: "/",
+		element: <Layout />,
+		children: [
+			{ index: true, element: <Home /> },
+			{ path: "old-home", element: <Navigate to={"/"} /> },
+			{ path: "about", element: <About /> },
+			{ path: "cart", element: <Cart /> },
+			{ path: "thanks", element: <Thanks /> },
+			{ path: "category/:categoryId", element: <Category /> },
+			{ path: "product/:productId", element: <ProductDetails /> },
+			{ path: "*", element: <NotFound /> },
+			// { path: "*", element: <Navigate to="/" /> },
+		],
+	},
+]);
+```
+
+Пример Layout
+```jsx
+import { Outlet } from "react-router-dom";
+import Header from "./Header";
+import Footer from "./Footer";
+
+function Layout() {
+	return (
+		<>
+			<Header />
+			<main>
+				<Outlet />
+			</main>
+			<Footer />
+		</>
+	);
+}
+
+export default Layout;
 ```
 
 ###### Link
@@ -2156,6 +2269,14 @@ async function getData() {
 `useContext` - для средних приложений
 `Redux` - для больших приложений
 
+|Сценарий|Инструмент|
+|---|---|
+|Локальное состояние компонента|`useState`|
+|Связанные состояния внутри одного модуля|`useReducer`|
+|Простая передача данных через дерево|`useContext` (без частых обновлений)|
+|Глобальная логика, бизнес-процессы, сложная стейт-маппинг|`Redux Toolkit` или `Zustand`|
+|Данные с сервера, кеширование, синхронизация, refetch|`React Query`|
+
 ## Деплой
 Все изображения помещаем во внутренюю директорию в `src` (например `images`) . А также импортируем их. Таким образом сборщик `Vite` создат хэши изображений (данные в директории `public` сборщик игнорирует). 
 Зачем нужен хэш?  Если обновить изображение, но оставить имя файла прежним, браузер может продолжать использовать старую версию из кэша.
@@ -2175,6 +2296,11 @@ export const categories = [
 npm run build
 ```
 
+- Создаёт оптимизированный бандл
+- Минифицирует код
+- Оптимизирует загрузку
+- Создаёт директорию `dist`
+- Оптимизирует статические ресурсы
 
 
 ## React Bootstrap

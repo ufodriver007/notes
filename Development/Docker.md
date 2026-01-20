@@ -9,6 +9,47 @@ sudo apt install docker*          # (из репозитория Linux Mint)
 sudo apt autoremove docker* --purge
 ```
 
+#### Установка Docker + Compose v2
+Удаляем старый docker-compose (если есть)
+```bash
+sudo apt remove docker-compose
+```
+
+Установливаем официальный Docker репозиторий, спользуем **ubuntu repo**
+```bash
+sudo apt update
+sudo apt install ca-certificates curl gnupg
+```
+
+Добавляем ключ
+```bash
+sudo install -m 0755 -d /etc/apt/keyrings
+curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /etc/apt/keyrings/docker.gpg
+sudo chmod a+r /etc/apt/keyrings/docker.gpg
+```
+
+Добавляем репозиторий (для Mint 21 / Ubuntu 22.04):
+```bash
+echo \
+  "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] \
+  https://download.docker.com/linux/ubuntu jammy stable" | \
+  sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
+```
+
+Установливаем Docker + Compose v2
+```bash
+sudo apt update
+sudo apt install docker-ce docker-ce-cli containerd.io docker-compose-plugin
+```
+
+Проверяем
+```bash
+docker --version
+docker compose version
+```
+
+Теперь правильно будет использовать `docker compose up --build` (без дефиса)
+
 >[!info] Регистр - место хранения образов(например DockerHub)
 
 >[!info] Образ — это неизменяемый шаблон, который содержит все необходимые файлы, библиотеки и настройки для запуска приложения. Это своего рода "чертеж" для создания контейнера. Это описание того что должно быть установлено, инструкции для настройки окружения(готовые решения). Их нельзя изменять. Например образы python3.11, nginx, ubuntu. Запустить образ без контейнера невозможно(он может создастся автоматически)

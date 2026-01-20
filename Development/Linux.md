@@ -424,7 +424,7 @@ cat file.part.* > file.mkv
 |------------|------------------|
 |`dd if=/dev/sdb of=drive.img `|Скопировать поблочно весь раздел `sdb` в файл `drive.img`
 |`dd if=~/linux.iso of=/dev/sdc bs=5M`|Записать образ на флешку(sdc), блоками по 5 МБ
-|`dd if=/dev/zero of=/dev/sdb`|Забить нулями устройство `sdb`(чтобы не воостановили данные)
+|`dd if=/dev/zero of=/dev/sdb`|Забить нулями устройство `sdb`(чтобы не восстановили данные)
 |`dd if=/dev/sda of=mbr.img bs=512 count=1`|Скопировать одним куском первые 512 байт(MBR)
 |`dd if=mbr.img of=/dev/sda `|Восстановить MBR из образа
 |`dd if=/dev/zero of=image bs=1M count=1000`|Генерирует файл из нулей размером 1 ГБ

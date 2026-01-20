@@ -2825,3 +2825,124 @@ SSE с его однонаправленным подключением лучш
 |Переподключение|Требует ручной реализации|Автоматическое (встроено в SSE протокол)|
 |Совместимость|Возможны проблемы с прокси и корпоративными сетями|Хорошая совместимость, работает поверх HTTP|
 |Требования к реализации|Более сложная реализация, нужен протокол WebSocket|Простая реализация поверх стандартного HTTP|
+
+## Увеличение RPS (Rate-per-second)
+>[!info] Для начала нужно провести нагрузочное тестирование. [[Тестирование#Нагрузочное тестирование]]
+
+1. Запустить **несколько worker-процессов** Uvicorn / Gunicorn. 
+>Для начала можно отталкиваться от количества ядер процессора. Используйте `nproc` . Кол-во ядер = кол-во воркеров. Далее понеммногу поднимайте кол--во воркеров и смотрите - растёт ли RPS/не растёт ли latency/не начинается ли thrashing CPU. Обычно оптимум: **1–1.5 × CPU**
+
+```bash
+uvicorn app:app --workers 4
+```
+- один event loop ≠ весь CPU
+- каждый worker:
+    - свой event loop
+    - свой пул соединений
+    - свои сокеты
+    
+2. Если есть `httpx` - поднять лимиты
+```python
+limits = httpx.Limits(
+    max_connections=2000,
+    max_keepalive_connections=500,
+)
+
+client = httpx.AsyncClient(
+    limits=limits,
+    timeout=httpx.Timeout(10.0),
+)
+```
+
+3. Повышение OS-лимитов
+```bash
+ulimit -n  # Если < 4096 — вы упрётесь в file descriptors
+```
+
+Ставим
+```bash
+ulimit -n 10000
+```
+
+4. Кэширование запросов
+5. Переход на другую технологию
+
+#### Кэширование запросов
+```bash
+pip install redis
+```
+
+Инициализация Redis-клиента (один раз)
+```python
+# Лучше создавать клиент на старте приложения, а не в обработчике запроса
+import redis.asyncio as redis
+
+redis_client = redis.Redis(
+    host="localhost",
+    port=6379,
+    db=0,
+    decode_responses=True,  # строки вместо bytes
+)
+```
+
+Функции работы с кэшем
+```python
+import json  
+import hashlib  
+from main import redis_client
+
+CACHE_TTL = 60  # секунды
+
+def make_cache_key(query: str, limit: int) -> str:
+    raw = f"mailru:search:{query}:{limit}"
+    digest = hashlib.sha256(raw.encode()).hexdigest()
+    return f"search:{digest}"
+
+async def cache_get(key: str) -> list[dict] | None:
+    data = await redis_client.get(key)
+    if not data:
+        return None
+    return json.loads(data)
+
+async def cache_set(key: str, value: list[dict]) -> None:
+    await redis_client.set(
+        key,
+        json.dumps(value, ensure_ascii=False),
+        ex=CACHE_TTL,
+    )
+```
+
+Использование в эндпоинте
+```python
+from fastapi import FastAPI
+
+app = FastAPI()
+
+@app.get("/search")
+async def search(query: str, limit: int = 50):
+    key = make_cache_key(query, limit)
+
+    cached = await cache_get(key)
+    if cached is not None:
+        return {
+            "source": "cache",
+            "items": cached,
+        }
+
+    items = await mail_ru_search(query, limit)
+    # не блокируем ответ, если Redis вдруг упал
+    try:
+        await cache_set(key, items)
+    except Exception:
+        pass
+
+    return {
+        "source": "origin",
+        "items": items,
+    }
+```
+
+Этот подход:
+- увеличивает RPS **кратно**
+- минимален по сложности
+- легко расширяется до production

@@ -95,6 +95,14 @@ npm run dev
 npm run build
 ```
 
+###### Если используем TypeScript
+1. Устанавливаем DEV зависимости
+```bash
+npm install -D typescript @types/react @types/react-dom
+```
+2. Переименовываем файлы с `.js`/`.jsx` на `.ts`/`.tsx`.
+3. Запускаем `npm run dev`
+
 #### React Dev Tools
 [Ссылка для Chrome](https://chromewebstore.google.com/detail/react-developer-tools/fmkadmapgofadopljbjfkapdkoienihi)
 После установки расширения браузера на сайте с React в инструментах разработчика появятся 2 дополнительные вкладки

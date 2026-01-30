@@ -5,6 +5,7 @@
 [Сайт разработчиков](https://go.dev/)
 [Документация](https://go.dev/doc/)
 [GO Playground](https://go.dev/play/)
+[Metanit](https://metanit.com/go/)
 
 [Установка](https://go.dev/doc/install)
 

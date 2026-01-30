@@ -1,4 +1,7 @@
 ![[asset_upload_file97293_255583.webp|300]]
+
+[UI клиент](https://github.com/sourcegit-scm/sourcegit)
+
 >[!info] Файлы в Git могут быть
 > 1. Неотслеживаемыми
 >     - Игнорируемые

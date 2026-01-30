@@ -11,6 +11,7 @@
 [Справочник JS (Doka)](https://doka.guide/js/)
 [Справочник JS (learn.javascript)](https://learn.javascript.ru/)
 
+[[TypeScript]]
 #### Use strict
 >[!info] Использование *use strict* настоятельно рекомендуется.
 ```js
@@ -855,7 +856,7 @@ calculator.display();   // Result: 9
 
 Куда указывает `this`
 
-|---|Куда указывает|
+|Где происходит|Куда указывает|
 |---|---|
 |метод|На объект этого метода|
 |function|`undefined`|
